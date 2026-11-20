@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lernkartei · Netzwerk neu A1</title>
+<style>
+  :root{
+    --bg:#1e3a2c;
+    --bg-2:#173025;
+    --card:#efe2c3;
+    --card-2:#e6d6ac;
+    --ink:#2b2118;
+    --ink-soft:#5b4c38;
+    --rule:#9db2c9;
+    --brass:#d9b25f;
+    --brass-dim:#a9863f;
+    --red:#b5433a;
+    --blue:#31589c;
+    --green:#3e7a52;
+    --paper-shadow: 0 18px 40px rgba(0,0,0,0.35), 0 3px 8px rgba(0,0,0,0.25);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at 20% -10%, #26483650 0%, transparent 60%),
+      radial-gradient(ellipse at 100% 110%, #0e1f1650 0%, transparent 55%),
+      var(--bg);
+    color:var(--card);
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  .stamp{
+    font-family: "Courier New", ui-monospace, SFMono-Regular, monospace;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+  }
+  header{
+    padding: 22px 28px 14px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    border-bottom: 1px solid #ffffff14;
+  }
+  header h1{
+    margin:0;
+    font-size: 1.05rem;
+    font-weight:700;
+    color:var(--brass);
+  }
+  header .sub{
+    font-family: Georgia, serif;
+    color:#cfe0d3aa;
+    font-size:0.85rem;
+    margin-top:2px;
+  }
+  .dir-toggle{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:"Courier New", monospace;
+    font-size:0.78rem;
+  }
+  .dir-toggle button{
+    background:#00000030;
+    border:1px solid #ffffff30;
+    color:#e9ecdf;
+    padding:7px 12px;
+    border-radius:3px;
+    cursor:pointer;
+    font-family:inherit;
+    letter-spacing:0.06em;
+  }
+  .dir-toggle button.active{
+    background:var(--brass);
+    color:#20301f;
+    border-color:var(--brass);
+    font-weight:700;
+  }
+  .layout{
+    flex:1;
+    display:grid;
+    grid-template-columns: 250px 1fr;
+    gap:0;
+    min-height:0;
+  }
+  /* ---- Sidebar: box of divider tabs ---- */
+  nav.kasten{
+    padding: 16px 10px 24px 18px;
+    overflow-y:auto;
+    border-right:1px solid #ffffff14;
+  }
+  nav.kasten .kasten-label{
+    font-family:"Courier New", monospace;
+    font-size:0.68rem;
+    letter-spacing:0.18em;
+    color:#cfe0d380;
+    text-transform:uppercase;
+    margin: 4px 0 10px 4px;
+  }
+  .tab{
+    position:relative;
+    display:block;
+    width:100%;
+    text-align:left;
+    background: linear-gradient(180deg, var(--card), var(--card-2));
+    color:var(--ink);
+    border:none;
+    border-radius: 4px 10px 10px 4px;
+    padding: 9px 12px 9px 16px;
+    margin-bottom:7px;
+    cursor:pointer;
+    font-family: Georgia, serif;
+    font-size:0.83rem;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.18);
+    transform: translateX(0);
+    transition: transform .12s ease;
+  }
+  .tab:hover{ transform: translateX(3px); }
+  .tab.active{
+    background: linear-gradient(180deg, var(--brass), var(--brass-dim));
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.3), 0 0 0 2px #ffffff30 inset;
+  }
+  .tab .n{
+    font-weight:700;
+  }
+  .tab .meta{
+    display:block;
+    font-family:"Courier New", monospace;
+    font-size:0.66rem;
+    letter-spacing:0.04em;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .tab .due-badge{
+    position:absolute;
+    top:6px;
+    right:8px;
+    background:var(--red);
+    color:#fdf3e6;
+    font-family:"Courier New", monospace;
+    font-size:0.66rem;
+    font-weight:700;
+    padding:1px 6px;
+    border-radius:8px;
+  }
+  .all-tab{
+    margin-bottom:16px;
+  }
+
+  /* ---- Main study area ---- */
+  main{
+    padding: 28px 30px 40px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    overflow-y:auto;
+  }
+  .stats-row{
+    display:flex;
+    gap:22px;
+    font-family:"Courier New", monospace;
+    font-size:0.72rem;
+    letter-spacing:0.06em;
+    color:#d9e5db;
+    margin-bottom:20px;
+    text-transform:uppercase;
+  }
+  .stats-row b{ color:var(--brass); font-size:0.9rem; }
+
+  .stage{
+    width:100%;
+    max-width:560px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .card-wrap{
+    width:100%;
+    perspective: 1400px;
+    margin-bottom:22px;
+  }
+  .index-card{
+    position:relative;
+    width:100%;
+    min-height: 260px;
+    background:
+      repeating-linear-gradient(var(--card) 0px, var(--card) 33px, var(--rule) 34px, var(--card) 35px),
+      var(--card);
+    border-radius:8px;
+    box-shadow: var(--paper-shadow);
+    padding: 26px 26px 20px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    cursor:pointer;
+    transform: rotate(-0.6deg);
+    transition: transform .15s ease;
+  }
+  .index-card:hover{ transform: rotate(0deg) translateY(-2px); }
+  .index-card::before{
+    content:"";
+    position:absolute;
+    left:52px; top:0; bottom:0;
+    width:1px;
+    background: #c0453f55;
+  }
+  .punch{
+    position:absolute;
+    top:16px; left:20px;
+    width:14px; height:14px;
+    border-radius:50%;
+    background: var(--bg-2);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+  }
+  .card-tag{
+    position:absolute;
+    top:14px; right:18px;
+    font-family:"Courier New", monospace;
+    font-size:0.62rem;
+    letter-spacing:0.08em;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+  }
+  .headword{
+    color:var(--ink);
+    font-size:1.9rem;
+    font-weight:700;
+    line-height:1.25;
+    word-break:break-word;
+  }
+  .subword{
+    margin-top:16px;
+    padding-top:16px;
+    border-top: 1px dashed #8a765455;
+    color:#3a4a34;
+    font-size:1.35rem;
+    font-weight:600;
+    width:100%;
+  }
+  .hint{
+    margin-top:18px;
+    font-family:"Courier New", monospace;
+    font-size:0.68rem;
+    letter-spacing:0.08em;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+  }
+
+  .rate-row{
+    display:flex;
+    gap:10px;
+    width:100%;
+  }
+  .rate-row button{
+    flex:1;
+    padding: 13px 8px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+    font-family:"Courier New", monospace;
+    font-weight:700;
+    font-size:0.78rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:#fdf6e8;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+  }
+  .rate-row button:active{ transform: translateY(2px); box-shadow:none; }
+  .rate-row .again{ background:var(--red); }
+  .rate-row .good{ background:var(--blue); }
+  .rate-row .easy{ background:var(--green); }
+  .flip-btn{
+    padding:13px 24px;
+    border-radius:6px;
+    border:none;
+    background:var(--brass);
+    color:#20301f;
+    font-family:"Courier New", monospace;
+    font-weight:700;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    font-size:0.8rem;
+    cursor:pointer;
+    box-shadow: 0 3px 0 var(--brass-dim);
+  }
+  .flip-btn:active{ transform:translateY(2px); box-shadow:none; }
+
+  .leitner-track{
+    display:flex;
+    gap:8px;
+    margin-top:26px;
+  }
+  .box-icon{
+    width:34px; height:26px;
+    border:2px solid #ffffff30;
+    border-radius:3px 3px 6px 6px;
+    position:relative;
+    font-family:"Courier New", monospace;
+    font-size:0.6rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#cfe0d380;
+  }
+  .box-icon.filled{
+    border-color:var(--brass);
+    color:var(--brass);
+    background:#d9b25f18;
+  }
+
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:#d9e5dbcc;
+  }
+  .empty-state .big{
+    font-family:"Courier New", monospace;
+    font-size:1.1rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--brass);
+    margin-bottom:10px;
+  }
+
+  .toolbar{
+    display:flex;
+    gap:10px;
+    margin-top:26px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .toolbar button{
+    background:transparent;
+    border:1px solid #ffffff30;
+    color:#d9e5db;
+    padding:7px 13px;
+    border-radius:4px;
+    font-family:"Courier New", monospace;
+    font-size:0.7rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  .toolbar button:hover{ border-color:var(--brass); color:var(--brass); }
+
+  .browse-list{
+    width:100%;
+    max-width:640px;
+    display:none;
+    flex-direction:column;
+    gap:6px;
+  }
+  .browse-list.show{ display:flex; }
+  .stage.browsing .card-wrap, .stage.browsing .rate-row, .stage.browsing .flip-btn, .stage.browsing .leitner-track{
+    display:none;
+  }
+  .browse-row{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    background:#ffffff0a;
+    border:1px solid #ffffff14;
+    border-radius:5px;
+    padding:9px 14px;
+    font-size:0.9rem;
+  }
+  .browse-row .de{ color:var(--brass); font-weight:700; }
+  .browse-row .en{ color:#d9e5db; text-align:right; }
+
+  .note{
+    font-family:"Courier New", monospace;
+    font-size:0.65rem;
+    color:#cfe0d366;
+    margin-top:30px;
+    text-align:center;
+    max-width:480px;
+    letter-spacing:0.03em;
+  }
+
+  @media (max-width: 760px){
+    .layout{ grid-template-columns: 1fr; }
+    nav.kasten{ border-right:none; border-bottom:1px solid #ffffff14; max-height:220px; }
+    header{ padding:16px; }
+  }
+
+  :focus-visible{ outline:2px solid var(--brass); outline-offset:2px; }
+
+  /* ===== Aussprache (audio) ===== */
+  .say-row{ position:absolute; top:10px; left:44px; display:flex; gap:6px; z-index:2; }
+  .say-btn{ border:1px solid #8a765466; background:#fffaf0cc; color:var(--ink); border-radius:999px;
+    width:36px; height:36px; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 2px 0 #00000022; }
+  .say-btn:hover{ background:#fff; border-color:var(--brass-dim); }
+  .say-btn.speaking{ background:var(--brass); color:#20301f; }
+  .say-btn.wide{ width:auto; padding:0 11px; font-family:"Courier New", monospace; font-size:0.72rem; font-weight:700; }
+  .browse-row .say-mini.en{ width:auto; padding:0 8px; font-family:"Courier New", monospace; font-size:0.65rem; }
+  .say-text{ margin-top:10px; font-family:"Courier New", monospace; font-size:0.72rem; color:var(--ink-soft); }
+  .dict-row{ display:none; flex-wrap:wrap; gap:8px; justify-content:center; width:100%; margin-top:2px; }
+  .dict-row.show{ display:flex; }
+  .dict-row span{ font-family:"Courier New", monospace; font-size:0.66rem; color:#cfe0d399; letter-spacing:0.05em; text-transform:uppercase; align-self:center; }
+  .dict-row a{ font-family:"Courier New", monospace; font-size:0.7rem; letter-spacing:0.04em; color:#e9ecdf; text-decoration:none;
+    border:1px solid #ffffff30; border-radius:4px; padding:5px 10px; }
+  .dict-row a:hover{ border-color:var(--brass); color:var(--brass); }
+  .audio-bar{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center; margin-top:18px;
+    font-family:"Courier New", monospace; font-size:0.7rem; color:#d9e5db; letter-spacing:0.04em; }
+  .audio-bar label{ display:flex; align-items:center; gap:6px; cursor:pointer; }
+  .audio-bar input{ accent-color:var(--brass); }
+  .audio-bar select{ background:#00000030; color:#e9ecdf; border:1px solid #ffffff30; border-radius:4px; padding:5px 6px; font:inherit; max-width:220px; }
+  .audio-warn{ font-family:"Courier New", monospace; font-size:0.68rem; color:#f3d9a0; text-align:center; max-width:520px; margin-top:10px; line-height:1.6; display:none; }
+  .browse-row .say-mini{ background:transparent; border:1px solid #ffffff25; color:#e9ecdf; border-radius:999px; width:28px; height:28px; cursor:pointer; flex-shrink:0; font-size:0.8rem; }
+  .browse-row .say-mini:hover{ border-color:var(--brass); }
+  .browse-row{ align-items:center; }
+  .browse-row .de{ flex:1; }
+
+  /* ===== IPA ===== */
+  .ipa{ font-family:"Charis SIL","Doulos SIL","Gentium Plus","Noto Sans","DejaVu Sans","Segoe UI","Lucida Sans Unicode",sans-serif;
+    font-size:0.98rem; color:var(--ink-soft); margin-top:6px; line-height:1.45; word-break:break-word; }
+  .ipa .approx{ color:#a0703a; cursor:help; }
+  .subword + .ipa{ margin-top:4px; }
+  .browse-row .ipa{ display:block; font-size:0.78rem; color:#cfe0d3aa; margin-top:2px; }
+  .browse-row .en .ipa{ text-align:right; }
+  .ipa-legend{ font-family:"Courier New", monospace; font-size:0.66rem; color:#cfe0d399; text-align:center; margin-top:8px; max-width:520px; line-height:1.6; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1 class="stamp">Lernkartei — Netzwerk neu A1</h1>
+    <div class="sub">Karteikasten-Methode · Spaced Repetition nach Kapitel</div>
+  </div>
+  <div class="dir-toggle">
+    <span class="stamp" style="color:#cfe0d380;">Richtung</span>
+    <button id="dirDE" class="active">DE → EN</button>
+    <button id="dirEN">EN → DE</button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="kasten" id="kasten">
+    <div class="kasten-label">Karteikasten</div>
+    <button class="tab all-tab" data-chapter="ALL">
+      <span class="n">Alle Kapitel</span>
+      <span class="meta" id="allMeta">0 Karten</span>
+    </button>
+    <div id="tabList"></div>
+  </nav>
+
+  <main>
+    <div class="stats-row" id="statsRow"></div>
+
+    <div class="stage" id="stage">
+      <div class="card-wrap">
+        <div class="index-card" id="indexCard">
+          <div class="punch"></div>
+          <div class="say-row" id="sayRow">
+            <button class="say-btn" id="sayBtn" title="Anhören (Taste S)" aria-label="Anhören">🔊</button>
+            <button class="say-btn" id="slowBtn" title="Langsam anhören (Taste L)" aria-label="Langsam anhören">🐢</button>
+            <button class="say-btn wide" id="enBtn" title="Englische Bedeutung anhören (Taste E)" aria-label="Englisch anhören">🔊 EN</button>
+          </div>
+          <div class="card-tag" id="cardTag">Kapitel 1</div>
+          <div class="headword" id="frontText">—</div>
+          <div class="ipa" id="ipaFront"></div>
+          <div class="subword" id="backText" style="display:none;"></div>
+          <div class="ipa" id="ipaBack" style="display:none;"></div>
+          <div class="hint" id="cardHint">Klicken oder Leertaste zum Umdrehen</div>
+        </div>
+      </div>
+
+      <button class="flip-btn" id="flipBtn">Antwort zeigen</button>
+      <div class="rate-row" id="rateRow" style="display:none;">
+        <button class="again" id="btnAgain">Nochmal · 1</button>
+        <button class="good" id="btnGood">Gut · 2</button>
+        <button class="easy" id="btnEasy">Leicht · 3</button>
+      </div>
+
+      <div class="dict-row" id="dictRow"></div>
+      <div class="leitner-track" id="leitnerTrack"></div>
+
+      <div class="browse-list" id="browseList"></div>
+
+      <div class="toolbar">
+        <button id="toggleBrowse">Liste ansehen</button>
+        <button id="resetProgress">Fortschritt zurücksetzen</button>
+      </div>
+
+      <div class="audio-bar">
+        <label><input type="checkbox" id="autoSay"> Automatisch vorlesen</label>
+        <label>Stimme <select id="voiceSel"><option value="">Standard (Deutsch)</option></select></label>
+        <label><input type="checkbox" id="autoEn"> Englisch auch vorlesen</label>
+        <label><input type="checkbox" id="showIpa"> IPA anzeigen</label>
+        <label>Englische Stimme <select id="enVoiceSel"><option value="">Standard (English)</option></select></label>
+        <label>Tempo <select id="rateSel"><option value="1">normal</option><option value="0.85" selected>etwas langsamer</option><option value="0.7">langsam</option></select></label>
+      </div>
+      <div class="audio-warn" id="audioWarn"></div>
+      <div class="ipa-legend">IPA tiếng Đức theo Wiktionary/Duden · tiếng Anh theo giọng Anh-Anh (kiểu Cambridge). Dấu „≈“ = phiên âm ghép tự động cho từ ghép/từ hiếm, nên đối chiếu DWDS.</div>
+      <div class="note" id="storageNote"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ============================================================
+// VOCABULARY DATA — Netzwerk neu A1, Glossar Deutsch–Englisch
+// grouped by Kapitel (unit)
+// ============================================================
+const CHAPTERS = [
+{ title:"Kapitel 1 · Guten Tag!", words:[
+["Bulgarisch","Bulgarian"],["Deutsch","German"],["Englisch","English"],["gut","good"],
+["guten Tag","good day / hello"],["Indonesisch","Indonesian"],["international","international"],
+["Italienisch","Italian"],["Japanisch","Japanese"],["Russisch","Russian"],["Serbisch","Serbian"],
+["Sie","you (formal)"],["Türkisch","Turkish"],["Ungarisch","Hungarian"],["was","what"],
+["zuordnen","to assign, to match"],["zusammengehören","to fit together"],["die Autobahn, -en","highway"],
+["das Butterbrot, -e","sandwich"],["die Flasche, -n","bottle"],["das Handtuch, \"-er","towel"],
+["der Kindergarten, \"-","kindergarten"],["der Koffer, -","suitcase"],["der/die Kranke, -n","sick person"],
+["die Nudel, -n","noodle"],["das Würstchen, -","sausage"],["das Würstel, -","sausage"],
+["auf","in (used with languages)"],["heißen","to be called"],["Ihr, Ihre","your (formal)"],
+["Spanisch","Spanish"],["die Sprache, -n","language"],["wie","what / how"],["das Wort, \"-er","word"],
+["andere, anderer","other"],["ein, eine","a"],["kennen","to know"],["das Kursplakat, -e","course poster"],
+["machen","to make"],["sammeln","to collect"],["und","and"],
+["auch","also"],["bis bald","see you soon"],["ciao","bye"],["danke","thank you"],["dir","you (dat.)"],
+["du","you"],["die Entschuldigung, -en","sorry / excuse me"],["ganz","pretty (here: intensifier)"],
+["gehen","to go"],["hallo","hello"],["hören","to hear"],["ich","I"],["lesen","to read"],
+["die Person, -en","person"],["sehr","very"],["sein","to be"],["tschüs","bye"],["wer","who"],
+["die Situation, -en","situation"],["spielen","to play"],["bekannt","well-known"],["der Name, -n","name"],
+["oder","or"],["auf Wiedersehen","goodbye"],["es","it"],["Frau","Mrs / Ms"],["gute Nacht","good night"],
+["guten Abend","good evening"],["guten Morgen","good morning"],["Herr","Mr"],
+["Ihnen","you (formal, dat.)"],["mein, meine","my"],["formell","formal"],["informell","informal"],
+["der Nachname, -n","last name"],["das Personalpronomen, -","personal pronoun"],["das Verb, -en","verb"],
+["der Vorname, -n","first name"],["die Antwort, -en","answer"],["aus (+D.)","from"],
+["Deutschland","Germany"],["in (+D.)","in"],["kommen","to come from"],
+["der Reiseführer, -","travel guide (m)"],["die Reiseführerin, -nen","travel guide (f)"],
+["sprechen","to speak"],["das Telefon, -e","telephone"],["welche, welcher","which"],["wo","where"],
+["woher","from where"],["wohnen","to live"],["der Aussagesatz, \"-e","declarative sentence"],
+["das Interview, -s","interview"],["variieren","to vary"],["die W-Frage, -n","w-question"],
+["er","he"],["ergänzen","to complete"],["sie","she"],["notieren","to note"],["zwei","two"],
+["der Partner, -","partner (m)"],["die Partnerin, -nen","partner (f)"],["raten","to guess"],
+["vorstellen","to introduce"],["acht","eight"],["achtzehn","eighteen"],["der Buchstabe, -n","letter"],
+["dann","then"],["drei","three"],["dreizehn","thirteen"],["eins","one"],["elf","eleven"],
+["fünf","five"],["fünfzehn","fifteen"],["laut","loud"],["mitsprechen","to speak along"],
+["neun","nine"],["neunzehn","nineteen"],["null","zero"],["sechs","six"],["sechzehn","sixteen"],
+["sieben","seven"],["siebzehn","seventeen"],["vier","four"],["vierzehn","fourteen"],
+["die Zahl, -en","number"],["zehn","ten"],["zwanzig","twenty"],["zwölf","twelve"],
+["die Handynummer, -n","mobile phone number"],["dein, deine","your"],["fragen","to ask"],
+["nach (+D.)","about"],["die Telefonnummer, -n","telephone number"],["das Alphabet, -e","alphabet"],
+["mitlesen","to read along"],["zuerst","at first"],["die E-Mail-Adresse, -n","email address"],
+["das Gespräch, -e","conversation"],["man","one"],["minus","minus"],["der Punkt, -e","period"],
+["sagen","to say"],["schreiben","to write"],["der Unterstrich, -e","underscore"],["bitte","please"],
+["buchstabieren","to spell"],["der Dialog, -e","dialogue"],["ein bisschen","a little"],
+["langsam","slow"],["nicht","not"],["noch einmal","once more"],["verstehen","to understand"],
+["Algerien","Algeria"],["Arabisch","Arabic"],["Brasilien","Brazil"],["Französisch","French"],
+["Japan","Japan"],["das Land, \"-er","country"],["lernen","to learn"],["Österreich","Austria"],
+["Portugiesisch","Portuguese"],["die Schweiz","Switzerland"],["die Tabelle, -n","table, chart"],
+["die USA","USA"],["Frankreich","France"],["Griechenland","Greece"],["Italien","Italy"],
+["Mexiko","Mexico"],["Portugal","Portugal"],["Thailand","Thailand"],["Polen","Poland"],
+["Polnisch","Polish"],["Rätoromanisch","Raeto-Romanic"],["Russland","Russia"],["Spanien","Spain"],
+["die Türkei","Turkey"],["die Ukraine","Ukraine"],["zu","as (here)"],["zweit","pair (here)"],
+["kurz","short"],["die Stadt, \"-e","city"],["der Text, -e","text"],["das Befinden","condition"],
+["darauf","upon"],["die Grammatik, -en","grammar"],["grüßen","to greet"],["reagieren","to react"],
+["das Redemittel, -","useful phrases"],["das Subjekt, -e","subject"],["über","about"],
+["verabschieden","to say goodbye"],["das W-Wort, \"-er","w-word"]
+]},
+{ title:"Kapitel 2 · Freunde, Kollegen und ich", words:[
+["gern","gladly"],["die Leute (Pl.)","people"],["fotografieren","to photograph"],
+["der Freund, -e","friend"],["die Freundin, -nen","girlfriend"],["joggen","to jog"],
+["der Kollege, -n","colleague (m)"],["die Kollegin, -nen","colleague (f)"],["die Musik","music"],
+["singen","to sing"],["tanzen","to dance"],["ankreuzen","to mark"],["das Kino, -s","movie theater"],
+["kochen","to cook"],["reisen","to travel"],["schwimmen","to swim"],["antworten","to answer"],
+["arbeiten","to work"],["ja","yes"],["nein","no"],["so","so-so"],["das Buch, \"-er","book"],
+["Fußball","football"],["lieben","to love"],["die Sensation, -en","sensation"],["super","super"],
+["toll","great"],["wir","we"],["am","at"],["die Endung, -en","ending"],["das Foto, -s","photo"],
+["ihr","you (pl.)"],["der Kommentar, -e","commentary"],["lustig","funny"],["der Moment, -e","moment"],
+["morgen","tomorrow"],["die Spaghetti","spaghetti"],["von (+D.)","by"],["wirklich","really"],
+["das Wochenende, -n","weekend"],["dritt","threes (here)"],["die Form, -en","form"],
+["der Infinitiv, -e","infinitive"],["nennen","to name"],["das Hobby, -s","hobby"],["mit (+D.)","with"],
+["der Dienstag, -e","Tuesday"],["der Donnerstag, -e","Thursday"],["der Freitag, -e","Friday"],
+["der Mittwoch, -e","Wednesday"],["der Montag, -e","Monday"],["der Samstag, -e","Saturday"],
+["der Sonntag, -e","Sunday"],["wann","when"],["der Wochentag, -e","day of the week"],
+["die Frage, -n","question"],["leider","unfortunately"],["nachsprechen","to repeat"],
+["die Satzmelodie, -n","intonation"],["achten","to pay attention"],["auf (+A.)","to (here)"],
+["für (+A.)","for"],["oft","often"],["das Café, -s","café"],["durch (+A.)","through"],
+["die Ja-/Nein-Frage, -n","yes-/no-question"],["jede, jeder","every"],["der Kursraum, \"-e","course room"],
+["das Museum, Museen","museum"],["das Restaurant, -s","restaurant"],["das Schwimmbad, \"-er","swimming pool"],
+["das Stadion, Stadien","stadium"],["der Tag, -e","day"],["der Termin, -e","appointment"],
+["das Theater, -","theatre"],["die Verabredung, -en","appointment"],["der Artikel, -","article"],
+["der Arzt, \"-e / die Ärztin, -nen","doctor"],["das Auto, -s","car"],["der Beruf, -e","occupation"],
+["bestimmt","definite (here)"],["der Computer, -","computer"],["feminin","feminine"],
+["geben (es gibt)","there is"],["das Geld, -er","money"],["das Glas, \"-er","glass"],
+["der Kellner, - / die Kellnerin, -nen","waiter / waitress"],["maskulin","masculine"],
+["das Medikament, -e","medicine"],["mehrere","several"],["die Möglichkeit, -en","possibility"],
+["neutrum","neuter"],["passen","to match"],["der Plural, -e","plural"],["die Rechnung, -en","bill"],
+["der Schlüssel, -","key"],["die Spritze, -n","injection"],["der Stift, -e","pencil"],
+["die Straße, -n","street"],["der Student, -en / die Studentin, -nen","student"],
+["die Tablette, -n","pill"],["der Taxifahrer, - / die Taxifahrerin, -nen","taxi driver"],
+["zu (+D.)","to"],["markieren","to highlight"],["das Nomen, -","noun"],["das Kapitel, -","chapter"],
+["der Kurs, -e","course"],["der Lernwortschatz, \"-e","learning vocabulary"],["die Seite, -n","page"],
+["suchen","to search"],["das Übungsbuch, \"-er","exercise book"],["vergleichen","to compare"],
+["weitere, weiterer","further"],["der Abend, -e","evening"],["aber","but"],["alt","old"],
+["bei (+D.)","at"],["fahren","to drive"],["freihaben","to have a holiday"],["groß","large"],
+["haben","to have"],["hier","here"],["das Jahr, -e","year"],["der Kilometer, -","kilometre"],
+["das Krankenhaus, \"-er","hospital"],["der Krankenpfleger, - / die Krankenpflegerin, -nen","nurse"],
+["meistens","mostly"],["der Nachmittag, -e","afternoon"],["nachts","at night"],
+["der Patient, -en / die Patientin, -nen","patient"],["der Platz","room, space"],["pro","per"],
+["das Seminar, -e","seminar"],["die Stunde, -n","hour"],["die Universität, -en","university"],
+["viel, viele","a lot"],["von … bis","from … till"],["warten","to wait"],["die Woche, -n","week"],
+["das Zimmer, -","room"],["ab (+D.)","starting at"],["alle","all"],["einhundert","one hundred"],
+["hundert","hundred"],["unterstreichen","to underline"],["die Information, -en","information"],
+["präsentieren","to present"],["die Pluralform, -en","plural form"],["der Singular, -e","singular"],
+["immer","always"],["die Pluralendung, -en","plural ending"],["gegenseitig","mutual"],
+["die Lernkarte, -n","learning card"],["tauschen","to switch"],
+["der Architekt, -en / die Architektin, -nen","architect"],
+["der Friseur, -e / die Friseurin, -nen","hairdresser"],["der Informatiker, - / die Informatikerin, -nen","computer scientist"],
+["der Ingenieur, -e / die Ingenieurin, -nen","engineer"],["der Lehrer, - / die Lehrerin, -nen","teacher"],
+["noch","any (here: yet, even)"],["der Verkäufer, - / die Verkäuferin, -nen","salesperson"],
+["der Elektriker, - / die Elektrikerin, -nen","electrician"],["der Erzieher, - / die Erzieherin, -nen","kindergarten teacher"],
+["der Handwerker, - / die Handwerkerin, -nen","craftsman / craftswoman"],
+["der Journalist, -en / die Journalistin, -nen","journalist"],["der Jurist, -en / die Juristin, -nen","solicitor"],
+["der Koch, \"-e / die Köchin, -nen","cook"],["der Mechaniker, - / die Mechanikerin, -nen","mechanic"],
+["der Polizist, -en / die Polizistin, -nen","police officer"],["berichten","to report"],
+["die Notiz, -en","note"],["studieren","to study"],["ansehen","to look at"],
+["das Beispiel, -e","example"],["die Farbe, -n","colour"],["stehen","to stand"],
+["das Wörterbuch, \"-er","dictionary"],["das Artikelbild, -er","article picture"],["blau","blue"],
+["grün","green"],["merken","to remember"],["rot","red"],["das Taxi, -s","taxi"],
+["die Zeichnung, -en","drawing"],["eigene, eigener","own"],["die Adresse, -n","address"],
+["die Angabe, -n","information (here)"],["der Club, -s","club"],["der Familienname, -n","family name"],
+["das Geburtsdatum, -daten","date of birth"],["der Geburtsort, -e","birth place"],["neu","new"],
+["persönlich","personally"],["zusammenpassen","to fit together"],["Basketball","basketball"],
+["die E-Mail, -s","e-mail"],["die Firma, Firmen","company"],["das Formular, -e","form"],
+["die Hausnummer, -n","house number"],["Karate","karate"],["kein, keine","no"],
+["männlich","male"],["die Postleitzahl, -en","zip code"],["die Schule, -n","school"],
+["der Sportclub, -s","sports club"],["Tennis","tennis"],["wählen","to choose"],["weiblich","female"],
+["der Wohnort, -e","place of residence"],["Yoga","yoga"],["Zumba","zumba"],["achtzig","eighty"],
+["dreißig","thirty"],["eintausend","one thousand"],["fünfzig","fifty"],["die Milliarde, -n","billion"],
+["die Million, -en","million"],["neunzig","ninety"],["sechzig","sixty"],["siebzig","seventy"],
+["tausend","thousand"],["verabreden (sich)","to make plans"],["vierzig","forty"]
+]},
+{ title:"Kapitel 3 · In Hamburg", words:[
+["die Stadttour, -en","city tour"],["die Station, -en","station"],["der Bahnhof, \"-e","train station"],
+["die Bauzeit","construction period"],["der Besucher, - / die Besucherin, -nen","visitor"],
+["bis (+D.)","until"],["breit","wide"],["erste, erster","first"],["der Euro, -s","euro"],
+["hoch","high"],["die Kirche, -n","church"],["das Konzert, -e","concert"],
+["das Konzerthaus, \"-er","concert hall"],["die Kosten (Pl.)","costs"],["der Meter, -","metre"],
+["die Mitte","middle"],["das Rathaus, \"-er","town hall"],["der Star, -s","star"],
+["der Turm, \"-e","tower"],["über","over"],["bis zu","up to"],["circa","approximately"],
+["da","there"],["dem","the (dat.)"],["der Fluss, \"-e","river"],["der Hafen, \"-","harbour"],
+["das Meer, -e","sea"],["der Mensch, -en","person"],["nach (+D.)","to"],["das Schiff, -e","ship"],
+["sehen","to see"],["das Symbol, -e","symbol"],["der Zug, \"-e","train"],
+["die Ausstellung, -en","exhibition"],["die Brücke, -n","bridge"],["lang","long"],
+["der Ort, -e","village (here)"],["über (+A.)","about"],["grüezi","hello (Swiss)"],
+["grüß Gott","good day"],["das Hotel, -s","hotel"],["moin","good morning"],["so","this (here)"],
+["die Taxifahrt, -en","taxi ride"],["der Weg, -e","way"],["interessant","interesting"],
+["die Kunsthalle, -n","art gallery"],["die Lösung, -en","solution"],["okay","okay"],
+["der Plan, \"-e","plan"],["rechts","right"],["richtig","true"],["schon","already"],
+["schön","pretty"],["der See, -n","lake"],["zeichnen","to draw"],["aufstehen","to stand up"],
+["bilden","to form"],["die Gruppe, -n","group"],["passend","matching"],["unbestimmt","indeterminate"],
+["das Haus, \"-er","house"],["der Satz, \"-e","sentence"],["doppelt","double"],
+["der Konsonant, -en","consonant"],["der Vokal, -e","vowel"],["vor (+D.)","before"],
+["der Arm, -e","arm"],["klopfen","to knock"],["kreisen","to circle"],["der Tisch, -e","table"],
+["die Bildgeschichte, -n","comic strip"],["der Bus, -se","bus"],["das Fahrrad, \"-er","bicycle"],
+["die U-Bahn, -en","subway"],["zeigen","to point"],["zu Fuß","on foot"],["das Flugzeug, -e","airplane"],
+["die S-Bahn, -en","suburban train"],["die Straßenbahn, -en","tram"],["aber","but"],["also","so"],
+["das Bild, -er","picture"],["die Fahrkarte, -n","ticket"],["das Glück","luck"],["heute","today"],
+["jetzt","now"],["schnell","quick"],["der Test, -s","test"],["die Konzertkarte, -n","concert ticket"],
+["der Negationsartikel, -","negative article"],["links","left"],["die Wegbeschreibung, -en","directions"],
+["geradeaus","straight ahead"],["der Dank","thanks"],["einfach","easy"],["genau","exactly"],
+["der Imperativ, -e","imperative"],["das Mal, -e","time (occasion)"],["der Markt, \"-e","market"],
+["der Park, -s","park"],["der Start, -s","starting line"],["würfeln","to roll (dice)"],
+["das Ziel, -e","goal"],["an (+D.)","over the course of"],["der Chor, \"-e","choir"],
+["deutschsprachig","German-speaking"],["diese, dieser","this"],["dirigieren","to conduct"],
+["das Event, -s","event"],["das Festival, -s","festival"],["der Film, -e","film"],
+["der Filmfan, -s","film fan"],["der Gast, \"-e","guest"],["ihr, ihre","its"],
+["das Orchester, -","orchestra"],["die Produktion, -en","production"],["das Publikum","audience"],
+["der Regisseur, -e / die Regisseurin, -nen","director"],["das Requiem, -s","requiem"],
+["der Schauspieler, - / die Schauspielerin, -nen","actor / actress"],["sein, seine","his"],
+["der Solist, -en / die Solistin, -nen","soloist"],["das Theater-Festival, -s","theatre festival"],
+["das Ticket, -s","ticket"],["die Welt, -en","world"],["ähnlich","similar"],["finden","to find"],
+["der April","April"],["der August","August"],["der Dezember","December"],["der Februar","February"],
+["der Frühling","spring"],["der Herbst","autumn"],["der Januar","January"],["der Juli","July"],
+["der Juni","June"],["der Mai","May"],["der März","March"],["der Monat, -e","month"],
+["der November","November"],["der Oktober","October"],["der September","September"],
+["der Sommer, -","summer"],["der Winter, -","winter"],["die Jahreszeit, -en","season"],
+["das Plakat, -e","poster"],["das Adjektiv, -e","adjective"],["das Ding, -e","thing"],
+["die Position, -en","position"],["stellen","to ask (a question, here)"]
+]},
+{ title:"Kapitel 4 · Guten Appetit!", words:[
+["der Apfelsaft, \"-e","apple juice"],["die Banane, -n","banana"],["das Brötchen, -","bread roll"],
+["die Butter","butter"],["die/das Cola, -s","cola"],["das Ei, -er","egg"],["der Essig, -e","vinegar"],
+["das Fleisch","meat"],["das Frühstück, -e","breakfast"],["das Gemüse, -","vegetable"],
+["guten Appetit","Enjoy your meal!"],["der/das Joghurt, -s","yogurt"],["die Kartoffel, -n","potato"],
+["der Käse","cheese"],["das Lebensmittel, -","groceries"],["die Marmelade, -n","jam, marmalade"],
+["die Milch","milk"],["das Mittagessen, -","lunch"],["das Müsli, -s","muesli"],["das Öl, -e","oil"],
+["der Orangensaft, \"-e","orange juice"],["der Pfeffer, -","pepper"],["das Salz, -e","salt"],
+["der Tee, -s","tea"],["verbinden","to connect"],["das Wasser, -","water"],
+["die Muttersprache, -n","mother tongue"],["die Bäckerei, -en","bakery"],["einkaufen","to shop"],
+["die Metzgerei, -en","butcher"],["der Supermarkt, \"-e","supermarket"],["das Abendessen, -","dinner"],
+["das Brot, -e","bread"],["die Gurke, -n","cucumber"],["der Kaffee, -s","coffee"],
+["der/das Keks, -e","cookie"],["der Kuchen, -","cake"],["die Sahne","cream"],
+["der Salat, -e","salad"],["der Schinken, -","ham"],["die Schokolade, -n","chocolate"],
+["die Suppe, -n","soup"],["die Tomate, -n","tomato"],["die Wurst, \"-e","sausage"],
+["der Zucker","sugar"],["der Apfel, \"-","apple"],["das Geschäft, -e","shop"],["kaufen","to buy"],
+["bis später","see you later"],["die Einladung, -en","invitation"],["das Essen, -","meal, food"],
+["fertig","ready"],["gleich","nearly"],["grillen","to barbecue"],["die Nachricht, -en","message"],
+["uns","ours"],["vielleicht","maybe"],["die Zeit, -en","time"],["alles","everything"],
+["brauchen","to need"],["der Einkaufszettel, -","grocery list"],["das Getränk, -e","drink"],
+["die Grillparty, -s","barbecue"],["mehr","anymore"],["planen","to plan"],["stimmen","to be true"],
+["teuer","expensive"],["der Einkauf, \"-e","shopping"],["die Birne, -n","pear"],["der Fisch, -e","fish"],
+["das Hähnchen, -","chicken"],["die Olive, -n","olive"],["die Pommes frites","chips"],
+["der Reis","rice"],["schmecken","to taste"],["süß","sweet"],["der Akkusativ, -e","accusative"],
+["der Nominativ, -e","nominative"],["essen","to eat"],["zusammen","together"],
+["der Saft, \"-e","juice"],["der Umlaut, -e","umlaut"],["der Cent, -s","cent"],["dort","there"],
+["drankommen","to have one's turn"],["der Einkaufswagen, -","shopping cart"],
+["der Emmentaler, -","Emmentaler cheese"],["etwas","anything"],["finden","to find (here)"],
+["das Gramm, -","gram"],["gut","alright (here)"],["der Kassenzettel, -","receipt"],
+["kosten","to cost"],["machen","to make (calculate, here)"],["möchten","to want"],
+["nehmen","to take"],["der Preis, -e","price"],["sonst","otherwise"],["das Stück, -e/-","piece"],
+["die Tüte, -n","bag"],["wechseln","to change"],["wie viel, wie viele","how much"],
+["die Limonade, -n","lemonade"],["recherchieren","to research"],["der Becher, -","cup"],
+["die Dose, -n","jar"],["das Fett, -e","fat"],["das Kilo, -s","kilo"],["das Kilogramm, -","kilogram"],
+["der Liter, -","litre"],["das Maß, -e","measure"],["die Packung, -en","packet"],
+["die Verpackung, -en","packaging"],["gerne","with pleasure"],["gleichfalls","likewise"],
+["lecker","tasty"],["satt","full"],["die Mahlzeit, -en","enjoy your meal"],["prost","cheers"],
+["zum Wohl","cheers"],["die Frau, -en","woman"],["der Mann, \"-er","man"],["trinken","to drink"],
+["abends","in the evening"],["allein","alone"],["die Arbeit, -en","work"],["asiatisch","Asian"],
+["der Döner, -","kebab"],["frühstücken","to eat breakfast"],["gesund","healthy"],
+["halb","half past"],["die Kantine, -n","canteen"],["manchmal","sometimes"],
+["der Mann, \"-er","husband"],["der Mittag, -e","noon"],["mittags","at noon"],["mögen","to like"],
+["der Morgen, -","morning"],["morgens","in the morning"],["nachmittags","afternoon"],
+["nichts","nothing"],["nur","only"],["das Obst","fruit"],["die Pizza, -s/Pizzen","pizza"],
+["schlafen","to sleep"],["das Sushi, -s","sushi"],["um","at"],["vormittags","before noon"],
+["wach","awake"],["wenig","a bit"],["erzählen","to tell"],["der Vormittag, -e","before noon"],
+["die Mindmap, -s","mind map"],["das Paar, -e","pair"],["das Thema, Themen","topic"],
+["die Assoziation, -en","association"],["einfallen","to think of"],["frei","free"],
+["die Methode, -n","method"],["thematisch","topical"],["die Wortgruppe, -n","word group"],
+["rund um","all about"],["als","as"],["die Altstadt, \"-e","historic city"],["am","at (here)"],
+["die Arbeitszeit, -en","working hours"],["beantworten","to answer"],["der Champignon, -s","mushroom"],
+["der Chef, -s / die Chefin, -nen","boss"],["das Dessert, -s","dessert"],["echt","really"],
+["das Fischgericht, -e","fish dish"],["frisch","fresh"],["das Gericht, -e","meal"],
+["helfen","to help"],["klein","small"],["kreativ","creative"],["länger","longer"],
+["natürlich","of course"],["nett","nice"],["normalerweise","normally"],["probieren","to try"],
+["schälen","to peel"],["schneiden","to cut"],["seit (+D.)","since, for"],["der Spaß","fun"],
+["stressig","stressful"],["das Team, -s","team"],["die Uhr","o'clock"],["waschen","to wash"],
+["wichtig","important"],["zubereiten","to prepare"],["zurück","back"],["die Zwiebel, -n","onion"],
+["führen (ein Gespräch)","to have (a conversation)"],["unregelmäßig","irregular"],
+["die Vorliebe, -n","preference"]
+]},
+{ title:"Kapitel 5 · Alltag und Familie", words:[
+["der Alltag","everyday life"],["besuchen","to visit"],["die Bibliothek, -en","library"],
+["duschen","to shower"],["die Familie, -n","family"],["die Mensa, Mensen","canteen"],
+["die Oma, -s","grandma"],["treffen","to meet"],["die Uni, -s","university"],
+["nummerieren","to number"],["lange","long"],["die Zeitung, -en","newspaper"],
+["zu Mittag essen","to have lunch"],["abwechselnd","alternating"],["das Büro, -s","office"],
+["die Uhrzeit, -en","time of day"],["vor (+D.)","to (time)"],["inoffiziell","inofficial"],
+["kurz","just (here)"],["nach (+D.)","past"],["offiziell","official"],["spät","late"],
+["die Uhr","o'clock"],["das Viertel, -","quarter"],["der Englisch-Test, -s","English test"],
+["der Geburtstag, -e","birthday"],["die Geige, -n","violin"],["der Geigenunterricht","violin lessons"],
+["der Kalender, -","calendar"],["der Mathe-Test, -s","math test"],["die Mutter, \"-","mother"],
+["der Onkel, -","uncle"],["das Spiel, -e","game"],["das Training, -s","practice"],
+["die Trompete, -n","trumpet"],["wie lange","how long"],["bleiben","to stay"],
+["die Eltern (Pl.)","parents"],["falsch","wrong"],["das Kind, -er","child"],["krank","sick"],
+["die Musikschule, -n","music school"],["der Sohn, \"-e","son"],["telefonieren","to telephone"],
+["die Tochter, \"-","daughter"],["der Trompetenunterricht","trumpet lessons"],["der Vater, \"-","father"],
+["zu Hause","at home"],["beschreiben","to describe"],["der Bruder, \"-","brother"],["gehen","to go"],
+["ledig","single"],["der Possessivartikel, -","possessive article"],["die Schwester, -n","sister"],
+["der Techniker, - / die Technikerin, -nen","technician"],["verheiratet","married"],
+["die Geschwister (Pl.)","siblings"],["die Großeltern (Pl.)","grandparents"],
+["die Großmutter, \"-","grandmother"],["der Großvater, \"-","grandfather"],["der Opa, -s","grandpa"],
+["der/die Verwandte, -n","relative"],["die Fantasie","fantasy, imagination"],["das Baby, -s","baby"],
+["der Junge, -n","boy"],["das Mädchen, -","girl"],["die Regel, -n","rule"],
+["das Wortende, -n","ending of the word"],["der Ball, \"-e","ball"],["das Gästebuch, \"-er","guestbook"],
+["die Homepage, -s","homepage"],["der Hund, -e","dog"],["das Motorrad, \"-er","motorcycle"],
+["der Sport","sport"],["unser, unsere","our"],["willkommen","welcome"],["cool","cool"],
+["der Eintrag, \"-e","entry"],["euer, eure","your"],["das Familienfoto, -s","family photograph"],
+["der Hamster, -","hamster"],["hey","hey"],["die Maus, \"-e","mouse"],["das Saxofon, -e","saxophone"],
+["süß","cute"],["die Tour, -en","tour"],["die Karte, -n","card"],["plus","plus"],
+["das Pronomen, -","pronoun"],["der Stapel, -","deck of cards"],["ziehen","to draw"],
+["der Gruß, \"-e","greeting"],["die Hausaufgabe, -n","homework"],["können","to be able to"],
+["lieb","kind"],["das Modalverb, -en","modal verb"],["müssen","to have to"],
+["nächste, nächster","next"],["das Problem, -e","problem"],["der Sonntagnachmittag, -e","Sunday afternoon"],
+["der Stress","stress"],["wollen","to want (something)"],["ja","modal particle"],
+["die Party, -s","party"],["dreimal","three times"],["die Idee, -n","idea"],["leidtun","to be sorry"],
+["schade","pity"],["der Sprachkurs, -e","language class"],["verschieden","different"],
+["auf Wiederhören","talk to you later"],["die Aussage, -n","statement"],["frei","available"],
+["haben (einen Termin)","to make (an appointment)"],["noch mal","again"],["die Praxis, Praxen","surgery"],
+["tun","to do"],["ab (+D.)","from"],["höflich","polite"],["die Höflichkeit","politeness"],
+["der Kunde, -n / die Kundin, -nen","customer"],["offen","open"],["die Rollenkarte, -n","role card"],
+["die Sprachschule, -n","language school"],["das Telefongespräch, -e","telephone call"],
+["überlegen","to think about"],["unhöflich","impolite"],["vereinbaren","to make (an appointment)"],
+["vorbereiten","to prepare"],["vorher","before"],["die Bar, -s","bar"],
+["die Besprechung, -en","meeting"],["da sein","to be there"],["die Minute, -n","minute"],
+["die Pünktlichkeit","punctuality"],["sitzen","to sit"],["zu (er kommt zu spät)","too"],
+["die halbe Stunde, -n","half an hour"],["die Sekunde, -n","second"],["die Verspätung, -en","delay"],
+["die Zeitangabe, -n","time designation"],["entschuldigen","to excuse"],["gut","alright (here)"],
+["machen","to matter (here)"],["pünktlich","punctual"],["um (+A.)","for"],
+["das Satzende, -n","ending of the sentence"],["die Satzklammer, -n","sentence bracket"],
+["die Tageszeit, -en","time of day"]
+]},
+{ title:"Kapitel 6 · Zeit mit Freunden", words:[
+["feiern","to celebrate"],["das Fitness-Studio, -s","gym"],["die Freizeitaktivität, -en","extracurricular activity"],
+["glauben","to believe"],["klettern","to climb"],["der Ski, -","ski"],["wandern","to hike"],
+["die Pantomime","pantomime"],["das Ratebild, -er","picture puzzle"],["denn","then (modal particle)"],
+["echt","really"],["einladen","to invite"],["die Fahrradtour, -en","bike ride"],["hi","hi"],
+["klar","of course"],["klingen","to sound"],["das Picknick, -s","picnic"],
+["schenken","to give (as gift)"],["die Überraschung, -en","surprise"],["wen","whom"],
+["werden","to turn (age)"],["besonders","special"],["das Datum, Daten","date"],
+["die Ordinalzahl, -en","ordinal number"],["aufstellen","to arrange"],["abholen","to pick up"],
+["Achtung","careful"],["anfangen","to start"],["anrufen","to call"],["der Ausflug, \"-e","excursion"],
+["der Betreff, -e","subject"],["einsammeln","to collect"],["das Geschenk, -e","present"],
+["hoffentlich","hopefully"],["mitbringen","to bring"],["mitkommen","to come"],
+["mitmachen","to join in"],["der Regen, -","rain"],["schicken","to send"],
+["der Treffpunkt, -e","meeting point"],["der Überraschungstag, -e","surprise day"],["wissen","to know"],
+["trennbar","separable"],["aufhören","to stop"],["das Fest, -e","festival"],
+["die Anrede, -n","salutation"],["die Einladungs-Mail, -s","invitation mail"],["herzlich","warm"],
+["die Mail, -s","mail"],["die Apfelsaftschorle, -n","apple juice spritzer"],["bestellen","to order"],
+["die Bestellung, -en","order"],["bringen","to bring"],["dich","you"],["euch","you"],["ihn","him"],
+["mich","me"],["natürlich","of course"],["sie","her"],["der Teil, -e","part"],["passieren","to happen"],
+["verboten","forbidden"],["das Eis","ice cream"],["die Pommes","chips"],["die Salami, -s","salami"],
+["das Schnitzel, -","schnitzel"],["die Speisekarte, -n","menu"],["die Tomatensuppe, -n","tomato soup"],
+["die Gabel, -n","fork"],["der Löffel, -","spoon"],["das Messer, -","knife"],
+["die Serviette, -n","napkin"],["die Tasse, -n","cup"],["der Teller, -","plate"],
+["bezahlen","to pay"],["getrennt","separate"],["ordnen","to arrange"],["stimmen","to be correct"],
+["zahlen","to pay"],["geben","to give"],["das Trinkgeld, -er","tip"],["danke schön","thank you"],
+["der Durst","thirst"],["der Hunger","hunger"],["wieder","again"],["der Besuch, -e","visit"],
+["kalt","cold"],["das Präteritum, Präterita","simple past"],["warm","warm"],
+["an (+D.)","at (location)"],["die Bank, \"-e","bench"],["das Beisl, -/-n","pub"],
+["die Beiz, -en","pub"],["der Biergarten, \"-","beer garden"],["draußen","outside"],
+["geöffnet","opened"],["das Kaffeehaus, \"-er","coffee shop"],["die Kneipe, -n","bar"],
+["das Lokal, -e","restaurant"],["der/das Sandwich, -s","sandwich"],["selbst","oneself"],
+["die Selbstbedienung","self-service"],["die Sonne","sun"],["der Spielplatz, \"-e","playground"],
+["die Strandbar, -s","beach bar"],["typisch","typical"],["überall","everywhere"],
+["voll","full"],["das Wetter, -","weather"],["die Anmeldung, -en","application"],
+["die Anzeige, -n","advertisement"],["die Atmosphäre","atmosphere"],["aufpassen","to pay attention"],
+["der Beginn","beginning"],["beginnen","to begin"],["besondere, besonderer","special"],
+["das Double Feature, -s","double feature"],["der Eintritt, -e","entrance"],["enden","to end"],
+["fehlen","to miss"],["der Franken, -","Swiss franc"],["früh","morning"],
+["genießen","to savor"],["der Halbmarathon, -s","half-marathon"],["die Karte, -n","ticket"],
+["der Konzertbeginn","beginning of the concert"],["die Kultur-Nacht, \"-e","cultural night"],
+["laufen","to run"],["los sein","to be up"],["der Marathon, -s","marathon"],
+["die Museumsnacht, \"-e","museum night"],["die Nacht, \"-e","night"],["die Natur","nature"],
+["das Open-Air-Kino, -s","open-air concert"],["das Programm, -e","program"],
+["die Aktivität, -en","activity"],["das Fußballspiel, -e","football game"],
+["die Lust","to want, to feel like"],["warum","why"],["das Ereignis, -se","result"],
+["die Präposition, -en","preposition"]
+]},
+{ title:"Kapitel 7 · Arbeitsalltag", words:[
+["der Arbeitsalltag","workday"],["annehmen","to accept"],["mitnehmen","to take along"],
+["das Paket, -e","package"],["der Ticketkauf, \"-e","ticket purchase"],["bis dann","until then"],
+["doch","on the contrary"],["klar","good (here)"],["die Reihenfolge, -n","sequence"],
+["später","later"],["einkaufen gehen","to go shopping"],["der Nachbar, -n / die Nachbarin, -nen","neighbour"],
+["als","than"],["anders","different"],["bedeuten","to mean"],["der Blog, -s","blog"],
+["die Computerarbeit","computer work"],["endlich","finally"],["erklären","to explain"],
+["der Fehler, -","mistake"],["das Leben, -","life"],["leicht","easy"],["das Lied, -er","song"],
+["die Pause, -n","break"],["das Praktikum, Praktika","internship"],["supernett","super nice"],
+["zu (+D.)","to (here)"],["die Apfelschorle, -n","apple juice spritzer"],["verwenden","to use"],
+["der Kundenbesuch, -e","call on customers"],["der Mitarbeiter, - / die Mitarbeiterin, -nen","colleague"],
+["das Sommerfest, -e","summer festival"],["der Urlaub, -e","holiday"],["der Dativ, -e","dative"],
+["wem","whom, who"],["die Aussprache","pronunciation"],["der Silbenanfang, \"-e","beginning of the syllable"],
+["der Wortanfang, \"-e","beginning of the word"],["das Wortinnere","inside of the word"],
+["nach Hause","(toward) home"],["wohin","whereto"],["der Automat, -en","vending machine"],
+["bar","in cash"],["genug","enough"],["holen","to get"],["das Konto, Konten","account"],
+["die Kontonummer, -n","account number"],["die Kreditkarte, -n","credit card"],
+["überweisen","to transfer"],["die Bank, -en","bank"],["der Bericht, -e","report"],
+["dauern","to last"],["korrigieren","to correct"],["die Post","post office"],["so","such"],
+["der Zufall, \"-e","coincidence"],["die Kurzform, -en","shortened form"],
+["die Ortsangabe, -n","location"],["der Zahnarzt, \"-e / die Zahnärztin, -nen","dentist"],
+["der Bäcker, -","bakery"],["der Hausmeister, - / die Hausmeisterin, -nen","caretaker"],
+["der Akku, -s","battery"],["anmachen","to turn on"],["ausmachen","to turn off"],
+["die Datei, -en","file"],["drucken","to print"],["der Drucker, -","printer"],
+["eingeben","to enter"],["hochfahren","to start up"],["leer","empty"],["die Medien (Pl.)","media"],
+["der Mist","bother"],["das Netz","reception"],["offline","offline"],["öffnen","to open"],
+["das Passwort, \"-er","password"],["speichern","to save"],["das WLAN","Wi-Fi"],
+["aktuell","current"],["argentinisch","Argentinian"],["der Brief, -e","letter"],
+["diskutieren","to discuss"],["der/die Erwachsene, -n","adult"],["ganz","whole"],
+["das Jahrestreffen, -","yearly meeting"],["kennenlernen","to get to know"],
+["das Mitglied, -er","member"],["die Musikgruppe, -n","music group"],
+["die Präsentation, -en","presentation"],["samstags","on Saturday"],["die Spezialität, -en","specialty"],
+["der Stadtpark, -s","city park"],["Südamerika","South America"],["zeigen","to show"],
+["der Kontakt, -e","contact"],["das Sprachinstitut, -e","language department"],
+["der Absender, -","sender"],["der Briefstandard, -s","letter standard"],
+["der Empfänger, - / die Empfängerin, -nen","recipient"],["die Unterschrift, -en","signature"],
+["die Anredeformel, -n","salutation"],["auswendig","to memorise"],["die Dame, -n","madam"],
+["freundlich","sincerely"],["geehrt","honoured"],["die Grußformel, -n","salutation"],
+["an (+A.)","to"],["denken","to think"],["die Krankheit, -en","illness"],
+["die Mittagspause, -n","lunch break"],["die Politik","politics"],["die Religion, -en","religion"],
+["die Serie, -n","series"],["der Aufzug, \"-e","elevator"],["beliebt","popular"],
+["dazu","to that"],["die meisten","most"],["das Fernsehen","television"],["formulieren","to phrase"],
+["gar","really"],["das Gesprächsthema, -themen","conversational topic"],["gestern","yesterday"],
+["interessieren","to interest"],["langweilig","boring"],["neutral","neutral"],["reden","to talk"],
+["schwer","difficult"],["der Small Talk, -s","small talk"],["eigentlich","actually"],
+["heiß","hot"],["oder","right (here)"],["regnen","to rain"],["schon wieder","again"],
+["schrecklich","terrible"]
+]},
+{ title:"Kapitel 8 · Fit und gesund", words:[
+["leben","to live"],["die Chips (Pl.)","crisps"],["das Experiment, -e","experiment"],
+["wegräumen","to put away"],["das Bett, -en","bed"],["egal","whatever"],["der/die Erste, -n","first"],
+["faul","lazy"],["fit","fit"],["die Freizeit","free time"],["hungrig","hungry"],["hurra","hooray"],
+["losgehen","to start"],["müde","tired"],["regelmäßig","regularly"],["richtig","really"],
+["schaffen","to manage"],["sicher","sure"],["die Süßigkeit, -en","sweet"],["täglich","daily"],
+["gefährlich","dangerous"],["gerade","at the moment"],["die Sprachnachricht, -en","voice message"],
+["vergessen","to forget"],["vermissen","to miss"],["aktiv","active"],["anziehen","to get dressed"],
+["der Comic, -s","comic book"],["die Fitness-App, -s","fitness app"],["geben","to give"],
+["holen","to get"],["mindestens","at least"],["rausgehen","to go outside"],["sportlich","athletic"],
+["der Sportschuh, -e","trainer"],["weitermachen","to continue"],["die Aufforderung, -en","request"],
+["die App, -s","application"],["ruhig","quiet"],["aufmachen","to open"],["aufschreiben","to write down"],
+["das Fenster, -","window"],["leise","quiet"],["die Tafel, -n","blackboard"],["vorlesen","to read aloud"],
+["wiederholen","to repeat"],["wiegen","to weigh"],["das Alter","age"],["das Gewicht","weight"],
+["die Größe, -n","size"],["schwer","heavy"],["der Bauch, \"-e","stomach"],["das Bein, -e","leg"],
+["der Finger, -","finger"],["der Fuß, \"-e","foot"],["der Hals, \"-e","neck"],["die Hand, \"-e","hand"],
+["das Knie, -","knee"],["der Kopf, \"-e","head"],["der Körper, -","body"],["der Rücken, -","back"],
+["der Körperteil, -e","body part"],["abwechseln","to take turns"],["das Auge, -n","eye"],
+["das Gesicht, -er","face"],["das Haar, -e","hair"],["der Mund, \"-er","mouth"],["die Nase, -n","nose"],
+["das Ohr, -en","ear"],["der Zahn, \"-e","tooth"],["riechen","to smell"],["bekommen","to get"],
+["der Doktor, Doktoren / die Doktorin, -nen","doctor"],["das Rezept, -e","prescription"],
+["die Salbe, -n","salve"],["der Unfall, \"-e","accident"],["der Verband, \"-e","bandage"],
+["verletzt","injured"],["die Apotheke, -n","pharmacy"],["bewegen","to move"],
+["gute Besserung","get well soon"],["hinlegen (sich)","to lie down"],["die Kontrolle, -n","check"],
+["kontrollieren","to check"],["sauber machen","to clean"],["sich","oneself"],["wehtun","to hurt"],
+["die Wunde, -n","wound"],["der Arztbesuch, -e","visit to the doctor"],["sofort","immediately"],
+["sollen","be supposed to"],["die Bauchschmerzen (Pl.)","stomach pain"],["erkältet","to have a cold"],
+["das Fieber","fever"],["husten","cough"],["schlecht","sick (here)"],["total","totally"],
+["baden","to bath"],["dürfen","to be allowed to"],["erlaubt sein","to be allowed"],
+["gegen (+A.)","for (here)"],["der Hustensaft, \"-e","cough syrup"],["nehmen","to take (medicine)"],
+["rauchen","to smoke"],["der Schmerz, -en","pain"],["zweimal","twice"],
+["die Anweisung, -en","instruction"],["die Halsschmerzen (Pl.)","sore throat"],
+["die Kopfschmerzen (Pl.)","headache"],["die Rückenschmerzen (Pl.)","back pain"],
+["die Rolle, -n","role"],["das Pflaster, -","band-aid"],["der Saft, \"-e","syrup (here)"],
+["der Tropfen, -","drop"],["der Honig","honey"],["die Hühnersuppe, -n","chicken soup"],
+["die Nelke, -n","clove"],["der Schnupfen, -","common cold"],["vermuten","to suspect"],
+["die Zahnschmerzen (Pl.)","toothache"],["die Bitte, -n","request"],["einschlafen","to fall asleep"],
+["der Forumsbeitrag, \"-e","forum post"],["das Hausmittel, -","home remedy"],["inhalieren","to inhale"],
+["jemand","someone"],["perfekt","perfect"],["die Schlaftablette, -n","sleeping pill"],
+["das Suppenhuhn, \"-er","chicken for soup"],["der Tipp, -s","tip"],["versuchen","to attempt"],
+["aufhängen","to hang up"],["der Zettel, -","note"],["anstrengend","exhausting"],["das Blut","blood"],
+["das Ergebnis, -se","result"],["glücklich","happy"],["das Labor, -e","lab(oratory)"],
+["der Laborant, -en / die Laborantin, -nen","lab assistant"],
+["der Notarzt, \"-e / die Notärztin, -nen","emergency doctor"],
+["der Physiotherapeut, -en / die Physiotherapeutin, -nen","physical therapist"],
+["die Physiotherapie, -n","physical therapy"],["der Sportler, - / die Sportlerin, -nen","athlete"],
+["die Strategie, -n","strategy"],["die Übung, -en","exercise"],["untersuchen","to examine"],
+["dazugehören","to include"],["das Deutsche","German (language)"],["erschließen","to infer"],
+["die Hilfe, -n","help"],["das Kompositum, Komposita","compound"],["der Kontext, -e","context"],
+["der Therapeut, -en / die Therapeutin, -nen","therapist"],["der/die Verletzte, -n","casualty"],
+["zerlegen","to disassemble"],["der Ausdruck, \"-e","expression"],["ausdrücken","to express"],
+["die Erlaubnis, -se","permission"],["das Gebot, -e","commandment"],["das Verbot, -e","prohibition"],
+["wiedergeben","to recite"]
+]},
+{ title:"Kapitel 9 · Meine Wohnung", words:[
+["das Arbeitszimmer, -","office"],["das Bad, \"-er","bath"],["der Balkon, -e","balcony"],
+["der Fernseher, -","television"],["der Flur, -e","hallway"],["das Gerät, -e","device, appliance"],
+["der Herd, -e","stove"],["die Kaffeemaschine, -n","coffee machine"],["das Kinderzimmer, -","nursery"],
+["die Küche, -n","kitchen"],["der Kühlschrank, \"-e","refrigerator"],["die Lampe, -n","lamp"],
+["die Möbel (Pl.)","furniture"],["das Regal, -e","shelf"],["das Schlafzimmer, -","bedroom"],
+["der Schrank, \"-e","wardrobe, cupboard"],["der Schreibtisch, -e","desk"],["der Sessel, -","armchair"],
+["das Sofa, -s","sofa, couch"],["die Spülmaschine, -n","dishwasher"],["der Stuhl, \"-e","chair"],
+["der Teppich, -e","carpet"],["die Toilette, -n","toilet"],["die Waschmaschine, -n","washing machine"],
+["die Wohnung, -en","flat"],["das Wohnzimmer, -","living room"],["oben","above"],
+["die Pflanze, -n","plant"],["ziehen","to move"],["besonders","especially"],
+["der Lieblingsort, -e","favourite place"],["das Lieblingszimmer, -","favourite room"],
+["hell","light"],["maximal","maximally"],["qm","sq m"],["die Terrasse, -n","patio"],
+["ungefähr","approximately"],["die Wohnungssuche","flat search"],["das Zentrum, Zentren","centre"],
+["die Miete, -n","rent"],["der Wunsch, \"-e","wish"],["das Apartment, -s","apartment"],
+["billig","cheap"],["direkt","right (here: location)"],["die Dusche, -n","shower"],
+["elegant","elegant"],["ideal","ideal"],["jung","young"],["die Nähe","proximity"],
+["renoviert","refurbished"],["der Stock, \"-e","floor"],["top","well"],["vermieten","to let"],
+["die Wohnfläche, -n","living space"],["die Wohnungsanzeige, -n","advertisement for flat"],
+["zentral","central"],["dunkel","dark"],["günstig","low-priced"],["stellen","to put"],
+["ausfüllen","to fill in"],["besichtigen","to view"],["die Kiste, -n","box"],["das Licht, -er","light"],
+["packen","to pack"],["schließen","to close"],["die Tür, -en","door"],["umziehen","to move"],
+["der Umzug, \"-e","move"],["unterschreiben","to sign"],["der Vermieter, - / die Vermieterin, -nen","landlord / landlady"],
+["der Vertrag, \"-e","contract"],["zumachen","to close"],["freuen (sich)","to look forward to"],
+["scheinen","to shine"],["fehlend","missing"],["bald","soon"],["die Feier, -n","celebration"],
+["der Glückwunsch, \"-e","congratulations"],["der Samstagabend, -e","Saturday night"],
+["die Einweihungsfeier, -n","house warming"],["genau","exactly"],["hinter (+D.)","behind"],
+["neben (+D.)","next to"],["über (+D.)","over"],["unter (+D.)","under"],["zwischen (+D.)","between"],
+["aussehen","to look"],["die Begeisterung","enthusiasm"],["doch","indeed"],["gemütlich","comfortable"],
+["hässlich","ugly"],["nicht mehr","not anymore"],["die Äußerung, -en","remark"],["negativ","negative"],
+["positiv","positive"],["braun","brown"],["gelb","yellow"],["grau","gray"],["lila","purple"],
+["orange","orange"],["schwarz","black"],["weiß","white"],["die Altbauwohnung, -en","flat in old building"],
+["aus (+D.)","out of"],["die Decke, -n","ceiling"],["das Fachwerkhaus, \"-er","half-timber house"],
+["der Garten, \"-","garden"],["das Hochhaus, \"-er","skyscraper"],["das Holz, \"-er","wood"],
+["das Loft, -s","loft"],["der Raum, \"-e","room"],["das Reihenhaus, \"-er","townhouse"],
+["die Treppe, -n","stairs"],["die Überschrift, -en","heading"],["der Bewohner, - / die Bewohnerin, -nen","resident"],
+["der Nachteil, -e","disadvantage"],["der Vorteil, -e","advantage"],["die Wohnform, -en","form of housing"],
+["der Baum, \"-e","tree"],["der Blick, -e","view"],["die Blume, -n","flower"],["ein paar","a couple"],
+["das Erdgeschoss, -e","ground level"],["die Lage, -n","location"],["nie","never"],["weit","far"],
+["die WG, -s","flat share"],["die Wohn-Situation, -en","living situation"],["zufrieden","satisfied"],
+["zurzeit","currently"],["das Heft, -e","exercise book"],["der Textbaustein, -e","text block"],
+["der Gefallen","approval"],["das Missfallen","disapproval"],
+["die Wechselpräposition, -en","two-case preposition"]
+]},
+{ title:"Kapitel 10 · Studium und Beruf", words:[
+["das Studium, Studien","studies"],["betreuen","to supervise"],["geben","to give (lessons)"],
+["malen","to paint"],["segeln","to sail"],["der Unterricht","lessons"],
+["der Künstler, - / die Künstlerin, -nen","artist"],["die Radiosendung, -en","radio programme"],
+["der Segellehrer, - / die Segellehrerin, -nen","sailing instructor"],["der Arbeitsplatz, \"-e","workplace"],
+["die Baustelle, -n","construction site"],["das Kaufhaus, \"-er","department store"],
+["die Werkstatt, \"-en","workshop"],["die Karriere, -n","career"],["der Punkt, -e","point"],
+["verdienen","to earn"],["die Kursstatistik, -en","course statistic"],
+["der Feierabend, -e","closing time, home time"],["fleißig","hardworking"],["haben","to have"],
+["laufen","to go (es läuft gut)"],["leer","empty"],["letzte, letzter","last"],["mal","sometime"],
+["der Professor, Professoren / die Professorin, -nen","professor"],["das Projekt, -e","project"],
+["das Semester, -","semester"],["vorbei sein","to be over"],["ebenso","also"],
+["das Partizip, -ien","participle"],["das Perfekt","perfect (tense)"],["sein","to happen (here)"],
+["die Prüfung, -en","test, exam"],["die Statistik, -en","statistics"],["das Studio, -s","studio"],
+["trainieren","to train"],["das Unicafé, -s","uni café"],["beide","both"],["kaum","barely"],
+["nehmen","to take"],["der Anhang, \"-e","appendix"],["die Liste, -n","list"],
+["die Aufgabe, -n","assignment"],["mischen","to mix"],["die Agentur für Arbeit","employment office"],
+["arbeitslos","unemployed"],["die Bewerbung, -en","application"],["durch (+A.)","through"],
+["die Ehefrau, -en","wife"],["der Ehemann, \"-er","husband"],["eilig","hurried"],
+["fliegen","to fly"],["freundlich","friendly"],["früher","formerly"],["die Heimat","home"],
+["der Hotelchef, -s / die Hotelchefin, -nen","hotel boss"],["das Internet","internet"],
+["der Job, -s","job"],["das Job-Portal, -e","job portal"],["nur noch","only"],
+["das Profil, -e","profile"],["der Sekretär, -e / die Sekretärin, -nen","secretary"],
+["die Stelle, -n","position"],["die Ortsveränderung, -en","change of location"],
+["das Angebot, -e","offer"],["die Nachrichten (Pl.)","news"],["normal","normal"],
+["der Spaziergang, \"-e","walk"],["der Tennisplatz, \"-e","tennis court"],["wirklich","really"],
+["her","ago"],["der Anruf, -e","call"],["die Durchwahl, -en","direct dialling"],
+["verbinden","to connect"],["bestimmt","certain"],["melden (sich)","to answer"],
+["wie bitte","excuse me"],["der Anschluss, \"-e","connection"],["besetzt","busy"],
+["die Computerfirma, -firmen","computer company"],["das Computerproblem, -e","computer problem"],
+["vorspielen","to act out"],["der Anfang, \"-e","beginning"],["die Attraktion, -en","attraction"],
+["das Ausland","abroad"],["berühmt","famous"],["die Bühne, -n","stage"],["das Ende, -n","end"],
+["das Festspiel, -e","festival production"],["der Händler, - / die Händlerin, -nen","merchant"],
+["insgesamt","all together"],["das Karussell, -e","merry-go-round"],
+["das Kulturfestival, -s","culture festival"],["die Oper, -n","opera"],["stattfinden","to take place"],
+["der Stollen, -","German fruit cake"],["verkaufen","to sell"],["die Ware, -n","goods"],
+["der Weihnachtsmarkt, \"-e","Christmas market"],["der Zuschauer, - / die Zuschauerin, -nen","spectator"],
+["die Veranstaltung, -en","event"],["der Statist, -en / die Statistin, -nen","extra"],
+["der Saison-Job, -s","seasonal job"],["nachfragen","to ask again"]
+]},
+{ title:"Kapitel 11 · Die Jacke gefällt mir!", words:[
+["gefallen","to please, appeal to"],["die Jacke, -n","jacket"],["doof","stupid"],["eng","tight"],
+["das Hemd, -en","shirt"],["die Hose, -n","trousers"],["der Rock, \"-e","skirt"],["stehen","to suit"],
+["das T-Shirt, -s","t-shirt"],["viel zu","much too"],["weit","loose"],["die Geschichte, -n","story"],
+["der Anzug, \"-e","suit"],["ausgehen","to go out"],["das Kleid, -er","dress"],["die Kleidung","clothes"],
+["die Krawatte, -n","tie"],["der Pullover, -","jumper"],["tragen","to wear"],["die Bluse, -n","blouse"],
+["die Jeans, -","jeans"],["der Mantel, \"-","coat"],["die Mütze, -n","hat"],["der Schuh, -e","shoe"],
+["der Stiefel, -","boot"],["die Tasche, -n","bag"],["gleich","the same"],
+["das Kleidergeschäft, -e","clothes shop"],["der Laden, \"-","shop"],
+["der Secondhand-Laden, \"-","secondhand shop"],["weiterhören","to continue to listen"],
+["also","well"],["besser","better"],["daneben","beside"],["die Entscheidung, -en","decision"],
+["der Hut, \"-e","hat"],["meinen","to mean"],["der Quatsch","nonsense"],["schauen","to look"],
+["der Schal, -s","scarf"],["das Sweatshirt, -s","sweatshirt"],["das Tuch, \"-er","shawl"],
+["ankommen","to arrive"],["böse","angry"],["empfehlen","to recommend"],["entdecken","to find"],
+["die Klamotten (Pl.)","clothes"],["nerven","to annoy"],["ohne (+A.)","without"],["online","online"],
+["passen","to fit"],["die Reaktion, -en","reaction"],["die Sache, -n","thing"],
+["umtauschen","to change"],["vorgestern","day before yesterday"],["zurückschicken","to send back"],
+["das Präfix, -e","prefix"],["betont","stressed"],["die Betonung, -en","stress"],
+["fernsehen","to watch television"],["anprobieren","to try on"],["ausziehen","to take off"],
+["shoppen","to shop"],["der Pulli, -s","pullover"],["die Abendkleidung","evening wear"],
+["die Bademode, -n","swimwear"],["die CD, -s","CD"],["die Damenmode, -n","women's fashion"],
+["das Duschgel, -s","shower gel"],["das Elektrogerät, -e","electronic device"],
+["das Fitnessgerät, -e","fitness equipment"],["das Fotozubehör","photographic accessories"],
+["die Freizeitkleidung","leisure clothes"],["die Haushaltswaren (Pl.)","homewares"],
+["die Herrenmode, -n","men's fashion"],["der/die Jugendliche, -n","teenager"],["die Kamera, -s","camera"],
+["die Kasse, -n","cashier"],["die Kosmetik","cosmetics"],["der Kugelschreiber, -","ballpoint pen"],
+["die Mode, -n","fashion"],["das Parfüm, -e/-s","perfume"],["die Parfümerie, -n","perfumery"],
+["der Schmuck","jewelry"],["die Schreibwaren (Pl.)","stationery"],["die Spielwaren (Pl.)","toys"],
+["die Sportkleidung","sportswear"],["die Technik, -en","technology"],["die Uhr, -en","clock"],
+["das Untergeschoss, -e","basement"],["der USB-Stick, -s","USB stick"],["die Zeitschrift, -en","magazine"],
+["das Produkt, -e","product"],["der Bleistift, -e","pencil"],["kaputt","broken"],["das Papier, -e","paper"],
+["die Tafel, -n","board"],["der Wortteil, -e","part of the word"],["danken","to thank"],
+["kriegen","to get"],["der Buchladen, \"-","bookstore"],["auf sein","to be open"],
+["geschlossen","closed"],["öffnen","to open"],["das Schild, -er","sign"],["schließen","to close"],
+["zu sein","to be closed"],["zuhaben","to be closed"],["das Atelier, -s","studio"],
+["attraktiv","attractive"],["auf jeden Fall","in any case"],["das Design, -s","design"],
+["der Designfan, -s","design fan"],["die Fernsehproduktion, -en","TV production"],
+["die Filmproduktion, -en","film production"],["der Fotograf, -en / die Fotografin, -nen","photographer"],
+["die Hauptstadt, \"-e","capital city"],["individuell","individual"],["der Infotext, -e","informational text"],
+["das Label, -s","brand"],["lebendig","living"],["der Modedesigner, - / die Modedesignerin, -nen","fashion designer"],
+["der Modefan, -s","fashionista"],["die Modeschule, -n","fashion school"],
+["die Musikproduktion, -en","music production"],["rund","around"],["die Szene, -n","scene"],
+["die Trendstadt, \"-e","trendy city"],["bequem","comfortable"],["der Deckel, -","lid"],
+["der Flagship-Store, -s","flagship store"],["der Haushalt, -e","household"],
+["der Individualist, -en / die Individualistin, -nen","individualist"],["das Modell, -e","model"],
+["nicht nur","not only"],["die Saison, -en/-s","season"],["der Schuhfan, -s","shoe fan"],
+["der Schuhladen, \"-","shoeshop"],["der Shop, -s","shop"],["das Souvenir, -s","souvenir"],
+["unterwegs","on the way"],["die Variation, -en","variation"],["die Architektur","architecture"],
+["der Designer, - / die Designerin, -nen","designer"],["einfach","simple"],["die Erfindung, -en","invention"],
+["das Gadget, -s","gadget"],["der Hof, \"-e","courtyard"],["originell","original"],
+["praktisch","practical"],["der Stichpunkt, -e","bullet point"],["topaktuell","cutting-edge"],
+["die Öffnungszeiten (Pl.)","opening hours"],["der Demonstrativartikel, -","demonstrative article"],
+["der Interrogativartikel, -","interrogative article"],["der Kleiderkauf, \"-e","clothes shopping"],
+["orientieren (sich)","to orient"]
+]},
+{ title:"Kapitel 12 · Ab in den Urlaub!", words:[
+["ab","off"],["der Badeurlaub, -e","beach holiday"],["der Campingurlaub, -e","camping holiday"],
+["der Ski-Urlaub, -e","skiing holiday"],["der Snowboard-Urlaub, -e","snowboarding holiday"],
+["der Stadturlaub, -e","city trip"],["der Badeanzug, \"-e","swimsuit"],["die Badehose, -n","swimming trunks"],
+["der Bikini, -s","bikini"],["das Gepäck","luggage"],["das Geschirr","dishes"],
+["der Handschuh, -e","glove"],["die Handtasche, -n","handbag"],["der Helm, -e","helmet"],
+["die Regenjacke, -n","rain coat"],["der Regenschirm, -e","umbrella"],["der Reiseführer, -","travel guide"],
+["die Reisetasche, -n","holdall"],["der Schlafsack, \"-e","sleeping bag"],["die Seife, -n","soap"],
+["die Sonnenbrille, -n","sunglasses"],["die Sonnencreme, -s","sunscreen"],["die Winterjacke, -n","winter coat"],
+["das Zelt, -e","tent"],["einpacken","to pack"],["das Kofferpacken","to pack one's suitcase"],
+["die Städtereise, -n","city trip"],["die Stadtführung, -en","tour of the city"],
+["die Anmeldung, -en","registration"],["der Ausweis, -e","ID card"],["da vorne","over there"],
+["die Daten (Pl.)","files"],["das Doppelzimmer, -","twin room"],["das Einzelzimmer, -","single room"],
+["die Karte, -n","card"],["die Papiere (Pl.)","documents"],["der Pass, \"-e","passport"],
+["reservieren","to book"],["die Rezeption, -en","reception"],["so","so (here)"],["unten","below"],
+["wünschen","to wish"],["die Bergtour, -en","mountain tour"],["spazieren gehen","to go for a walk"],
+["die/das Tram, -s","tram"],["der Vorschlag, \"-e","suggestion"],["danach","after"],
+["der Schluss, \"-e","end"],["zum Schluss","at the end"],["einsteigen","to board"],
+["die Haltestelle, -n","station"],["die Route, -n","route"],["umsteigen","to transfer"],
+["benutzen","to use"],["die Nummer, -n","number"],["der Platz, \"-e","square"],
+["abfahren","to depart"],["die Abfahrt, -en","departure"],["alle","every"],["die Ankunft, \"-e","arrival"],
+["der Ausgang, \"-e","exit"],["aussteigen","to get off"],["der Bahnsteig, -e","train platform"],
+["die Ecke, -n","corner"],["der Flughafen, \"-","airport"],["gegenüber","across from"],
+["das Gleis, -e","track"],["nehmen","to take"],["denn","because"],["die Postkarte, -n","postcard"],
+["shoppen gehen","to go shopping"],["die Tante, -n","aunt"],["der Zoo, -s","zoo"],["die Kunst, \"-e","art"],
+["die Sehenswürdigkeit, -en","tourist attraction"],["die Auskunft, \"-e","information"],
+["außerhalb","outside of"],["der/die Bekannte, -n","acquaintance"],["erst","only (here)"],
+["etwas","a bit"],["froh","glad"],["der Handy-Akku, -s","phone battery"],
+["die Jugendherberge, -n","youth hostel"],["k.o.","tired"],["losfahren","to leave"],
+["der Mann, \"-er","boy (here: exclamation)"],["die Pension, -en","guesthouse"],
+["der Reisebericht, -e","travelogue"],["sauber","clean"],["der Schaffner, - / die Schaffnerin, -nen","conductor"],
+["tatsächlich","actually"],["übernachten","to sleep over, to stay at"],["verpassen","to miss"],
+["wecken","to wake up"],["zurückfahren","to drive back"],["zurückfinden","to find back"],
+["die Art","type"],["das Fragewort, \"-er","interrogative"],["der Grund, \"-e","reason"],
+["die Weise","manner"],["chillen","to chill"],["gehören","to belong"],
+["die Lieblingsfarbe, -n","favourite colour"],["die Reise, -n","trip"],["das Skifahren","to ski"],
+["das Video, -s","video"],["wunderbar","wonderful"],["das Deutschbuch, \"-er","German book"],
+["der Flug, \"-e","flight"],["die Wortliste, -n","word list"],["die Himmelsrichtung, -en","cardinal direction"],
+["die Karte, -n","map"],["liegen","to be (located)"],["der Norden","North"],["der Osten","East"],
+["der Süden","South"],["vorne","in front"],["der Westen","West"],["der Berg, -e","mountain"],
+["bewölkt","cloudy"],["die Burg, -en","castle"],["der Grad, -e","degree"],["das Pech","bad luck"],
+["schneien","to snow"],["sonnig","sunny"],["der Traum, \"-e","dream"],
+["die Urlaubsnachricht, -en","holiday message"],["der Wetterbericht, -e","weather report"],
+["der Wind, -e","wind"],["die Wolke, -n","cloud"],["zum Glück","luckily"],["der Schnee","snow"],
+["windig","windy"],["die Hitze","heat"],["das Mistwetter","bad weather"],["schütten","to pour"],
+["selten","rarely"],["einmal","once"],["das Reiseziel, -e","(travel) destination"],
+["der Abschnitt, -e","section, paragraph"],["das Angebot, -e","offer"],
+["die Bewegung, -en","exercise, movement"],["der/die Deutsche, -n","German (person)"],
+["das Dorf, \"-er","village"],["die Insel, -n","island"],["die Kultur","culture"],
+["die Landschaft, -en","landscape"],["populär","popular"],["der Strand, \"-e","beach"],
+["der Traumurlaub, -e","dream holiday"],["wunderschön","beautiful"],["der Urlaubsort, -e","holiday resort"]
+]}
+];
+
+
+// IPA: [Deutsch, Englisch] je Karte (Wiktionary / ipa-dict; ≈ = automatisch zusammengesetzt)
+const IPA = {"0_0":["/bʊlˈɡaːʁɪʃ/","≈ /bʌlˈɡeəriən/"],"0_1":["/dɔɪ̯t͡ʃ/","/ˈdʒɜːmən/"],"0_2":["/ˈɛŋlɪʃ/","/ˈɪŋɡlɪʃ/"],"0_3":["/ɡuːt/","/ɡʊd/"],"0_4":["/ˈɡuːtn̩ taːk/","/ɡʊd deɪ / həˈləʊ/"],"0_5":["/ˌɪndoˈneːzɪʃ/","≈ /ɪndəʊˈniːziən/"],"0_6":["/ˌɪntɐnat͡si̯oˈnaːl/","/ˌɪntəˈnæʃənəl/"],"0_7":["/ˌitaˈli̯eːnɪʃ/","≈ /ɪˈtæliən/"],"0_8":["/jaˈpaːnɪʃ/","≈ /ˌdʒæpəˈniːz/"],"0_9":["/ˈʁʊsɪʃ/","≈ /ˈrʌʃən/"],"0_10":["/ˈzɛʁbɪʃ/","≈ /ˈsɜːbiən/"],"0_11":["/ziː/","/juː (ˈfɔːməl)/"],"0_12":["/ˈtʏʁkɪʃ/","≈ /ˈtɜːkɪʃ/"],"0_13":["/ˈʊŋɡaʁɪʃ/","≈ /hʌŋˈɡeəriən/"],"0_14":["/vas/","/wɒt/"],"0_15":["/ˈt͡suːˌʔɔʁdnən/","/tə əˈsaɪn, tə mætʃ/"],"0_16":["/t͡suˈzamənɡəˌhøːʁən/","/tə fɪt təˈɡeðə/"],"0_17":["/ˈaʊ̯toˌbaːn/ · Pl. /ˈaʊ̯toˌbaːnən/","/ˈhaɪweɪ/"],"0_18":["/ˈbʊtɐˌbʁoːt/ · Pl. /ˈbʊtɐˌbʁoːtə/","/ˈsændwɪtʃ/"],"0_19":["/ˈflaʃə/ · Pl. /ˈflaʃn̩/","/ˈbɒtəl/"],"0_20":["/ˈhantˌtuːx/ · Pl. /ˈhantˌtyːçɐ/","/taʊəl/"],"0_21":["/ˈkɪndɐˌɡaʁtn̩/ · Pl. /ˈkɪndɐˌɡɛʁtn̩/","/ˈkɪndəɡɑːtən/"],"0_22":["/ˈkɔfɐ/","/ˈsuːtkeɪs/"],"0_23":["/ˈkʁaŋkə/ · Pl. /ˈkʁaŋkn̩/","/sɪk ˈpɜːsən/"],"0_24":["/ˈnuːdl̩/ · Pl. /ˈnuːdl̩n/","/ˈnuːdəl/"],"0_25":["/ˈvʏʁstçən/","/ˈsɒsɪdʒ/"],"0_26":["/ˈvʏʁstl̩/","/ˈsɒsɪdʒ/"],"0_27":["/aʊ̯f/","≈ /ɪn (juːzd wɪð ˈlæŋɡwɪdʒɪz)/"],"0_28":["/ˈhaɪ̯sn̩/","/tə biː kɔːld/"],"0_29":["/iːɐ̯ ˈiːʁə/","/jɔː (ˈfɔːməl)/"],"0_30":["/ˈʃpaːnɪʃ/","≈ /ˈspænɪʃ/"],"0_31":["/ˈʃpʁaːxə/ · Pl. /ˈʃpʁaːxn̩/","/ˈlæŋɡwɪdʒ/"],"0_32":["/viː/","/wɒt / haʊ/"],"0_33":["/vɔʁt/ · Pl. /ˈvœʁtɐ/","/wɜːd/"],"0_34":["/ˈandəʁə ˈandəʁɐ/","/ˈʌðə/"],"0_35":["/aɪ̯n ˈaɪ̯nə/","/ə/"],"0_36":["/ˈkɛnən/","/tə nəʊ/"],"0_37":["≈ /ˈkʊʁsplaˌkaːt/ · Pl. /ˈkʊʁsplaˌkaːtə/","/kɔːs ˈpəʊstə/"],"0_38":["/ˈmaxn̩/","/tə meɪk/"],"0_39":["/ˈzaml̩n/","≈ /tə kəˈlekt/"],"0_40":["/ʊnt/","/ənd/"],"0_41":["/aʊ̯x/","/ˈɒlsəʊ/"],"0_42":["/bɪs balt/","/siː juː suːn/"],"0_43":["/t͡ʃaʊ̯/","/baɪ/"],"0_44":["/ˈdaŋkə/","/θæŋk juː/"],"0_45":["/diːɐ̯/","≈ /juː (dæt)/"],"0_46":["/duː/","/juː/"],"0_47":["/ɛntˈʃʊldɪɡʊŋ/ · Pl. /ɛntˈʃʊldɪɡʊŋən/","≈ /ˈsɒri / eksˈkjuːs miː/"],"0_48":["/ɡant͡s/","/ˈprɪti (hiə ɪnˈtensɪfaɪə)/"],"0_49":["/ˈɡeːən/","/tə ɡəʊ/"],"0_50":["/haˈloː/","/həˈləʊ/"],"0_51":["/ˈhøːʁən/","/tə hiə/"],"0_52":["/ɪç/","/aɪ/"],"0_53":["/ˈleːzn̩/","≈ /tə riːd/"],"0_54":["/pɛʁˈzoːn/ · Pl. /pɛʁˈzoːnən/","/ˈpɜːsən/"],"0_55":["/zeːɐ̯/","/ˈveri/"],"0_56":["/zaɪ̯n/","/tə biː/"],"0_57":["/t͡ʃyːs/","/baɪ/"],"0_58":["/veːɐ̯/","/huː/"],"0_59":["/zituaˈt͡si̯oːn/ · Pl. /zituaˈt͡si̯oːnən/","/ˌsɪtʃuːˈeɪʃən/"],"0_60":["/ˈʃpiːlən/","/tə pleɪ/"],"0_61":["/bəˈkant/","≈ /welnəʊn/"],"0_62":["/ˈnaːmə/ · Pl. /ˈnaːmən/","/neɪm/"],"0_63":["/ˈoːdɐ/","/ɔː/"],"0_64":["/aʊ̯f ˈviːdɐˌzeːən/","/ɡʊdˈbaɪ/"],"0_65":["/ɛs/","/ɪt/"],"0_66":["/fʁaʊ̯/","≈ /ˈmɪsɪz / ˌeˈmes/"],"0_67":["/ˈɡuːtə naxt/","/ɡʊd naɪt/"],"0_68":["/ˈɡuːtn̩ ˈaːbm̩t/","≈ /ɡʊd ˈiːvnɪŋ/"],"0_69":["/ˈɡuːtn̩ ˈmɔʁɡn̩/","/ɡʊd ˈmɔːnɪŋ/"],"0_70":["/hɛʁ/","≈ /ˈmɪstə/"],"0_71":["/ˈiːnən/","≈ /juː (ˈfɔːməl, dæt)/"],"0_72":["/maɪ̯n ˈmaɪ̯nə/","/maɪ/"],"0_73":["/fɔʁˈmɛl/","/ˈfɔːməl/"],"0_74":["/ɪnfɔʁˈmɛl/","/ɪnˈfɔːməl/"],"0_75":["/ˈnaːxˌnaːmə/ · Pl. /ˈnaːxˌnaːmən/","/lɑːst neɪm/"],"0_76":["/pɛʁzoˈnaːlpʁoˌnoːmən/","/ˈpɜːsənəl ˈprəʊnaʊn/"],"0_77":["/vɛʁp/ · Pl. /ˈvɛʁbn̩/","/vɜːb/"],"0_78":["/ˈfoːɐ̯ˌnaːmə/ · Pl. /ˈfoːɐ̯ˌnaːmən/","/fɜːst neɪm/"],"0_79":["/ˈantvɔʁt/ · Pl. /ˈantˌvɔʁtn̩/","/ˈɑːnsə/"],"0_80":["/aʊ̯s/","/frəm/"],"0_81":["/ˈdɔɪ̯t͡ʃlant/","≈ /ˈdʒɜːməni/"],"0_82":["/ɪn/","/ɪn/"],"0_83":["/ˈkɔmən/","/tə kʌm frəm/"],"0_84":["/ˈʁaɪ̯zəˌfyːʁɐ/","/ˈtrævəl ɡaɪd (em)/"],"0_85":["/ˈʁaɪ̯zəˌfyːʁəʁɪn/ · Pl. /ˈʁaɪ̯zəˌfyːʁəʁɪnən/","/ˈtrævəl ɡaɪd (ef)/"],"0_86":["/ˈʃpʁɛçn̩/","/tə spiːk/"],"0_87":["/teleˈfoːn/ · Pl. /teleˈfoːnə/","/ˈtelɪfəʊn/"],"0_88":["/ˈvɛlçə ˈvɛlçɐ/","/wɪtʃ/"],"0_89":["/voː/","/weə/"],"0_90":["/voˈheːɐ̯/","/frəm weə/"],"0_91":["/ˈvoːnən/","≈ /tə laɪv/"],"0_92":["/ˈaʊ̯szaːɡəˌzat͡s/ · Pl. /ˈaʊ̯szaːɡəˌzɛt͡sə/","/dɪˈklærətɪv ˈsentəns/"],"0_93":["/ˈɪntɐvjuː/ · Pl. /ˈɪntɐvjuːs/","/ˈɪntəvjuː/"],"0_94":["/vaʁiˈiːʁən/","/tə ˈveəri/"],"0_95":["/ˈveːˌfʁaːɡə/ · Pl. /ˈveːˌfʁaːɡn̩/","≈ /ˈdʌbəljuːˈkwestʃən/"],"0_96":["/eːɐ̯/","≈ /hiː/"],"0_97":["/ɛɐ̯ˈɡɛnt͡sn̩/","/tə kəmˈpliːt/"],"0_98":["/ziː/","/ʃiː/"],"0_99":["/noˈtiːʁən/","/tə nəʊt/"],"0_100":["/t͡svaɪ̯/","/tuː/"],"0_101":["/ˈpaʁtnɐ/","/ˈpɑːtnə (em)/"],"0_102":["/ˈpaʁtnəʁɪn/ · Pl. /ˈpaʁtnəʁɪnən/","/ˈpɑːtnə (ef)/"],"0_103":["/ˈʁaːtn̩/","/tə ɡes/"],"0_104":["/ˈfoːɐ̯ˌʃtɛlən/","/tə ˌɪntrəˈdjuːs/"],"0_105":["/axt/","/eɪt/"],"0_106":["/ˈaxt͡seːn/","/eɪˈtiːn/"],"0_107":["/ˈbuːxˌʃtaːbə/ · Pl. /ˈbuːxˌʃtaːbn̩/","/ˈletə/"],"0_108":["/dan/","/ðen/"],"0_109":["/dʁaɪ̯/","/θriː/"],"0_110":["/ˈdʁaɪ̯t͡seːn/","/θɜːˈtiːn/"],"0_111":["/aɪ̯ns/","/wɒn/"],"0_112":["/ɛlf/","/ɪˈlevən/"],"0_113":["/fʏnf/","/faɪv/"],"0_114":["/ˈfʏmpft͡seːn/","/fɪfˈtiːn/"],"0_115":["/laʊ̯t/","/laʊd/"],"0_116":["/ˈmɪtˌʃpʁɛçn̩/","/tə spiːk əˈlɒŋ/"],"0_117":["/nɔɪ̯n/","/naɪn/"],"0_118":["/ˈnɔɪ̯nt͡seːn/","/naɪnˈtiːn/"],"0_119":["/nʊl/","/ˈziərəʊ/"],"0_120":["/zɛks/","/sɪks/"],"0_121":["/ˈzɛçt͡seːn/","/sɪkˈstiːn/"],"0_122":["/ˈziːbm̩/","/ˈsevən/"],"0_123":["/ˈziːpt͡seːn/","/ˌsevənˈtiːn/"],"0_124":["/fiːɐ̯/","/fɔː/"],"0_125":["/ˈfɪʁt͡seːn/","/fɔːˈtiːn/"],"0_126":["/t͡saːl/ · Pl. /ˈt͡saːlən/","≈ /ˈnʌmbə/"],"0_127":["/t͡seːn/","/ten/"],"0_128":["/ˈt͡svant͡sɪk/","/ˈtwenti/"],"0_129":["/t͡svœlf/","/twelv/"],"0_130":["/ˈhɛndiˌnʊmɐ/ · Pl. /ˈhɛndiˌnʊmɐn/","≈ /ˈməʊbaɪl fəʊn ˈnʌmbə/"],"0_131":["/daɪ̯n ˈdaɪ̯nə/","/jɔː/"],"0_132":["/ˈfʁaːɡn̩/","/tə ɑːsk/"],"0_133":["/naːx/","/əˈbaʊt/"],"0_134":["/teləˈfoːnˌnʊmɐ/ · Pl. /teləˈfoːnˌnʊmɐn/","≈ /ˈtelɪfəʊn ˈnʌmbə/"],"0_135":["/alfaˈbeːt/ · Pl. /alfaˈbeːtə/","/ˈælfəbet/"],"0_136":["/ˈmɪtˌleːzn̩/","≈ /tə riːd əˈlɒŋ/"],"0_137":["/t͡suˈʔeːɐ̯st/","/ət fɜːst/"],"0_138":["/ˈiːmeɪ̯lʔaˌdʁɛsə/ · Pl. /ˈiːmeɪ̯lʔaˌdʁɛsn̩/","≈ /ˈiːmeɪl əˈdres/"],"0_139":["/ɡəˈʃpʁɛːç/ · Pl. /ɡəˈʃpʁɛːçə/","/kɒnvəˈseɪʃən/"],"0_140":["/man/","/wɒn/"],"0_141":["/ˈmiːnʊs/","/ˈmaɪnəs/"],"0_142":["/pʊŋkt/ · Pl. /ˈpʊŋktə/","/ˈpiərɪəd/"],"0_143":["/ˈzaːɡn̩/","/tə seɪ/"],"0_144":["/ˈʃʁaɪ̯bm̩/","/tə raɪt/"],"0_145":["/ˌʊntɐˈʃtʁɪç/ · Pl. /ʊntɐˈʃtʁɪçə/","/ˌʌndəˈskɔː/"],"0_146":["/ˈbɪtə/","/pliːz/"],"0_147":["/ˌbuːxʃtaˈbiːʁən/","/tə spel/"],"0_148":["/diaˈloːk/ · Pl. /diaˈloːɡə/","/ˈdaɪəlɒɡ/"],"0_149":["/aɪ̯n ˈbɪsçən/","/ə ˈlɪtəl/"],"0_150":["/ˈlaŋzaːm/","/sləʊ/"],"0_151":["/nɪçt/","/nɒt/"],"0_152":["/nɔx ˈaɪ̯nmaːl/","/wɒns mɔː/"],"0_153":["/fɛɐ̯ˈʃteːən/","/tə ˌʌndəˈstænd/"],"0_154":["/alˈɡeːʁiən/","≈ /ælˈdʒiəriə/"],"0_155":["/aˈʁaːbɪʃ/","≈ /ˈærəbɪk/"],"0_156":["/bʁaˈziːli̯ən/","/brəˈzɪl/"],"0_157":["/fʁanˈt͡søːzɪʃ/","/frentʃ/"],"0_158":["/ˈjaːpan/","/dʒəˈpæn/"],"0_159":["/lant/ · Pl. /ˈlɛndɐ/","/ˈkʌntri/"],"0_160":["/ˈlɛʁnən/","/tə lɜːn/"],"0_161":["/ˈøːstəʁaɪ̯ç/","≈ /ˈɒstriə/"],"0_162":["/ˌpɔʁtuˈɡiːzɪʃ/","≈ /ˌpɔːtʃəˈɡiːz/"],"0_163":["/ʃvaɪ̯t͡s/","≈ /ˈswɪtsələnd/"],"0_164":["/taˈbɛlə/ · Pl. /taˈbɛlən/","/ˈteɪbəl, tʃɑːt/"],"0_165":["/ˌuːʔɛsˈʔaː/","≈ /ˌjuːˌeˈseɪ/"],"0_166":["/ˈfʁaŋkʁaɪ̯ç/","≈ /fræns/"],"0_167":["/ˈɡʁiːçn̩ˌlant/","≈ /ɡriːs/"],"0_168":["/iˈtaːli̯ən/","≈ /ˈɪtəli/"],"0_169":["/ˈmɛksikoː/","≈ /ˈmeksɪkəʊ/"],"0_170":["/ˈpɔʁtuɡal/","≈ /ˈpɔːtʃəɡəl/"],"0_171":["/ˈtaɪ̯lant/","≈ /ˈtaɪlənd/"],"0_172":["/ˈpoːlən/","≈ /ˈpəʊlənd/"],"0_173":["/ˈpɔlnɪʃ/","≈ /ˈpɒlɪʃ/"],"0_174":["/ʁɛtoʁoˈmaːnɪʃ/","≈ /ˈriːtəʊrəʊˈmænɪk/"],"0_175":["/ˈʁʊslant/","≈ /ˈrʌʃə/"],"0_176":["/ˈʃpaːni̯ən/","≈ /speɪn/"],"0_177":["/tʏʁˈkaɪ̯/","/ˈtɜːki/"],"0_178":["/uˈkʁaɪ̯nə/","≈ /juːˈkreɪn/"],"0_179":["/t͡suː/","/əz (hiə)/"],"0_180":["/t͡svaɪ̯t/","/peə (hiə)/"],"0_181":["/kʊʁt͡s/","/ʃɔːt/"],"0_182":["/ʃtat/ · Pl. /ˈʃtɛːtə/","/ˈsɪti/"],"0_183":["/tɛkst/ · Pl. /ˈtɛkstə/","/tekst/"],"0_184":["/bəˈfɪndn̩/","/kənˈdɪʃən/"],"0_185":["/daˈʁaʊ̯f/","/əˈpɒn/"],"0_186":["/ɡʁaˈmatɪk/ · Pl. /ɡʁaˈmatɪkn̩/","/ˈɡræmə/"],"0_187":["/ˈɡʁyːsn̩/","/tə ɡriːt/"],"0_188":["/ʁeaˈɡiːʁən/","/tə rɪˈækt/"],"0_189":["≈ /ˈʁeːdəˌmɪtl̩/","/ˈjuːsfəl ˈfreɪzɪz/"],"0_190":["/zʊpˈjɛkt/ · Pl. /zʊpˈjɛktə/","≈ /ˈsʌbdʒekt/"],"0_191":["/ˈyːbɐ/","/əˈbaʊt/"],"0_192":["/fɛɐ̯ˈʔapˌʃiːdn̩/","/tə seɪ ɡʊdˈbaɪ/"],"0_193":["/ˈveːˌvɔʁt/ · Pl. /ˈveːˌvœʁtɐ/","≈ /ˈdʌbəljuːwɜːd/"],"1_0":["/ɡɛʁn/","/ˈɡlædli/"],"1_1":["/ˈlɔɪ̯tə/","/ˈpiːpəl/"],"1_2":["/fotoɡʁaˈfiːʁən/","/tə ˈfəʊtəɡræf/"],"1_3":["/fʁɔɪ̯nt/ · Pl. /ˈfʁɔɪ̯ndə/","/frend/"],"1_4":["/ˈfʁɔɪ̯ndɪn/ · Pl. /ˈfʁɔɪ̯ndɪnən/","/ˈɡɜːlfrend/"],"1_5":["/ˈd͡ʒɔɡn̩/","/tə dʒɒɡ/"],"1_6":["/kɔˈleːɡə/ · Pl. /kɔˈleːɡn̩/","/ˈkɒliːɡ (em)/"],"1_7":["/ˌkɔˈleːɡɪn/ · Pl. /ˌkɔˈleːɡɪnən/","/ˈkɒliːɡ (ef)/"],"1_8":["/muˈziːk/","/ˈmjuːzɪk/"],"1_9":["/ˈzɪŋən/","/tə sɪŋ/"],"1_10":["/ˈtant͡sn̩/","/tə dɑːns/"],"1_11":["/ˈanˌkʁɔɪ̯t͡sn̩/","/tə mɑːk/"],"1_12":["/ˈkiːno/ · Pl. /ˈkiːnos/","/ˈmuːvi ˈθiətə/"],"1_13":["/ˈkɔxn̩/","/tə kʊk/"],"1_14":["/ˈʁaɪ̯zn̩/","/tə ˈtrævəl/"],"1_15":["/ˈʃvɪmən/","/tə swɪm/"],"1_16":["/ˈantˌvɔʁtn̩/","/tə ˈɑːnsə/"],"1_17":["/ˈaʁbaɪ̯tn̩/","/tə wɜːk/"],"1_18":["/jaː/","/jes/"],"1_19":["/naɪ̯n/","≈ /nəʊ/"],"1_20":["/zoː/","≈ /səʊsəʊ/"],"1_21":["/buːx/ · Pl. /ˈbyːçɐ/","/bʊk/"],"1_22":["/ˈfuːsˌbal/","/ˈfʊtbɔːl/"],"1_23":["/ˈliːbn̩/","/tə lʌv/"],"1_24":["/zɛnzaˈt͡si̯oːn/ · Pl. /zɛnzaˈt͡si̯oːnən/","/senˈseɪʃən/"],"1_25":["/ˈzuːpɐ/","/ˈsuːpə/"],"1_26":["/tɔl/","/ɡreɪt/"],"1_27":["/viːɐ̯/","/wiː/"],"1_28":["/am/","/ət/"],"1_29":["/ˈɛndʊŋ/ · Pl. /ˈɛndʊŋən/","/ˈendɪŋ/"],"1_30":["/ˈfoːto/ · Pl. /ˈfoːtos/","/ˈfəʊtəʊ/"],"1_31":["/iːɐ̯/","≈ /juː (ˌpiːˈel)/"],"1_32":["/kɔmɛnˈtaːɐ̯/ · Pl. /kɔmɛnˈtaːʁə/","/ˈkɒməntri/"],"1_33":["/ˈlʊstɪk/","/ˈfʌni/"],"1_34":["/moˈmɛnt/ · Pl. /moˈmɛntə/","/ˈməʊmənt/"],"1_35":["/ˈmɔʁɡn̩/","/təˈmɒrəʊ/"],"1_36":["/spaˈɡɛti/","/spəˈɡeti/"],"1_37":["/fɔn/","/baɪ/"],"1_38":["/ˈvɪʁklɪç/","/ˈriəli/"],"1_39":["/ˈvɔxn̩ˌʔɛndə/ · Pl. /ˈvɔxn̩ˌʔɛndn̩/","/wiːˈkend/"],"1_40":["/dʁɪt/","/θriːz (hiə)/"],"1_41":["/fɔʁm/ · Pl. /ˈfɔʁmən/","/fɔːm/"],"1_42":["/ˈɪnfinitiːf/ · Pl. /ˈɪnfinitiːvə/","/ɪnˈfɪnɪtɪv/"],"1_43":["/ˈnɛnən/","/tə neɪm/"],"1_44":["/ˈhɔbi/ · Pl. /ˈhɔbis/","/ˈhɒbi/"],"1_45":["/mɪt/","/wɪð/"],"1_46":["/ˈdiːnsˌtaːk/ · Pl. /ˈdiːnsˌtaːɡə/","≈ /ˈtjuːzdeɪ/"],"1_47":["/ˈdɔnɐsˌtaːk/ · Pl. /ˈdɔnɐstaːɡə/","≈ /ˈθɜːzdeɪ/"],"1_48":["/ˈfʁaɪ̯taːk/ · Pl. /ˈfʁaɪ̯taːɡə/","≈ /ˈfraɪdeɪ/"],"1_49":["/ˈmɪtˌvɔx/ · Pl. /ˈmɪtˌvɔxə/","≈ /ˈwenzdeɪ/"],"1_50":["/ˈmoːntaːk/ · Pl. /mɔnˈtaːʒə/","≈ /ˈmʌndeɪ/"],"1_51":["/ˈzamstaːk/ · Pl. /ˈzamstaːɡə/","≈ /ˈsætədeɪ/"],"1_52":["/ˈzɔntaːk/ · Pl. /ˈzɔntaːɡə/","≈ /ˈsʌndeɪ/"],"1_53":["/van/","/wen/"],"1_54":["/ˈvɔxn̩ˌtaːk/ · Pl. /ˈvɔxn̩ˌtaːɡə/","/deɪ əv ðə wiːk/"],"1_55":["/ˈfʁaːɡə/ · Pl. /ˈfʁaːɡn̩/","/ˈkwestʃən/"],"1_56":["/ˈlaɪ̯dɐ/","/ʌnˈfɔːtʃənətli/"],"1_57":["/ˈnaːxˌʃpʁɛçn̩/","/tə rɪˈpiːt/"],"1_58":["/ˈzat͡smeloˌdiː/ · Pl. /ˈzat͡smeloˌdiːən/","/ˌɪntəˈneɪʃən/"],"1_59":["/ˈaxtn̩/","/tə peɪ əˈtenʃən/"],"1_60":["/aʊ̯f/","/tə (hiə)/"],"1_61":["/fyːɐ̯/","/fə/"],"1_62":["/ɔft/","/ˈɒfən/"],"1_63":["/kaˈfeː/ · Pl. /kaˈfeːs/","≈ /kæˈfeɪ/"],"1_64":["/dʊʁç/","/θruː/"],"1_65":["≈ /jaː naɪ̯nˈfʁaːɡə/ · Pl. /jaː naɪ̯nˈfʁaːɡən/","≈ /jes / ˈnəʊˈkwestʃən/"],"1_66":["/ˈjeːdə ˈjeːdɐ/","/ˈevri/"],"1_67":["≈ /ˈkʊʁsʁaʊ̯m/ · Pl. /ˈkʊʁsˌʁɔɪ̯mə/","/kɔːs ruːm/"],"1_68":["/muˈzeːʊm/ · Pl. /muˈzeːən/","/mjuːˈziəm/"],"1_69":["/ʁɛstoˈʁɑ̃ː/ · Pl. /ʁɛstoˈʁɑ̃ːs/","/ˈrestrɒnt/"],"1_70":["/ˈʃvɪmbaːt/ · Pl. /ˈʃvɪmbɛːdɐ/","/ˈswɪmɪŋ puːl/"],"1_71":["/ˈʃtaːdi̯ɔn/ · Pl. /ˈʃtaːdi̯ən/","/ˈsteɪdiəm/"],"1_72":["/taːk/ · Pl. /ˈtaːɡə/","/deɪ/"],"1_73":["/tɛʁˈmiːn/ · Pl. /tɛʁˈmiːnə/","/əˈpɔɪntmənt/"],"1_74":["/teˈaːtɐ/","/ˈθiətə/"],"1_75":["/fɛɐ̯ˈʔapʁeːdʊŋ/ · Pl. /fɛɐ̯ˈʔapʁeːdʊŋən/","/əˈpɔɪntmənt/"],"1_76":["/ˌaʁˈtiːkl̩/","/ˈɑːtɪkəl/"],"1_77":["/aʁt͡st/ · Pl. /ˈɛʁt͡stə/ · /ˈɛːɐ̯t͡stɪn/ · Pl. /ˈɛːɐ̯t͡stɪnən/","/ˈdɒktə/"],"1_78":["/ˈaʊ̯to/ · Pl. /ˈaʊ̯tos/","/kɑː/"],"1_79":["/bəˈʁuːf/ · Pl. /bəˈʁuːfə/","/ˌɒkjʊˈpeɪʃən/"],"1_80":["/bəˈʃtɪmt/","/ˈdefɪnət (hiə)/"],"1_81":["/kɔmˈpjuːtɐ/","/kəmˈpjuːtə/"],"1_82":["/ˈfeːminin/","/ˈfemənɪn/"],"1_83":["/ˈɡeːbm̩/","/ðeə ɪz/"],"1_84":["/ɡɛlt/ · Pl. /ˈɡɛldɐ/","/ˈmʌni/"],"1_85":["/ɡlaːs/ · Pl. /ˈɡlɛːzɐ/","/ɡlɑːs/"],"1_86":["/ˈkɛlnɐ/ · /ˈkɛlnəʁɪn/ · Pl. /ˈkɛlnəʁɪnən/","/ˈweɪtə / ˈweɪtrəs/"],"1_87":["/ˌmaskuˈliːn/","/ˈmæskjʊlɪn/"],"1_88":["/medikaˈmɛnt/ · Pl. /medikaˈmɛntə/","/ˈmedsən/"],"1_89":["/ˈmeːʁəʁə/","/ˈsevrəl/"],"1_90":["/ˈmøːklɪçkaɪ̯t/ · Pl. /ˈmøːklɪçkaɪ̯tn̩/","/ˌpɒsəˈbɪlɪti/"],"1_91":["/ˈnɔɪ̯tʁʊm/","/ˈnjuːtə/"],"1_92":["/ˈpasn̩/","/tə mætʃ/"],"1_93":["/ˈpluːʁaːl/ · Pl. /ˈpluːʁaːlə/","/ˈplɔːrəl/"],"1_94":["/ˈʁɛçnʊŋ/ · Pl. /ˈʁɛçnʊŋən/","/bɪl/"],"1_95":["/ˈʃlʏsl̩/","/kiː/"],"1_96":["/ˈʃpʁɪt͡sə/ · Pl. /ˈʃpʁɪt͡sn̩/","/ɪnˈdʒekʃən/"],"1_97":["/ʃtɪft/ · Pl. /ˈʃtɪftə/","/ˈpensəl/"],"1_98":["/ˈʃtʁaːsə/ · Pl. /ˈʃtʁaːsn̩/","/striːt/"],"1_99":["/ʃtuˈdɛnt/ · Pl. /ʃtuˈdɛntn̩/ · /ʃtuˈdɛntɪn/ · Pl. /ʃtuˈdɛntɪnən/","/sˈtjuːdənt/"],"1_100":["/taˈblɛtə/ · Pl. /taˈblɛtn̩/","/pɪl/"],"1_101":["/ˈtaksiˌfaːʁɐ/ · /ˈtaksiˌfaːʁəʁɪn/ · Pl. /ˈtaksiˌfaːʁəʁɪnən/","/ˈtæksi ˈdraɪvə/"],"1_102":["/t͡suː/","/tə/"],"1_103":["/maʁˈkiːʁən/","/tə ˈhaɪlaɪt/"],"1_104":["/ˈnoːmən/","/naʊn/"],"1_105":["/kaˈpɪtl̩/","/ˈtʃæptə/"],"1_106":["/kʊʁs/ · Pl. /ˈkʊʁzə/","/kɔːs/"],"1_107":["≈ /ˈlɛʁnˌvɔʁtˌʃat͡s/ · Pl. /ˈlɛʁnˌvɔʁtˌʃɛt͡sə/","/ˈlɜːnɪŋ vəʊˈkæbjʊləri/"],"1_108":["/ˈzaɪ̯tə/ · Pl. /ˈzaɪ̯tn̩/","/peɪdʒ/"],"1_109":["/ˈzuːxn̩/","/tə sɜːtʃ/"],"1_110":["≈ /ˈyːbʊŋsbuːx/ · Pl. /ˈyːbʊŋsˌbyːçɐ/","/ˈeksəsaɪz bʊk/"],"1_111":["/fɛɐ̯ˈɡlaɪ̯çn̩/","/tə kəmˈpeə/"],"1_112":["/ˈvaɪ̯təʁə ˈvaɪ̯təʁɐ/","/ˈfɜːðə/"],"1_113":["/ˈaːbm̩t/ · Pl. /ˈaːbn̩də/","≈ /ˈiːvnɪŋ/"],"1_114":["/ˈaːbɐ/","/bʌt/"],"1_115":["/alt/","/əʊld/"],"1_116":["/baɪ̯/","/ət/"],"1_117":["/ˈfaːʁən/","/tə draɪv/"],"1_118":["≈ /ˈfʁaɪ̯ˌhaːbn̩/","≈ /tə hæv ə ˈhɒlɪdeɪ/"],"1_119":["/ɡʁoːs/","/lɑːdʒ/"],"1_120":["/ˈhaːbm̩/","≈ /tə hæv/"],"1_121":["/hiːɐ̯/","/hiə/"],"1_122":["/jaːɐ̯/ · Pl. /ˈjaːʁə/","/jiə/"],"1_123":["/ˈkiːloˌmeːtɐ/","/ˈkɪləmiːtə/"],"1_124":["/ˈkʁaŋkn̩ˌhaʊ̯s/ · Pl. /ˈkʁaŋkn̩ˌhɔɪ̯zɐ/","/ˈhɒspɪtəl/"],"1_125":["/ˈkʁaŋkn̩ˌp͡fleːɡɐ/ · /ˈkʁaŋkn̩ˌp͡fleːɡəʁɪn/ · Pl. /ˈkʁaŋkn̩ˌp͡fleːɡəʁɪnən/","/nɜːs/"],"1_126":["/ˈmaɪ̯stn̩s/","/ˈməʊstli/"],"1_127":["/ˈnaːxmɪˌtaːk/ · Pl. /ˈnaːxmɪˌtaːɡə/","≈ /ˌæftəˈnuːn/"],"1_128":["/naxt͡s/","/ət naɪt/"],"1_129":["/paˈt͡si̯ɛnt/ · Pl. /paˈt͡si̯ɛntn̩/ · /paˈt͡si̯ɛntɪn/ · Pl. /paˈt͡si̯ɛntɪnən/","/ˈpeɪʃənt/"],"1_130":["/plat͡s/","/ruːm, speɪs/"],"1_131":["/pʁoː/","/pɜː/"],"1_132":["/zemiˈnaːɐ̯/ · Pl. /zemiˈnaːʁə/","/ˈsemɪnɑː/"],"1_133":["/ˈʃtʊndə/ · Pl. /ˈʃtʊndn̩/","/aʊə/"],"1_134":["/ˌunivɛʁziˈtɛːt/ · Pl. /ˌunivɛʁziˈtɛːtn̩/","/ˌjuːnɪˈvɜːsɪti/"],"1_135":["/fiːl ˈfiːlə/","/ə lɒt/"],"1_136":["/fɔn bɪs/","/frəm tɪl/"],"1_137":["/ˈvaʁtn̩/","/tə weɪt/"],"1_138":["/ˈvɔxə/ · Pl. /ˈvɔxn̩/","/wiːk/"],"1_139":["/ˈt͡sɪmɐ/","/ruːm/"],"1_140":["/ap/","/ˈstɑːtɪŋ ət/"],"1_141":["/ˈalə/","/ɔːl/"],"1_142":["/ˈaɪ̯nˌhʊndɐt/","/wɒn ˈhʌndrəd/"],"1_143":["/ˈhʊndɐt/","/ˈhʌndrəd/"],"1_144":["/ˌʊntɐˈʃtʁaɪ̯çn̩/","≈ /tə ˌʌndəˈlaɪn/"],"1_145":["/ɪnfɔʁmaˈt͡si̯oːn/ · Pl. /ɪnfɔʁmaˈt͡si̯oːnən/","/ˌɪnfəˈmeɪʃən/"],"1_146":["/pʁɛzɛnˈtiːʁən/","≈ /tə ˈprezənt/"],"1_147":["/ˈpluːʁaːlˌfɔʁm/ · Pl. /ˈpluːʁaːlˌfɔʁmən/","/ˈplɔːrəl fɔːm/"],"1_148":["/ˈzɪŋɡuˌlaːɐ̯/ · Pl. /ˈzɪŋɡuˌlaːʁə/","/ˈsɪŋɡjʊlə/"],"1_149":["/ˈɪmɐ/","/ˈɔːlweɪz/"],"1_150":["≈ /ˈpluːʁaːlˌɛndʊŋ/ · Pl. /ˈpluːʁaːlˌɛndʊŋən/","/ˈplɔːrəl ˈendɪŋ/"],"1_151":["/ˈɡeːɡn̩ˌzaɪ̯tɪk/","/ˈmjuːtʃuːəl/"],"1_152":["≈ /ˈlɛʁnˌkaʁtə/ · Pl. /ˈlɛʁnˌkaʁtən/","/ˈlɜːnɪŋ kɑːd/"],"1_153":["/ˈtaʊ̯ʃn̩/","/tə swɪtʃ/"],"1_154":["/aʁçiˈtɛkt/ · Pl. /aʁçiˈtɛktn̩/ · /aʁçiˈtɛktɪn/ · Pl. /aʁçiˈtɛktɪnən/","/ˈɑːkɪtekt/"],"1_155":["/fʁiˈzøːɐ̯/ · Pl. /fʁiˈzøːʁə/ · /fʁiˈzøːʁɪn/ · Pl. /fʁiˈzøːʁɪnən/","/ˈheədresə/"],"1_156":["/ɪnfɔʁˈmaːtɪkɐ/ · /ɪnfɔʁˈmaːtɪkəʁɪn/ · Pl. /ɪnfɔʁˈmaːtɪkəʁɪnən/","/kəmˈpjuːtə ˈsaɪəntɪst/"],"1_157":["/ɪnʒeˈni̯øːɐ̯/ · Pl. /ɪnʒeˈni̯øːʁə/ · /ɪnʒeˈni̯øːʁɪn/ · Pl. /ɪnʒeˈni̯øːʁɪnən/","/ˌendʒɪˈniə/"],"1_158":["/ˈleːʁɐ/ · /ˈleːʁəʁɪn/ · Pl. /ˈleːʁəʁɪnən/","/ˈtiːtʃə/"],"1_159":["/nɔx/","/ˈeni (hiə jet, ˈiːvən)/"],"1_160":["/fɛɐ̯ˈkɔɪ̯fɐ/ · /fɛɐ̯ˈkɔɪ̯fəʁɪn/ · Pl. /fɛɐ̯ˈkɔɪ̯fəˌʁɪnən/","/ˈseɪlspəsən/"],"1_161":["/eˈlɛktʁɪkɐ/ · /eˈlɛktʁɪkəʁɪn/ · Pl. /eˈlɛktʁɪkəʁɪnən/","/ɪlɪkˈtrɪʃən/"],"1_162":["/ɛɐ̯ˈt͡siːɐ/ · /ɛɐ̯ˈt͡siːəʁɪn/ · Pl. /ɛɐ̯ˈt͡siːəʁɪnən/","/ˈkɪndəɡɑːtən ˈtiːtʃə/"],"1_163":["/ˈhantˌvɛʁkɐ/ · /ˈhantˌvɛʁkəʁɪn/ · Pl. /ˈhantˌvɛʁkəʁɪnən/","≈ /ˈkrɑːftsmən / ˈkræftswʊmən/"],"1_164":["/ʒʊʁnaˈlɪst/ · Pl. /ʒʊʁnaˈlɪstn̩/ · /ʒʊʁnaˈlɪstɪn/ · Pl. /ʒʊʁnaˈlɪstɪnən/","/ˈdʒɜːnəlɪst/"],"1_165":["/juˈʁɪst/ · Pl. /juˈʁɪstn̩/ · /juˈʁɪstɪn/ · Pl. /juˈʁɪstɪnən/","/səˈlɪsɪtə/"],"1_166":["/kɔx/ · Pl. /ˈkœçə/ · /ˈkœçɪn/ · Pl. /ˈkœçɪnən/","/kʊk/"],"1_167":["/meˈçaːnɪkɐ/ · /meˈçaːnɪkəʁɪn/ · Pl. /meˈçaːnɪkəʁɪnən/","/mɪˈkænɪk/"],"1_168":["/poliˈt͡sɪst/ · Pl. /poliˈt͡sɪstn̩/ · /poliˈt͡sɪstɪn/ · Pl. /poliˈt͡sɪstɪnən/","/pəˈliːs ˈɒfɪsə/"],"1_169":["/bəˈʁɪçtn̩/","≈ /tə rɪˈpɔːt/"],"1_170":["/noˈtiːt͡s/ · Pl. /noˈtiːt͡sn̩/","/nəʊt/"],"1_171":["/ʃtuˈdiːʁən/","/tə ˈstʌdi/"],"1_172":["/ˈanˌzeːən/","/tə lʊk ət/"],"1_173":["/ˈbaɪ̯ˌʃpiːl/ · Pl. /ˈbaɪ̯ˌʃpiːlə/","/eɡˈzɑːmpəl/"],"1_174":["/ˈfaʁbə/ · Pl. /ˈfaʁbm̩/","/ˈkʌlə/"],"1_175":["/ˈʃteːən/","/tə stænd/"],"1_176":["/ˈvœʁtɐˌbuːx/ · Pl. /ˈvœʁtɐˌbyːçɐ/","/ˈdɪkʃənəri/"],"1_177":["≈ /ˌaʁˈtiːkl̩bɪlt/ · Pl. /ˌaʁˈtiːkl̩bɪltɐ/","/ˈɑːtɪkəl ˈpɪktʃə/"],"1_178":["/blaʊ̯/","/bluː/"],"1_179":["/ɡʁyːn/","/ɡriːn/"],"1_180":["/ˈmɛʁkn̩/","/tə rɪˈmembə/"],"1_181":["/ʁoːt/","/red/"],"1_182":["/ˈtaksi/ · Pl. /ˈtaksis/","/ˈtæksi/"],"1_183":["/ˈt͡saɪ̯çnʊŋ/ · Pl. /ˈt͡saɪ̯çnʊŋən/","/ˈdrɔːrɪŋ/"],"1_184":["/ˈaɪ̯ɡənə ˈaɪ̯ɡənɐ/","/əʊn/"],"1_185":["/aˈdʁɛsə/ · Pl. /aˈdʁɛsn̩/","≈ /əˈdres/"],"1_186":["/ˈanˌɡaːbə/ · Pl. /ˈanˌɡaːbn̩/","/ˌɪnfəˈmeɪʃən (hiə)/"],"1_187":["/klʊp/ · Pl. /klʊps/","/klʌb/"],"1_188":["/faˈmiːli̯ənˌnaːmə/ · Pl. /faˈmiːli̯ənˌnaːmən/","/ˈfæmɪli neɪm/"],"1_189":["/ɡəˈbuːɐ̯t͡sˌdaːtʊm/ · Pl. /ɡəˈbuːɐ̯t͡sˌdaːtn̩/","/deɪt əv bɜːθ/"],"1_190":["/ɡəˈbuːɐ̯t͡sˌʔɔʁt/ · Pl. /ɡəˈbuːɐ̯t͡sˌʔɔʁtə/","/bɜːθ pleɪs/"],"1_191":["/nɔɪ̯/","/njuː/"],"1_192":["/pɛʁˈzøːnlɪç/","/ˈpɜːsənəli/"],"1_193":["/t͡suˈzamənˌpasn̩/","/tə fɪt təˈɡeðə/"],"1_194":["/ˈbaskətˌbal/","/ˈbɑːskɪtbɔːl/"],"1_195":["/ˈiːmeɪ̯l/ · Pl. /ˈiːmeɪ̯ls/","≈ /iːmeɪl/"],"1_196":["/ˈfɪʁma/ · Pl. /ˈfɪʁmən/","/ˈkʌmpəni/"],"1_197":["/fɔʁmuˈlaːɐ̯/ · Pl. /fɔʁmuˈlaːʁə/","/fɔːm/"],"1_198":["/ˈhaʊ̯sˌnʊmɐ/ · Pl. /ˈhaʊ̯sˌnʊmɐn/","≈ /haʊs ˈnʌmbə/"],"1_199":["/kaˈʁaːtə/","/kəˈrɑːti/"],"1_200":["/kaɪ̯n ˈkaɪ̯nə/","≈ /nəʊ/"],"1_201":["/ˈmɛnlɪç/","/meɪl/"],"1_202":["/ˈpɔstlaɪ̯tˌt͡saːl/ · Pl. /ˈpɔstlaɪ̯tˌt͡saːlən/","/zɪp kəʊd/"],"1_203":["/ˈʃuːlə/ · Pl. /ˈʃuːlən/","/skuːl/"],"1_204":["≈ /ˈʃpɔʁtklʊp/ · Pl. /ˈʃpɔʁtklʊps/","/spɔːts klʌb/"],"1_205":["/ˈtɛnɪs/","/ˈtenɪs/"],"1_206":["/ˈvɛːlən/","/tə tʃuːz/"],"1_207":["/ˈvaɪ̯plɪç/","/ˈfiːmeɪl/"],"1_208":["/ˈvoːnˌʔɔʁt/ · Pl. /ˈvoːnˌʔɔʁtə/","/pleɪs əv ˈrezɪdəns/"],"1_209":["/ˈjoːɡa/","/ˈjəʊɡə/"],"1_210":["/ˈt͡sʊmba/","≈ /ˈzʌmbə/"],"1_211":["/ˈaxt͡sɪk/","/ˈeɪti/"],"1_212":["/ˈdʁaɪ̯sɪk/","/ˈθɜːti/"],"1_213":["/ˈaɪ̯nˌtaʊ̯zn̩t/","/wɒn ˈθaʊzənd/"],"1_214":["/ˈfʏnft͡sɪk/","/ˈfɪfti/"],"1_215":["/mɪˈli̯aʁdə/ · Pl. /mɪˈli̯aʁdn̩/","/ˈbɪliən/"],"1_216":["/mɪˈli̯oːn/ · Pl. /mɪˈli̯oːnən/","/ˈmɪliən/"],"1_217":["/ˈnɔɪ̯nt͡sɪk/","/ˈnaɪnti/"],"1_218":["/ˈzɛçt͡sɪk/","/ˈsɪksti/"],"1_219":["/ˈziːpt͡sɪç/","/ˈsevənti/"],"1_220":["/ˈtaʊ̯zn̩də/","/ˈθaʊzənd/"],"1_221":["/fɛɐ̯ˈʔapˌʁeːdn̩/","/tə meɪk plænz/"],"1_222":["/ˈfiʁt͡sɪk/","/ˈfɔːti/"],"2_0":["≈ /ˈʃtattuːɐ̯/ · Pl. /ˈʃtattuːɐ̯ən/","/ˈsɪti tɔː/"],"2_1":["/ʃtaˈt͡si̯oːn/ · Pl. /ʃtaˈt͡si̯oːnən/","/ˈsteɪʃən/"],"2_2":["/ˈbaːnˌhoːf/ · Pl. /ˈbaːnˌhøːfə/","/treɪn ˈsteɪʃən/"],"2_3":["/ˈbaʊ̯ˌt͡saɪ̯t/","/kənˈstrʌkʃən ˈpiərɪəd/"],"2_4":["/bəˈzuːxɐ/ · /bəˈzuːxəʁɪn/ · Pl. /bəˈzuːxəʁɪnən/","/ˈvɪzɪtə/"],"2_5":["/bɪs/","/ʌnˈtɪl/"],"2_6":["/bʁaɪ̯t/","/waɪd/"],"2_7":["/ˈeːɐ̯stə ˈeːɐ̯stɐ/","/fɜːst/"],"2_8":["/ˈɔɪ̯ʁo/ · Pl. /ˈɔɪ̯ʁos/","/ˈjɔːrəʊ/"],"2_9":["/hoːx/","/haɪ/"],"2_10":["/ˈkɪʁçə/ · Pl. /ˈkɪʁçn̩/","/tʃɜːtʃ/"],"2_11":["/kɔnˈt͡sɛʁt/ · Pl. /kɔnˈt͡sɛʁtə/","≈ /ˈkɒnsət/"],"2_12":["/kɔnˈt͡sɛʁtˌhaʊ̯s/ · Pl. /kɔnˈt͡sɛʁtˌhɔɪ̯zɐ/","≈ /ˈkɒnsət hɔːl/"],"2_13":["/ˈkɔstn̩/","/kɒsts/"],"2_14":["/ˈmeːtɐ/","/ˈmiːtə/"],"2_15":["/ˈmɪtə/","/ˈmɪdəl/"],"2_16":["/ˈʁaːtˌhaʊ̯s/ · Pl. /ˈʁaːtˌhɔɪ̯zɐ/","/taʊn hɔːl/"],"2_17":["/staːɐ̯/ · Pl. /staːɐ̯s/","/stɑː/"],"2_18":["/tʊʁm/ · Pl. /ˈtʏʁmə/","≈ /taʊə/"],"2_19":["/ˈyːbɐ/","/ˈəʊvə/"],"2_20":["/bɪs t͡suː/","/ʌp tə/"],"2_21":["/ˈt͡sɪʁka/","/əˈprɒksɪmətli/"],"2_22":["/daː/","/ðeə/"],"2_23":["/deːm/","≈ /ðə (dæt)/"],"2_24":["/flʊs/ · Pl. /ˈflʏsə/","≈ /ˈrɪvə/"],"2_25":["/ˈhaːfn̩/ · Pl. /ˈhɛːfn̩/","/ˈhɑːbə/"],"2_26":["/meːɐ̯/ · Pl. /ˈmeːʁə/","/siː/"],"2_27":["/mɛnʃ/ · Pl. /ˈmɛnʃn̩/","/ˈpɜːsən/"],"2_28":["/naːx/","/tə/"],"2_29":["/ʃɪf/ · Pl. /ˈʃɪfə/","/ʃɪp/"],"2_30":["/ˈzeːən/","/tə siː/"],"2_31":["/zʏmˈboːl/ · Pl. /zʏmˈboːlə/","/ˈsɪmbəl/"],"2_32":["/t͡suːk/ · Pl. /ˈt͡syːɡə/","/treɪn/"],"2_33":["/ˈaʊ̯sˌʃtɛlʊŋ/ · Pl. /ˈaʊ̯sˌʃtɛlʊŋən/","/eksɪˈbɪʃən/"],"2_34":["/ˈbʁʏkə/ · Pl. /ˈbʁʏkn̩/","/brɪdʒ/"],"2_35":["/laŋ/","/lɒŋ/"],"2_36":["/ɔʁt/ · Pl. /ˈɔʁtə/","/ˈvɪlɪdʒ (hiə)/"],"2_37":["/ˈyːbɐ/","/əˈbaʊt/"],"2_38":["/ˈɡryə̯t͡sɪ/","≈ /həˈləʊ (swɪs)/"],"2_39":["/ɡʁyːs ɡɔt/","/ɡʊd deɪ/"],"2_40":["/hoˈtɛl/ · Pl. /hoˈtɛls/","/həʊˈtel/"],"2_41":["/mɔɪ̯n/","/ɡʊd ˈmɔːnɪŋ/"],"2_42":["/zoː/","/ðɪs (hiə)/"],"2_43":["/ˈtaksiˌfaːɐ̯t/ · Pl. /ˈtaksiˌfaːɐ̯tn̩/","/ˈtæksi raɪd/"],"2_44":["/veːk/ · Pl. /ˈveːɡə/","/weɪ/"],"2_45":["/ɪntəʁɛˈsant/","/ˈɪntrəstɪŋ/"],"2_46":["≈ /ˈkʊnstˌhalə/ · Pl. /ˈkʊnstˌhalən/","/ɑːt ˈɡæləri/"],"2_47":["/ˈløːzʊŋ/ · Pl. /ˈløːzʊŋŋ̍/","/səˈluːʃən/"],"2_48":["/oˈkeː/","≈ /əʊˈkeɪ/"],"2_49":["/plaːn/ · Pl. /ˈplɛːnə/","/plæn/"],"2_50":["/ʁɛçt͡s/","/raɪt/"],"2_51":["/ˈʁɪçtɪk/","/truː/"],"2_52":["/ʃoːn/","/ɔːlˈredi/"],"2_53":["/ʃøːn/","/ˈprɪti/"],"2_54":["/zeː/ · Pl. /ˈzeːən/","/leɪk/"],"2_55":["/ˈt͡saɪ̯çnən/","/tə drɔː/"],"2_56":["/ˈaʊ̯fˌʃteːən/","/tə stænd ʌp/"],"2_57":["/ˈbɪldn̩/","/tə fɔːm/"],"2_58":["/ˈɡʁʊpə/ · Pl. /ˈɡʁʊpn̩/","/ɡruːp/"],"2_59":["/ˈpasn̩t/","/ˈmætʃɪŋ/"],"2_60":["/ˈʊnbəʃtɪmt/","/ˌɪndɪˈtɜːmɪnət/"],"2_61":["/haʊ̯s/ · Pl. /ˈhɔɪ̯zɐ/","≈ /haʊs/"],"2_62":["/zat͡s/ · Pl. /ˈzɛt͡sə/","/ˈsentəns/"],"2_63":["/ˈdɔpl̩t/","/ˈdʌbəl/"],"2_64":["/ˌkɔnzoˈnant/ · Pl. /kɔnzoˈnantn̩/","/ˈkɒnsənənt/"],"2_65":["/voˈkaːl/ · Pl. /voˈkaːlə/","/vaʊəl/"],"2_66":["/foːɐ̯/","/bɪˈfɔː/"],"2_67":["/aʁm/ · Pl. /ˈaʁmə/","/ɑːm/"],"2_68":["/ˈklɔp͡fn̩/","/tə nɒk/"],"2_69":["/ˈkʁaɪ̯zn̩/","/tə ˈsɜːkəl/"],"2_70":["/tɪʃ/ · Pl. /ˈtɪʃə/","/ˈteɪbəl/"],"2_71":["≈ /ˈbɪltɡəˌʃɪçtə/ · Pl. /ˈbɪltɡəˌʃɪçtən/","/ˈkɒmɪk strɪp/"],"2_72":["/buːs/ · Pl. /ˈbʊsə/","/bʌs/"],"2_73":["/ˈfaːɐ̯ˌʁaːt/ · Pl. /ˈfaːɐ̯ˌʁɛːdɐ/","/ˈbaɪsɪkəl/"],"2_74":["/ˈuːˌbaːn/ · Pl. /ˈuːbaːnən/","/ˈsʌbweɪ/"],"2_75":["/ˈt͡saɪ̯ɡn̩/","/tə pɔɪnt/"],"2_76":["/t͡suː fuːs/","/ɒn fʊt/"],"2_77":["/ˈfluːkˌt͡sɔɪ̯k/ · Pl. /ˈfluːkˌt͡sɔɪ̯ɡə/","≈ /ˈeəpleɪn/"],"2_78":["/ˈɛsˌbaːn/ · Pl. /ˈɛsbaːnən/","/səˈbɜːbən treɪn/"],"2_79":["/ˈʃtʁaːsn̩ˌbaːn/ · Pl. /ˈʃtʁaːsn̩ˌbaːnən/","/træm/"],"2_80":["/ˈaːbɐ/","/bʌt/"],"2_81":["/ˈalzo/","/səʊ/"],"2_82":["/bɪlt/ · Pl. /ˈbɪldɐ/","/ˈpɪktʃə/"],"2_83":["/ˈfaːɐ̯ˌkaʁtə/ · Pl. /ˈfaːɐ̯ˌkaʁtn̩/","/ˈtɪkɪt/"],"2_84":["/ɡlʏk/","/lʌk/"],"2_85":["/ˈhɔɪ̯tə/","/təˈdeɪ/"],"2_86":["/jɛt͡st/","/naʊ/"],"2_87":["/ʃnɛl/","/kwɪk/"],"2_88":["/tɛst/ · Pl. /tɛst͡s/","/test/"],"2_89":["/kɔnˈt͡sɛʁtˌkaʁtə/ · Pl. /kɔnˈt͡sɛʁtˌkaʁtn̩/","≈ /ˈkɒnsət ˈtɪkɪt/"],"2_90":["≈ /neɡaˈt͡si̯oːnsˌaʁˌtiːkl̩/","/ˈneɡətɪv ˈɑːtɪkəl/"],"2_91":["/lɪŋks/","/left/"],"2_92":["≈ /ˈveːkbəˌʃʁaɪ̯bʊŋ/ · Pl. /ˈveːkbəˌʃʁaɪ̯bʊŋən/","/daɪˈrekʃənz/"],"2_93":["/ɡəʁaːdəˈʔaʊ̯s/","/streɪt əˈhed/"],"2_94":["/daŋk/","/θæŋks/"],"2_95":["/ˈaɪ̯nfax/","/ˈiːzi/"],"2_96":["/ɡəˈnaʊ̯/","/eɡˈzæktli/"],"2_97":["/ˈɪmpeʁatiːf/ · Pl. /ˈɪmpeʁatiːvə/","/ɪmˈperətɪv/"],"2_98":["/maːl/ · Pl. /ˈmaːle/","/taɪm (əˈkeɪʒən)/"],"2_99":["/maʁkt/ · Pl. /ˈmɛʁktə/","/ˈmɑːkɪt/"],"2_100":["/paʁk/ · Pl. /paʁks/","/pɑːk/"],"2_101":["/ʃtaʁt/ · Pl. /ʃtaʁt͡s/","/ˈstɑːtɪŋ laɪn/"],"2_102":["/ˈvʏʁfl̩n/","/tə rəʊl (daɪs)/"],"2_103":["/t͡siːl/ · Pl. /ˈt͡siːlə/","/ɡəʊl/"],"2_104":["/an/","/ˈəʊvə ðə kɔːs əv/"],"2_105":["/koːɐ̯/ · Pl. /ˈkøːʁə/","/kwaɪə/"],"2_106":["/ˈdɔɪ̯t͡ʃˌʃpʁaːxɪk/","≈ /ˈdʒɜːmənˈspiːkɪŋ/"],"2_107":["/ˈdiːzə ˈdiːzɐ/","/ðɪs/"],"2_108":["/diʁiˈɡiːʁən/","≈ /tə ˈkɒndʌkt/"],"2_109":["/iˈvɛnt/ · Pl. /iˈvɛnt͡s/","/ɪˈvent/"],"2_110":["/ˈfɛstival/ · Pl. /ˈfɛstivals/","/ˈfestɪvəl/"],"2_111":["/fɪlm/ · Pl. /ˈfɪlmə/","/fɪlm/"],"2_112":["≈ /ˈfɪlmfæn/ · Pl. /ˈfɪlmfæns/","/fɪlm fæn/"],"2_113":["/ɡast/ · Pl. /ˈɡɛstə/","/ɡest/"],"2_114":["/iːɐ̯ ˈiːʁə/","/ɪts/"],"2_115":["/ˌɔʁˈkɛstɐ/","/ˈɔːkestrə/"],"2_116":["/pʁodʊkˈt͡si̯oːn/ · Pl. /pʁodʊkˈt͡si̯oːnən/","/prəˈdʌkʃən/"],"2_117":["/ˈpuːblikʊm/","/ˈɔːdiəns/"],"2_118":["/ʁeʒɪˈsøːɐ̯/ · Pl. /ʁeʒɪˈsøːʁə/ · /ʁeʒɪˈsøːʁɪn/ · Pl. /ʁeʒɪˈsøːʁɪnən/","/daɪˈrektə/"],"2_119":["/ˈʁeːkviɛm/ · Pl. /ˈʁeːkviɛms/","/ˈrekwɪem/"],"2_120":["/ˈʃaʊ̯ˌʃpiːlɐ/ · /ˈʃaʊ̯ˌʃpiːləʁɪn/ · Pl. /ˈʃaʊ̯ˌʃpiːləʁɪnən/","/ˈæktə / ˈæktrəs/"],"2_121":["/zaɪ̯n ˈzaɪ̯nə/","/hɪz/"],"2_122":["/zoˈlɪst/ · Pl. /zoˈlɪstn̩/ · /zoˈlɪstɪn/ · Pl. /zoˈlɪstɪnən/","/ˈsəʊləʊɪst/"],"2_123":["≈ /teˈaːtɐˈfɛstival/ · Pl. /teˈaːtɐˈfɛstivals/","/ˈθiətə ˈfestɪvəl/"],"2_124":["/ˈtɪkət/ · Pl. /ˈtɪkət͡s/","/ˈtɪkɪt/"],"2_125":["/vɛlt/ · Pl. /ˈvɛltn̩/","/wɜːld/"],"2_126":["/ˈɛːnlɪç/","/ˈsɪmɪlə/"],"2_127":["/ˈfɪndn̩/","/tə faɪnd/"],"2_128":["/aˈpʁɪl/","≈ /ˈeɪprəl/"],"2_129":["/aʊ̯ˈɡʊst/","≈ /ˈɔːɡəst/"],"2_130":["/deˈt͡sɛmbɐ/","≈ /dɪˈsembə/"],"2_131":["/ˈfeːbʁuaːɐ̯/","≈ /ˈfebruːəri/"],"2_132":["/ˈfʁyːlɪŋ/","/sprɪŋ/"],"2_133":["/hɛʁpst/","/ˈɔːtʌm/"],"2_134":["/ˈjanuaːɐ̯/","≈ /ˈdʒænjuːəri/"],"2_135":["/ˈjuːli/","≈ /dʒuːˈlaɪ/"],"2_136":["/ˈjuːni/","≈ /dʒuːn/"],"2_137":["/maɪ̯/","/meɪ/"],"2_138":["/mɛʁt͡s/","/mɑːtʃ/"],"2_139":["/ˈmoːnat/ · Pl. /ˈmoːnatə/","/mʌnθ/"],"2_140":["/noˈvɛmbɐ/","≈ /nəʊˈvembə/"],"2_141":["/ɔkˈtoːbɐ/","≈ /ɒkˈtəʊbə/"],"2_142":["/zɛpˈtɛmbɐ/","≈ /sepˈtembə/"],"2_143":["/ˈzɔmɐ/","/ˈsʌmə/"],"2_144":["/ˈvɪntɐ/","/ˈwɪntə/"],"2_145":["/ˈjaːʁəsˌt͡saɪ̯t/ · Pl. /ˈjaːʁəsˌt͡saɪ̯tn̩/","/ˈsiːzən/"],"2_146":["/plaˈkaːt/ · Pl. /plaˈkaːtə/","/ˈpəʊstə/"],"2_147":["/ˈatjɛktiːf/ · Pl. /ˈatjɛkˌtiːvə/","/ˈædʒɪktɪv/"],"2_148":["/dɪŋ/ · Pl. /ˈdɪŋə/","/θɪŋ/"],"2_149":["/poziˈt͡si̯oːn/ · Pl. /poziˈt͡si̯oːnən/","/pəˈzɪʃən/"],"2_150":["/ˈʃtɛlən/","/tə ɑːsk (ə ˈkwestʃən, hiə)/"],"3_0":["/ˈap͡fl̩ˌzaft/ · Pl. /ˈap͡fl̩ˌzɛftə/","/ˈæpəl dʒuːs/"],"3_1":["/baˈnaːnə/ · Pl. /baˈnaːnən/","/bəˈnɑːnə/"],"3_2":["/ˈbʁøːtçən/","/bred rəʊl/"],"3_3":["/ˈbʊtɐ/","/ˈbʌtə/"],"3_4":["/ˈkoːla/ · Pl. /ˈkoːla/","/ˈkəʊlə/"],"3_5":["/aɪ̯/ · Pl. /ˈaɪ̯ɐ/","/eɡ/"],"3_6":["/ˈɛsɪk/ · Pl. /ˈɛsɪɡə/","/ˈvɪnɪɡə/"],"3_7":["/flaɪ̯ʃ/","/miːt/"],"3_8":["/ˈfʁyːˌʃtʏk/ · Pl. /ˈfʁyːˌʃtʏkə/","/ˈbrekfəst/"],"3_9":["/ɡəˈmyːzə/","/ˈvedʒɪtəbəl/"],"3_10":["/ˈɡuːtn̩ apeˈtiːt/","/enˈdʒɔɪ jɔː miːl/"],"3_11":["≈ /ˈjɔkhʊɐt/ · Pl. /ˈjoːɡʊʁt͡s/","/ˈjɒɡɜːt/"],"3_12":["/kaʁˈtɔfl̩/ · Pl. /kaʁˈtɔfl̩n/","/pəˈteɪtəʊ/"],"3_13":["/ˈkeːzə/","/tʃiːz/"],"3_14":["/ˈleːbn̩sˌmɪtl̩/","/ˈɡrəʊsəriz/"],"3_15":["/ˌmaʁməˈlaːdə/ · Pl. /ˌmaʁməˈlaːdn̩/","/dʒæm, ˈmɑːməleɪd/"],"3_16":["/mɪlç/","/mɪlk/"],"3_17":["/ˈmɪtaːkˌʔɛsn̩/","/lʌntʃ/"],"3_18":["/ˈmyːsli/ · Pl. /ˈmyːslis/","/ˈmjuːsli/"],"3_19":["/øːl/ · Pl. /ˈøːlə/","/ɔɪl/"],"3_20":["/oˈʁaŋʒn̩ˌzaft/ · Pl. /oˈʁaŋʒn̩ˌzɛftə/","/ˈɒrɪndʒ dʒuːs/"],"3_21":["/ˈp͡fɛfɐ/","/ˈpepə/"],"3_22":["/zalt͡s/ · Pl. /ˈzalt͡sə/","/sɒlt/"],"3_23":["/teː/ · Pl. /teːs/","/tiː/"],"3_24":["/fɛɐ̯ˈbɪndn̩/","/tə kəˈnekt/"],"3_25":["/ˈvasɐ/","/ˈwɔːtə/"],"3_26":["/ˈmʊtɐˌʃpʁaːxə/ · Pl. /ˈmʊtɐˌʃpʁaːxn̩/","≈ /ˈmʌðə tʌŋ/"],"3_27":["/ˌbɛkəˈʁaɪ̯/ · Pl. /ˌbɛkəˈʁaɪ̯ən/","/ˈbeɪkəri/"],"3_28":["/ˈaɪ̯nˌkaʊ̯fn̩/","/tə ʃɒp/"],"3_29":["/mɛt͡sɡəˈʁaɪ̯/ · Pl. /mɛt͡sɡəˈʁaɪ̯ən/","/ˈbʊtʃə/"],"3_30":["/ˈzuːpɐˌmaʁkt/ · Pl. /ˈzuːpɐˌmɛʁktə/","/ˈsuːpəmɑːkɪt/"],"3_31":["/ˈaːbn̩tˌʔɛsn̩/","/ˈdɪnə/"],"3_32":["/bʁoːt/ · Pl. /ˈbʁoːtə/","/bred/"],"3_33":["/ˈɡʊʁkə/ · Pl. /ˈɡʊʁkŋ̩/","/ˈkjuːkʌmbə/"],"3_34":["/kaˈfeː/ · Pl. /kaˈfeːs/","/ˈkɒfi/"],"3_35":["/keːks/ · Pl. /ˈkeːksə/","/ˈkʊki/"],"3_36":["/ˈkuːxn̩/","/keɪk/"],"3_37":["/ˈzaːnə/","/kriːm/"],"3_38":["/zaˈlaːt/ · Pl. /zaˈlaːtə/","/ˈsæləd/"],"3_39":["/ˈʃɪŋkn̩/","/hæm/"],"3_40":["/ʃokoˈlaːdə/ · Pl. /ʃokoˈlaːdn̩/","/ˈtʃɒklət/"],"3_41":["/ˈzʊpə/ · Pl. /ˈzʊpm̩/","/suːp/"],"3_42":["/toˈmaːtə/ · Pl. /toˈmaːtn̩/","/təˈmɑːtəʊ/"],"3_43":["/vʊʁst/ · Pl. /ˈvʏʁstə/","/ˈsɒsɪdʒ/"],"3_44":["/ˈt͡sʊkɐ/","/ˈʃʊɡə/"],"3_45":["/ˈap͡fl̩/ · Pl. /ˈɛp͡fl̩/","/ˈæpəl/"],"3_46":["/ɡəˈʃɛft/ · Pl. /ɡəˈʃɛftə/","/ʃɒp/"],"3_47":["/ˈkaʊ̯fm̩/","/tə baɪ/"],"3_48":["/bɪs ˈʃpɛːtɐ/","/siː juː ˈleɪtə/"],"3_49":["/ˈaɪ̯nˌlaːdʊŋ/ · Pl. /ˈaɪ̯nˌlaːdʊŋən/","/ɪnvɪˈteɪʃən/"],"3_50":["/ˈɛsn̩/","/miːl, fuːd/"],"3_51":["/ˈfɛʁtɪk/","/ˈredi/"],"3_52":["/ɡlaɪ̯ç/","/ˈniəli/"],"3_53":["/ˈɡʁɪlən/","/tə ˈbɑːbɪkjuː/"],"3_54":["/ˈnaːxˌʁɪçt/ · Pl. /ˈnaːxˌʁɪçtn̩/","/ˈmesɪdʒ/"],"3_55":["/ʊns/","/aʊəz/"],"3_56":["/fiˈlaɪ̯çt/","/ˈmeɪbiː/"],"3_57":["/t͡saɪ̯t/ · Pl. /ˈt͡saɪ̯tn̩/","/taɪm/"],"3_58":["/ˈaləs/","/ˈevrɪθɪŋ/"],"3_59":["/ˈbʁaʊ̯xn̩/","/tə niːd/"],"3_60":["/ˈaɪ̯nkaʊ̯fsˌt͡sɛtl̩/","/ˈɡrəʊsəri lɪst/"],"3_61":["/ɡəˈtʁɛŋk/ · Pl. /ɡəˈtʁɛŋkə/","/drɪŋk/"],"3_62":["/ˈɡʁɪlˌpaːɐ̯ti/ · Pl. /ˈɡʁɪlˌpaːɐ̯tis/","/ˈbɑːbɪkjuː/"],"3_63":["/meːɐ̯/","/ˌenɪˈmɔː/"],"3_64":["/ˈplaːnən/","/tə plæn/"],"3_65":["/ˈʃtɪmən/","/tə biː truː/"],"3_66":["/ˈtɔɪ̯ɐ/","/ekˈspensɪv/"],"3_67":["/ˈaɪ̯nˌkaʊ̯f/ · Pl. /ˈaɪ̯nˌkɔɪ̯fə/","/ˈʃɒpɪŋ/"],"3_68":["/ˈbɪʁnə/ · Pl. /ˈbɪʁnən/","/peə/"],"3_69":["/fɪʃ/ · Pl. /ˈfɪʃə/","/fɪʃ/"],"3_70":["/ˈhɛːnçən/","/ˈtʃɪkɪn/"],"3_71":["/oˈliːvə/ · Pl. /oˈliːvn̩/","/ˈɒlɪv/"],"3_72":["≈ /ˈpɔməs ˈfriːtəs/","/tʃɪps/"],"3_73":["/ʁaɪ̯s/","/raɪs/"],"3_74":["/ˈʃmɛkn̩/","/tə teɪst/"],"3_75":["/zyːs/","/swiːt/"],"3_76":["/ˈakuzaˌtiːf/ · Pl. /ˈakuzaˌtiːvə/","/əˈkjuːzətɪv/"],"3_77":["/ˈnoːminaˌtiːf/ · Pl. /ˈnoːminaˌtiːvə/","/ˈnɒmɪnətɪv/"],"3_78":["/ˈɛsn̩/","/tə iːt/"],"3_79":["/t͡suˈzamən/","/təˈɡeðə/"],"3_80":["/zaft/ · Pl. /ˈzɛftə/","/dʒuːs/"],"3_81":["/ˈʊmˌlaʊ̯t/ · Pl. /ˈʊmˌlaʊ̯tə/","/ˈʌmlaʊt/"],"3_82":["/sɛnt/ · Pl. /sɛnt͡s/","/sent/"],"3_83":["/dɔʁt/","/ðeə/"],"3_84":["/ˈdʁanˌkɔmən/","≈ /tə hæv wɒn es tɜːn/"],"3_85":["/ˈaɪ̯nkaʊ̯fsˌvaːɡn̩/","/ˈʃɒpɪŋ kɑːt/"],"3_86":["/ˈɛmənˌtaːlɐ/","≈ /eˈmenteɪlə tʃiːz/"],"3_87":["/ˈɛtvas/","/ˈenɪθɪŋ/"],"3_88":["/ˈfɪndn̩/","/tə faɪnd (hiə)/"],"3_89":["/ɡʁam/","/ɡræm/"],"3_90":["/ɡuːt/","/ɔːlˈraɪt (hiə)/"],"3_91":["/ˈkasn̩ˌt͡sɛtl̩/","/rɪˈsiːt/"],"3_92":["/ˈkoːstn̩/","/tə kɒst/"],"3_93":["/ˈmaxn̩/","/tə meɪk (ˈkælkjʊleɪt, hiə)/"],"3_94":["/ˈmœçtn̩/","/tə wɒnt/"],"3_95":["/ˈneːmən/","/tə teɪk/"],"3_96":["/pʁaɪ̯s/ · Pl. /ˈpʁaɪ̯zə/","/praɪs/"],"3_97":["/zɔnst/","/ˈʌðəwaɪz/"],"3_98":["/ʃtʏk/ · Pl. /ˈʃtʏkə/","/piːs/"],"3_99":["/ˈtyːtə/ · Pl. /ˈtyːtn̩/","/bæɡ/"],"3_100":["/ˈvɛksl̩n/","/tə tʃeɪndʒ/"],"3_101":["/viː fiːl viː ˈfiːlə/","/haʊ mʌtʃ/"],"3_102":["/limoˈnaːdə/ · Pl. /limoˈnaːdn̩/","/ˌleməˈneɪd/"],"3_103":["/ʁeʃɛʁˈʃiːʁən/","≈ /tə rɪˈsɜːtʃ/"],"3_104":["/ˈbɛçɐ/","/kʌp/"],"3_105":["/ˈdoːzə/ · Pl. /ˈdoːzn̩/","/dʒɑː/"],"3_106":["/fɛt/ · Pl. /ˈfɛtə/","/fæt/"],"3_107":["/ˈkiːlo/ · Pl. /ˈkiːlos/","/ˈkiːləʊ/"],"3_108":["/kiloˈɡʁam/","/ˈkɪləɡræm/"],"3_109":["/ˈliːtɐ/","/ˈliːtə/"],"3_110":["/maːs/ · Pl. /ˈmaːsə/","/ˈmeʒə/"],"3_111":["/ˈpakʊŋ/ · Pl. /ˈpakʊŋən/","/ˈpækɪt/"],"3_112":["/fɛɐ̯ˈpakʊŋ/ · Pl. /fɛɐ̯ˈpakʊŋən/","/ˈpækɪdʒɪŋ/"],"3_113":["/ˈɡɛʁnə/","/wɪð ˈpleʒə/"],"3_114":["/ˈɡlaɪ̯çˌfals/","/ˈlaɪkwaɪz/"],"3_115":["/ˈlɛkɐ/","/ˈteɪsti/"],"3_116":["/zat/","/fʊl/"],"3_117":["/ˈmaːlˌt͡saɪ̯t/ · Pl. /ˈmaːlˌt͡saɪ̯tn̩/","/enˈdʒɔɪ jɔː miːl/"],"3_118":["/pʁoːst/","/tʃiəz/"],"3_119":["/t͡sʊm voːl/","/tʃiəz/"],"3_120":["/fʁaʊ̯/ · Pl. /ˈfʁaʊ̯ən/","/ˈwʊmən/"],"3_121":["/man/ · Pl. /ˈmɛnɐ/","/mæn/"],"3_122":["/ˈtʁɪŋkn̩/","/tə drɪŋk/"],"3_123":["/ˈaːbn̩t͡s/","≈ /ɪn ðə ˈiːvnɪŋ/"],"3_124":["/aˈlaɪ̯n/","/əˈləʊn/"],"3_125":["/ˈaʁbaɪ̯t/ · Pl. /ˈaʁbaɪ̯tn̩/","/wɜːk/"],"3_126":["/aˈzi̯aːtɪʃ/","≈ /ˈeɪʒən/"],"3_127":["/ˈdøːnɐ/","/kəˈbæb/"],"3_128":["/ˈfʁyːˌʃtʏkn̩/","/tə iːt ˈbrekfəst/"],"3_129":["/ɡəˈzʊnt/","/ˈhelθi/"],"3_130":["/halp/","/hɑːf pɑːst/"],"3_131":["/kanˈtiːnə/ · Pl. /kanˈtiːnən/","/kɑːnˈtiːn/"],"3_132":["/ˈmançmaːl/","/ˈsʌmtaɪmz/"],"3_133":["/man/ · Pl. /ˈmɛnɐ/","/ˈhʌsbənd/"],"3_134":["/ˈmɪtaːk/ · Pl. /ˈmɪtaːɡə/","/nuːn/"],"3_135":["/ˈmɪtaːks/","/ət nuːn/"],"3_136":["/ˈmøːɡn̩/","/tə laɪk/"],"3_137":["/ˈmɔʁɡn̩/","/ˈmɔːnɪŋ/"],"3_138":["/ˈmɔʁɡn̩s/","/ɪn ðə ˈmɔːnɪŋ/"],"3_139":["/ˈnaːxmɪˌtaːks/","≈ /ˌæftəˈnuːn/"],"3_140":["/nɪçt͡s/","/ˈnʌθɪŋ/"],"3_141":["/nuːɐ̯/","/ˈəʊnli/"],"3_142":["/oːpst/","/fruːt/"],"3_143":["/ˈpɪt͡sa/ · Pl. /ˈpɪt͡sas/","/ˈpiːtsə/"],"3_144":["/ˈʃlaːfn̩/","/tə sliːp/"],"3_145":["≈ /ˈzʊshiː/ · Pl. /ˈzuːʃis/","/ˈsuːʃi/"],"3_146":["/ʊm/","/ət/"],"3_147":["/ˈfoːɐ̯mɪˌtaːks/","/bɪˈfɔː nuːn/"],"3_148":["/vax/","/əˈweɪk/"],"3_149":["/ˈveːnɪk/","/ə bɪt/"],"3_150":["/ɛɐ̯ˈt͡sɛːlən/","/tə tel/"],"3_151":["/ˈfoːɐ̯mɪˌtaːk/ · Pl. /ˈfoːɐ̯mɪˌtaːɡə/","/bɪˈfɔː nuːn/"],"3_152":["/ˈmaɪ̯ndmɛp/ · Pl. /ˈmaɪ̯ndmɛps/","/maɪnd mæp/"],"3_153":["/paːɐ̯/ · Pl. /ˈpaːʁə/","/peə/"],"3_154":["/ˈteːma/ · Pl. /ˈteːmən/","/ˈtɒpɪk/"],"3_155":["/asot͡si̯aˈt͡si̯oːn/ · Pl. /asot͡si̯aˈt͡si̯oːnən/","/əˈsəʊsɪˈeɪʃən/"],"3_156":["/ˈaɪ̯nˌfalən/","/tə θɪŋk əv/"],"3_157":["/fʁaɪ̯/","/friː/"],"3_158":["/meˈtoːdə/ · Pl. /meˈtoːdn̩/","/ˈmeθəd/"],"3_159":["/teˈmaːtɪʃ/","/ˈtɒpɪkəl/"],"3_160":["/ˈvɔʁtˌɡʁʊpə/ · Pl. /ˈvɔʁtˌɡʁʊpn̩/","/wɜːd ɡruːp/"],"3_161":["/ʁʊnt ʊm/","/ɔːl əˈbaʊt/"],"3_162":["/als/","/əz/"],"3_163":["/ˈaltʃtat/ · Pl. /ˈaltˌʃtɛtə/","/hɪˈstɒrɪk ˈsɪti/"],"3_164":["/am/","/ət (hiə)/"],"3_165":["/ˈaʁbaɪ̯t͡sˌt͡saɪ̯t/ · Pl. /ˈaʁbaɪ̯t͡sˌt͡saɪ̯tn̩/","/ˈwɜːkɪŋ aʊəz/"],"3_166":["/bəˈʔantvɔʁtn̩/","/tə ˈɑːnsə/"],"3_167":["/ˈʃampɪnjɔŋ/ · Pl. /ˈʃampɪnjɔŋs/","/ˈmʌʃruːm/"],"3_168":["/ʃɛf/ · Pl. /ʃɛfs/ · /ˈʃɛfɪn/ · Pl. /ˈʃɛfɪnən/","/bɒs/"],"3_169":["/dɛˈseːɐ̯/ · Pl. /dɛˈseːɐ̯s/","/dɪˈzɜːt/"],"3_170":["/ɛçt/","/ˈriəli/"],"3_171":["/ˈfɪʃɡəˌʁɪçt/ · Pl. /ˈfɪʃɡəˌʁɪçtə/","/fɪʃ dɪʃ/"],"3_172":["/fʁɪʃ/","/freʃ/"],"3_173":["/ɡəˈʁɪçt/ · Pl. /ɡəˈʁɪçtə/","/miːl/"],"3_174":["/ˈhɛlfn̩/","/tə help/"],"3_175":["/klaɪ̯n/","/smɔːl/"],"3_176":["/ˌkʁeaˈtiːf/","/kriːˈeɪtɪv/"],"3_177":["/ˈlɛŋɐ/","/ˈlɒŋɡə/"],"3_178":["/naˈtyːɐ̯lɪç/","/əv kɔːs/"],"3_179":["/nɛt/","≈ /naɪs/"],"3_180":["/nɔʁˈmaːlɐvaɪ̯zə/","/ˈnɔːməli/"],"3_181":["/pʁoˈbiːʁən/","/tə traɪ/"],"3_182":["/ˈʃɛːlən/","/tə piːl/"],"3_183":["/ˈʃnaɪ̯dn̩/","/tə kʌt/"],"3_184":["/zaɪ̯t/","/sɪns, fə/"],"3_185":["/ʃpaːs/","/fʌn/"],"3_186":["/ˈʃtʁɛsɪk/","/ˈstresfəl/"],"3_187":["/tiːm/ · Pl. /tiːms/","/tiːm/"],"3_188":["/uːɐ̯/","/əʊ klɒk/"],"3_189":["/ˈvaʃn̩/","/tə wɒʃ/"],"3_190":["/ˈvɪçtɪk/","/ɪmˈpɔːtənt/"],"3_191":["/ˈt͡suːbəˌʁaɪ̯tn̩/","/tə prɪˈpeə/"],"3_192":["/t͡suˈʁʏk/","/bæk/"],"3_193":["/ˈt͡sviːbl̩/ · Pl. /ˈt͡sviːbl̩n/","/ˈʌniən/"],"3_194":["/ˈfyːʁən/","≈ /tə hæv (ə kɒnvəˈseɪʃən)/"],"3_195":["/ˈʊnʁeːɡl̩ˌmɛːsɪk/","/ɪˈreɡjuːlə/"],"3_196":["/ˈfoːɐ̯ˌliːbə/ · Pl. /ˈfoːɐ̯liːbən/","/ˈprefrəns/"],"4_0":["/ˈalˌtaːk/","/ˈevrɪdeɪ laɪf/"],"4_1":["/bəˈzuːxn̩/","/tə ˈvɪzɪt/"],"4_2":["/biblioˈteːk/ · Pl. /biblioˈteːkn̩/","/ˈlaɪbrəri/"],"4_3":["/ˈduːʃn̩/","≈ /tə ʃaʊə/"],"4_4":["/faˈmiːli̯ə/ · Pl. /faˈmiːli̯ən/","/ˈfæmɪli/"],"4_5":["/ˈmɛnza/ · Pl. /ˈmɛnzn̩/","/kɑːnˈtiːn/"],"4_6":["/ˈoːma/ · Pl. /ˈoːmas/","/ˈɡrændmɑː/"],"4_7":["/ˈtʁɛfn̩/","/tə miːt/"],"4_8":["/yˈniː/ · Pl. /yˈniːs/","/ˌjuːnɪˈvɜːsɪti/"],"4_9":["/nʊməˈʁiːʁən/","≈ /tə ˈnʌmbə/"],"4_10":["/ˈlaŋə/","/lɒŋ/"],"4_11":["/ˈt͡saɪ̯tʊŋ/ · Pl. /ˈt͡saɪ̯tʊŋən/","/ˈnjuːzpeɪpə/"],"4_12":["/t͡suː ˈmɪtaːk ˈɛsn̩/","≈ /tə hæv lʌntʃ/"],"4_13":["/ˈapˌvɛksl̩nt/","/ˈɔːltəneɪtɪŋ/"],"4_14":["/byˈʁoː/ · Pl. /byˈʁoːs/","/ˈɒfɪs/"],"4_15":["/ˈuːɐ̯ˌt͡saɪ̯t/ · Pl. /ˈuːɐ̯t͡saɪ̯tn̩/","/taɪm əv deɪ/"],"4_16":["/foːɐ̯/","/tə (taɪm)/"],"4_17":["/ˈɪnʔɔfiˌt͡si̯ɛl/","≈ /ɪnəˈfɪʃəl/"],"4_18":["/kʊʁt͡s/","/dʒʌst (hiə)/"],"4_19":["/naːx/","/pɑːst/"],"4_20":["/ɔfiˈt͡si̯ɛl/","/əˈfɪʃəl/"],"4_21":["/ʃpɛːt/","/leɪt/"],"4_22":["/uːɐ̯/","/əʊ klɒk/"],"4_23":["/ˈfiːɐ̯tl̩/","/ˈkwɔːtə/"],"4_24":["≈ /ˈɛŋlɪʃtɛst/ · Pl. /ˈɛŋlɪʃtɛsts/","/ˈɪŋɡlɪʃ test/"],"4_25":["/ɡəˈbuːɐ̯t͡sˌtaːk/ · Pl. /ɡəˈbuːɐ̯t͡sˌtaːɡə/","/ˈbɜːθdeɪ/"],"4_26":["/ˈɡaɪ̯ɡə/ · Pl. /ˈɡaɪ̯ɡn̩/","/vaɪəˈlɪn/"],"4_27":["≈ /ˈɡaɪ̯ɡn̩ˌʊntɐˌʁɪçt/","/vaɪəˈlɪn ˈlesənz/"],"4_28":["/kaˈlɛndɐ/","/ˈkæləndə/"],"4_29":["≈ /ˈmatətɛst/ · Pl. /ˈmatətɛsts/","/mæθ test/"],"4_30":["/ˈmʊtɐ/ · Pl. /ˈmʏtɐ/","≈ /ˈmʌðə/"],"4_31":["/ˈɔŋkl̩/","/ˈʌŋkəl/"],"4_32":["/ʃpiːl/ · Pl. /ˈʃpiːlə/","/ɡeɪm/"],"4_33":["/ˈtʁeːnɪŋ/ · Pl. /ˈtʁeːnɪŋs/","/ˈpræktɪs/"],"4_34":["/tʁɔmˈpeːtə/ · Pl. /tʁɔmˈpeːtn̩/","/ˈtrʌmpɪt/"],"4_35":["/viː ˈlaŋə/","/haʊ lɒŋ/"],"4_36":["/ˈblaɪ̯bm̩/","/tə steɪ/"],"4_37":["/ˈɛltɐn/","/ˈpeərənts/"],"4_38":["/falʃ/","/rɒŋ/"],"4_39":["/kɪnt/ · Pl. /ˈkɪndɐ/","/tʃaɪld/"],"4_40":["/kʁaŋk/","/sɪk/"],"4_41":["/muˈziːkˌʃuːlə/ · Pl. /muˈziːkˌʃuːlən/","/ˈmjuːzɪk skuːl/"],"4_42":["/zoːn/ · Pl. /ˈzøːnə/","/sʌn/"],"4_43":["/teləfoˈniːʁən/","/tə ˈtelɪfəʊn/"],"4_44":["/ˈtɔxtɐ/ · Pl. /ˈtœçtɐ/","/ˈdɔːtə/"],"4_45":["≈ /tʁɔmˈpeːtn̩ˌʊntɐˌʁɪçt/","/ˈtrʌmpɪt ˈlesənz/"],"4_46":["/ˈfaːtɐ/ · Pl. /ˈfɛːtɐ/","/ˈfɑːðə/"],"4_47":["/t͡suː ˈhaʊ̯zə/","/ət həʊm/"],"4_48":["/bəˈʃʁaɪ̯bm̩/","/tə dɪˈskraɪb/"],"4_49":["/ˈbʁuːdɐ/ · Pl. /ˈbʁyːdɐ/","/ˈbrʌðə/"],"4_50":["/ˈɡeːən/","/tə ɡəʊ/"],"4_51":["/ˈleːdɪk/","/ˈsɪŋɡəl/"],"4_52":["/ˈpɔsɛsiːfʔaʁˌtiːkl̩/","/pəˈzesɪv ˈɑːtɪkəl/"],"4_53":["/ˈʃvɛstɐ/ · Pl. /ˈʃvɛstɐn/","/ˈsɪstə/"],"4_54":["/ˈtɛçnɪkɐ/ · /ˈtɛçnɪkəʁɪn/ · Pl. /ˈtɛçnɪkəʁɪnən/","/tekˈnɪʃən/"],"4_55":["/fɛɐ̯ˈhaɪ̯ʁaːtət/","/ˈmærɪd/"],"4_56":["/ɡəˈʃvɪstɐ/","/ˈsɪblɪŋz/"],"4_57":["/ˈɡʁoːsˌʔɛltɐn/","/ˈɡrændpeərənts/"],"4_58":["/ˈɡʁoːsˌmʊtɐ/ · Pl. /ˈɡʁoːsˌmʏtɐ/","/ˈɡrændmʌðə/"],"4_59":["/ˈɡʁoːsˌfaːtɐ/ · Pl. /ˈɡʁoːsˌfɛːtɐ/","/ˈɡrændfɑːðə/"],"4_60":["/ˈoːpa/ · Pl. /ˈoːpas/","/ˈɡrændpɑː/"],"4_61":["/fɛɐ̯ˈvantə/ · Pl. /fɛɐ̯ˈvantn̩/","/ˈrelətɪv/"],"4_62":["/fantaˈziː/","/ˈfɑːntəsi, ɪˌmædʒɪˈneɪʃən/"],"4_63":["/ˈbeːbi/ · Pl. /ˈbeːbis/","/ˈbeɪbi/"],"4_64":["/ˈjʊŋə/ · Pl. /ˈjʊŋən/","/bɔɪ/"],"4_65":["/ˈmeːtçən/","/ɡɜːl/"],"4_66":["/ˈʁeːɡl̩/ · Pl. /ˈʁeːɡl̩n/","/ruːl/"],"4_67":["/ˈvɔʁtˌʔɛndə/ · Pl. /ˈvɔʁtˌʔɛndn̩/","/ˈendɪŋ əv ðə wɜːd/"],"4_68":["/bal/ · Pl. /ˈbɛlə/","/bɔːl/"],"4_69":["/ˈɡɛstəˌbuːx/ · Pl. /ˈɡɛstəˌbyːçɐ/","≈ /ˈɡestbʊk/"],"4_70":["/ˈhɔʊ̯mpɛɪ̯t͡ʃ/ · Pl. /ˈhɔʊ̯mpɛɪ̯d͡ʒɪs/","/ˈhəʊmpeɪdʒ/"],"4_71":["/hʊnt/ · Pl. /ˈhʊndə/","/dɒɡ/"],"4_72":["/moˈtoːɐ̯ˌʁaːt/ · Pl. /moˈtoːɐ̯ˌʁɛːdɐ/","/ˈməʊtəsaɪkəl/"],"4_73":["/ʃpɔʁt/","/spɔːt/"],"4_74":["/ˈʊnzɐ ˈʊnzəʁə/","/aʊə/"],"4_75":["/vɪlˈkɔmən/","/ˈwelkʌm/"],"4_76":["/kuːl/","/kuːl/"],"4_77":["/ˈaɪ̯nˌtʁaːk/ · Pl. /ˈaɪ̯ntʁɛːɡə/","/ˈentri/"],"4_78":["/ˈɔɪ̯ɐ ˈɔɪ̯ʁə/","/jɔː/"],"4_79":["/faˈmiːli̯ənˌfoːto/ · Pl. /faˈmiːli̯ənˌfoːtos/","/ˈfæmɪli ˈfəʊtəɡræf/"],"4_80":["/ˈhamstɐ/","/ˈhæmstə/"],"4_81":["/hɛɪ̯/","/heɪ/"],"4_82":["/maʊ̯s/ · Pl. /ˈmɔɪ̯zə/","≈ /maʊs/"],"4_83":["/ˌzaksoˈfoːn/ · Pl. /ˌzaksoˈfoːnə/","/ˈsæksəfəʊn/"],"4_84":["/zyːs/","/kjuːt/"],"4_85":["/tuːɐ̯/ · Pl. /ˈtuːɐ̯n/","/tɔː/"],"4_86":["/ˈkaʁtə/ · Pl. /ˈkaʁtn̩/","/kɑːd/"],"4_87":["/plʊs/","/plʌs/"],"4_88":["/pʁoˈnoːmən/","/ˈprəʊnaʊn/"],"4_89":["/ˈʃtaːpl̩/","/dek əv kɑːdz/"],"4_90":["/ˈt͡siːən/","/tə drɔː/"],"4_91":["/ɡʁuːs/ · Pl. /ˈɡʁyːsə/","/ˈɡriːtɪŋ/"],"4_92":["/ˈhaʊ̯sʔaʊ̯fˌɡaːbə/ · Pl. /ˈhaʊ̯sʔaʊ̯fˌɡaːbn̩/","/ˈhəʊmwɜːk/"],"4_93":["/ˈkœnən/","/tə biː ˈeɪbəl tə/"],"4_94":["/liːp/","/kaɪnd/"],"4_95":["/moˈdaːlˌvɛʁp/ · Pl. /moˈdaːlˌvɛʁbn̩/","/ˈməʊdəl vɜːb/"],"4_96":["/ˈmʏsn̩/","≈ /tə hæv tə/"],"4_97":["/ˈnɛːçstə ˈnɛːçstɐ/","/nekst/"],"4_98":["/pʁoˈbleːm/ · Pl. /pʁoˈbleːmə/","/ˈprɒbləm/"],"4_99":["/ˈzɔntaːkˌnaːxmɪtaːk/ · Pl. /ˈzɔntaːkˌnaːxmɪtaːɡə/","≈ /ˈsʌndeɪ ˌæftəˈnuːn/"],"4_100":["/stʁɛs/","/stres/"],"4_101":["/ˈvɔlən/","/tə wɒnt (ˈsʌmθɪŋ)/"],"4_102":["/jaː/","/ˈməʊdəl ˈpɑːtɪkəl/"],"4_103":["/ˈpaːɐ̯ti/ · Pl. /ˈpaːɐ̯tis/","/ˈpɑːti/"],"4_104":["/ˈdʁaɪ̯maːl/","/θriː taɪmz/"],"4_105":["/iˈdeː/ · Pl. /iˈdeːən/","/aɪˈdiə/"],"4_106":["/ˈlaɪ̯ttuːn/","/tə biː ˈsɒri/"],"4_107":["/ˈʃaːdə/","/ˈpɪti/"],"4_108":["/ˈʃpʁaːxˌkʊʁs/ · Pl. /ˈʃpʁaːxˌkʊʁzə/","/ˈlæŋɡwɪdʒ klɑːs/"],"4_109":["/fɛɐ̯ˈʃiːdn̩/","/ˈdɪfrənt/"],"4_110":["/aʊ̯f ˈviːdɐˌhøːʁən/","/tɔːk tə juː ˈleɪtə/"],"4_111":["/ˈaʊ̯sˌzaːɡə/ · Pl. /ˈaʊ̯sˌzaːɡn̩/","/ˈsteɪtmənt/"],"4_112":["/fʁaɪ̯/","/əˈveɪləbəl/"],"4_113":["/ˈhaːbm̩/","/tə meɪk (ən əˈpɔɪntmənt)/"],"4_114":["/nɔx maːl/","/əˈɡen/"],"4_115":["/ˈpʁaksɪs/ · Pl. /ˈpʁaksn̩/","/ˈsɜːdʒəri/"],"4_116":["/tjuːn/","≈ /tə duː/"],"4_117":["/ap/","/frəm/"],"4_118":["/ˈhøːflɪç/","/pəˈlaɪt/"],"4_119":["/ˈhøːflɪçkaɪ̯t/","/pəˈlaɪtnəs/"],"4_120":["/ˈkʊndə/ · Pl. /ˈkʊndn̩/ · /ˈkʊndɪn/ · Pl. /ˈkʊndɪnən/","/ˈkʌstəmə/"],"4_121":["/ˈɔfn̩/","/ˈəʊpən/"],"4_122":["≈ /ˈʁɔlənˌkaʁtə/ · Pl. /ˈʁɔlənˌkaʁtən/","/rəʊl kɑːd/"],"4_123":["/ˈʃpʁaːxˌʃuːlə/ · Pl. /ˈʃpʁaːxˌʃuːlən/","/ˈlæŋɡwɪdʒ skuːl/"],"4_124":["/teləˈfoːnɡəˌʃpʁɛːç/ · Pl. /teləˈfoːnɡəˌʃpʁɛːçə/","/ˈtelɪfəʊn kɔːl/"],"4_125":["/ˈyːbɐˌleːɡn̩/","/tə θɪŋk əˈbaʊt/"],"4_126":["/ˈʊnˌhøːflɪç/","/ɪmpəˈlaɪt/"],"4_127":["/fɛɐ̯ˈʔaɪ̯nbaːʁən/","/tə meɪk (ən əˈpɔɪntmənt)/"],"4_128":["/ˈfoːɐ̯bəˌʁaɪ̯tn̩/","/tə prɪˈpeə/"],"4_129":["/ˈfoːɐ̯heːɐ̯/","/bɪˈfɔː/"],"4_130":["/baːɐ̯/ · Pl. /baːɐ̯s/","/bɑː/"],"4_131":["/bəˈʃpʁɛçʊŋ/ · Pl. /bəˈʃpʁɛçʊŋən/","/ˈmiːtɪŋ/"],"4_132":["/daː zaɪ̯n/","/tə biː ðeə/"],"4_133":["/miˈnuːtə/ · Pl. /miˈnuːtn̩/","≈ /ˈmɪnɪt/"],"4_134":["/ˈpʏŋktlɪçkaɪ̯t/","/ˌpʌŋktʃuːˈælɪti/"],"4_135":["/ˈzɪt͡sn̩/","/tə sɪt/"],"4_136":["/t͡suː/","/tuː/"],"4_137":["/ˈhalbə ˈʃtʊndə/ · Pl. /ˈhalbə ˈʃtʊndn̩/","/hɑːf ən aʊə/"],"4_138":["/zeˈkʊndə/ · Pl. /zeˈkʊndn̩/","≈ /ˈsekənd/"],"4_139":["/fɛɐ̯ˈʃpɛːtʊŋ/ · Pl. /fɛɐ̯ˈʃpɛːtʊŋən/","/dɪˈleɪ/"],"4_140":["/ˈt͡saɪ̯tʔanˌɡaːbə/ · Pl. /ˈt͡saɪ̯tʔanˌɡaːbn̩/","/taɪm ˌdezɪɡˈneɪʃən/"],"4_141":["/ɛntˈʃʊldɪɡn̩/","≈ /tə eksˈkjuːs/"],"4_142":["/ɡuːt/","/ɔːlˈraɪt (hiə)/"],"4_143":["/ˈmaxn̩/","/tə ˈmætə (hiə)/"],"4_144":["/ˈpʏŋktlɪç/","/ˈpʌŋktʃuːəl/"],"4_145":["/ʊm/","/fə/"],"4_146":["/ˈzat͡sˌʔɛndə/ · Pl. /ˈzat͡sˌʔɛndn̩/","/ˈendɪŋ əv ðə ˈsentəns/"],"4_147":["/ˈzat͡sˌklamɐ/ · Pl. /ˈzat͡sˌklamɐn/","/ˈsentəns ˈbrækɪt/"],"4_148":["/ˈtaːɡəsˌt͡saɪ̯t/ · Pl. /ˈtaːɡəst͡saɪ̯tən/","/taɪm əv deɪ/"],"5_0":["/ˈfaɪ̯ɐn/","/tə ˈseləbreɪt/"],"5_1":["/ˈfɪtnɛsˌʃtuːdi̯o/ · Pl. /ˈfɪtnɛsˌʃtuːdi̯os/","/dʒɪm/"],"5_2":["≈ /ˈfʁaɪ̯ˌt͡saɪ̯taktiviˌtɛːt/ · Pl. /ˈfʁaɪ̯ˌt͡saɪ̯taktiviˌtɛːtən/","/ˌekstrəkəˈrɪkjʊlə ækˈtɪvɪti/"],"5_3":["/ˈɡlaʊ̯bn̩/","/tə bɪˈliːv/"],"5_4":["/ˈklɛtɐn/","/tə klaɪm/"],"5_5":["/ʃiː/","/skiː/"],"5_6":["/ˈvandɐn/","/tə haɪk/"],"5_7":["/ˌpantoˈmiːmə/","/ˈpɑːntəmaɪm/"],"5_8":["≈ /ˈʁaːtəbɪlt/ · Pl. /ˈʁaːtəbɪltɐ/","/ˈpɪktʃə ˈpʌzəl/"],"5_9":["/dɛn/","/ðen (ˈməʊdəl ˈpɑːtɪkəl)/"],"5_10":["/ɛçt/","/ˈriəli/"],"5_11":["/ˈaɪ̯nˌlaːdn̩/","≈ /tə ɪnˈvaɪt/"],"5_12":["≈ /ˈfaːɐ̯ˌʁatˌtuːɐ̯/ · Pl. /ˈfaːɐ̯ˌʁatˌtuːɐ̯ən/","/baɪk raɪd/"],"5_13":["/haɪ̯/","/haɪ/"],"5_14":["/klaːɐ̯/","/əv kɔːs/"],"5_15":["/ˈklɪŋən/","/tə saʊnd/"],"5_16":["/ˈpɪkˌnɪk/ · Pl. /ˈpɪkˌnɪks/","/ˈpɪknɪk/"],"5_17":["/ˈʃɛŋkn̩/","/tə ɡɪv (əz ɡɪft)/"],"5_18":["/yːbɐˈʁaʃʊŋ/ · Pl. /yːbɐˈʁaʃʊŋən/","/səˈpraɪz/"],"5_19":["/veːn/","/huːm/"],"5_20":["/ˈveːɐ̯dn̩/","/tə tɜːn (eɪdʒ)/"],"5_21":["/bəˈzɔndɐs/","/ˈspeʃəl/"],"5_22":["/ˈdaːtʊm/ · Pl. /ˈdaːtn̩/","/deɪt/"],"5_23":["/ɔʁdiˈnaːlˌt͡saːl/ · Pl. /ˈɔʁdinaːlˌt͡saːlən/","≈ /ˈɔːdɪnəl ˈnʌmbə/"],"5_24":["/ˈaʊ̯fˌʃtɛlən/","/tə əˈreɪndʒ/"],"5_25":["/ˈapˌhoːlən/","/tə pɪk ʌp/"],"5_26":["/ˈaxtʊŋ/","/ˈkeəfəl/"],"5_27":["/ˈanˌfaŋən/","/tə stɑːt/"],"5_28":["/ˈanˌʁuːfn̩/","/tə kɔːl/"],"5_29":["/ˈaʊ̯sˌfluːk/ · Pl. /ˈaʊ̯sˌflyːɡə/","/ekˈskɜːʃən/"],"5_30":["/bəˈtʁɛf/ · Pl. /bəˈtʁɛfə/","≈ /ˈsʌbdʒekt/"],"5_31":["/ˈaɪ̯nˌzaml̩n/","≈ /tə kəˈlekt/"],"5_32":["/ɡəˈʃɛŋk/ · Pl. /ɡəˈʃɛŋkə/","≈ /ˈprezənt/"],"5_33":["/ˈhɔfn̩tlɪç/","/ˈhəʊpfəli/"],"5_34":["/ˈmɪtˌbʁɪŋən/","/tə brɪŋ/"],"5_35":["/ˈmɪtˌkɔmən/","/tə kʌm/"],"5_36":["/ˈmɪtˌmaxn̩/","/tə dʒɔɪn ɪn/"],"5_37":["/ˈʁeːɡn̩/","/reɪn/"],"5_38":["/ˈʃɪkn̩/","/tə send/"],"5_39":["/ˈtʁɛfˌpʊŋkt/ · Pl. /ˈtʁɛfˌpʊŋktə/","/ˈmiːtɪŋ pɔɪnt/"],"5_40":["≈ /yːbɐˈʁaʃʊŋʃtaːk/ · Pl. /yːbɐˈʁaʃʊŋʃtaːkə/","/səˈpraɪz deɪ/"],"5_41":["/ˈvɪsn̩/","/tə nəʊ/"],"5_42":["/ˈtʁɛnbaːɐ̯/","/ˈsepərəbəl/"],"5_43":["/ˈaʊ̯fˌhøːʁən/","/tə stɒp/"],"5_44":["/fɛst/ · Pl. /ˈfɛstə/","/ˈfestɪvəl/"],"5_45":["/ˈanˌʁeːdə/ · Pl. /ˈanˌʁeːdn̩/","/ˌsæluːˈteɪʃən/"],"5_46":["≈ /ˈaɪnˌladʊŋˈsmeɪl/ · Pl. /ˈaɪnˌladʊŋˈsmeɪlz/","/ɪnvɪˈteɪʃən meɪl/"],"5_47":["/ˈhɛʁt͡slɪç/","/wɔːm/"],"5_48":["/meːl/ · Pl. /meːls/","/meɪl/"],"5_49":["/ˈap͡fl̩zaftˌʃɔʁlə/ · Pl. /ˈap͡fl̩zaftˌʃɔʁlən/","/ˈæpəl dʒuːs ˈsprɪtsə/"],"5_50":["/bəˈʃtɛlən/","/tə ˈɔːdə/"],"5_51":["/bəˈʃtɛlʊŋ/ · Pl. /bəˈʃtɛlʊŋən/","/ˈɔːdə/"],"5_52":["/ˈbʁɪŋən/","/tə brɪŋ/"],"5_53":["/dɪç/","/juː/"],"5_54":["/ɔɪ̯ç/","/juː/"],"5_55":["/iːn/","/hɪm/"],"5_56":["/mɪç/","/miː/"],"5_57":["/naˈtyːɐ̯lɪç/","/əv kɔːs/"],"5_58":["/ziː/","/hɜː/"],"5_59":["/taɪ̯l/ · Pl. /ˈtaɪ̯lə/","/pɑːt/"],"5_60":["/paˈsiːʁən/","/tə ˈhæpən/"],"5_61":["/fɛɐ̯ˈboːtn̩/","/fəˈbɪdən/"],"5_62":["/aɪ̯s/","/aɪs kriːm/"],"5_63":["/ˈpɔməs/","/tʃɪps/"],"5_64":["/zaˈlaːmi/ · Pl. /zaˈlaːmis/","/səˈlɑːmi/"],"5_65":["/ˈʃnɪt͡sl̩/","/ˈʃnɪtsəl/"],"5_66":["/ˈʃpaɪ̯zəˌkaʁtə/ · Pl. /ˈʃpaɪ̯zəkaʁtn̩/","/ˈmenjuː/"],"5_67":["/toˈmaːtn̩ˌzʊpə/ · Pl. /toˈmaːtn̩ˌzʊpn̩/","/təˈmɑːtəʊ suːp/"],"5_68":["/ˈɡaːbl̩/ · Pl. /ˈɡaːbl̩n/","/fɔːk/"],"5_69":["/ˈlœfl̩/","/spuːn/"],"5_70":["/ˈmɛsɐ/","/naɪf/"],"5_71":["/zɛʁˈvi̯ɛtə/ · Pl. /zɛʁˈvi̯ɛtn̩/","/ˈnæpkɪn/"],"5_72":["/ˈtasə/ · Pl. /ˈtasn̩/","/kʌp/"],"5_73":["/ˈtɛlɐ/","/pleɪt/"],"5_74":["/bəˈt͡saːlən/","/tə peɪ/"],"5_75":["/ɡəˈtʁɛnt/","≈ /ˈseprət/"],"5_76":["/ˈɔʁdnən/","/tə əˈreɪndʒ/"],"5_77":["/ˈʃtɪmən/","/tə biː kəˈrekt/"],"5_78":["/ˈt͡saːlən/","/tə peɪ/"],"5_79":["/ˈɡeːbm̩/","/tə ɡɪv/"],"5_80":["/ˈtʁɪŋkˌɡelt/ · Pl. /ˈtʁɪŋkˌɡeldɐ/","/tɪp/"],"5_81":["/ˈdaŋkə ʃøːn/","/θæŋk juː/"],"5_82":["/dʊʁst/","/θɜːst/"],"5_83":["/ˈhʊŋɐ/","/ˈhʌŋɡə/"],"5_84":["/ˈviːdɐ/","/əˈɡen/"],"5_85":["/bəˈzuːx/ · Pl. /bəˈzuːxə/","/ˈvɪzɪt/"],"5_86":["/kalt/","/kəʊld/"],"5_87":["/pʁɛˈteːʁitʊm/ · Pl. /pʁɛˈteːʁita/","/ˈsɪmpəl pɑːst/"],"5_88":["/vaʁm/","/wɔːm/"],"5_89":["/an/","/ət (ləʊˈkeɪʃən)/"],"5_90":["/baŋk/ · Pl. /ˈbɛŋkə/","/bentʃ/"],"5_91":["/ˈbaɪ̯zl̩/","/pʌb/"],"5_92":["/baɪ̯t͡s/ · Pl. /ˈbaɪ̯t͡sn̩/","/pʌb/"],"5_93":["/ˈbiːɐ̯ˌɡaʁtn̩/ · Pl. /ˈbiːɐ̯ˌɡɛʁtn̩/","/biə ˈɡɑːdən/"],"5_94":["/ˈdʁaʊ̯sn̩/","≈ /aʊˈtsaɪd/"],"5_95":["/ɡəˈʔœfnət/","/ˈəʊpənd/"],"5_96":["/kaˈfeːˌhaʊ̯s/ · Pl. /kaˈfeːhɔɪ̯zɐ/","/ˈkɒfi ʃɒp/"],"5_97":["/ˈknaɪ̯pə/ · Pl. /ˈknaɪ̯pn̩/","/bɑː/"],"5_98":["/loˈkaːl/ · Pl. /loˈkaːlə/","/ˈrestrɒnt/"],"5_99":["≈ /ˈzantvɪç/ · Pl. /ˈzɛntvɪt͡ʃs/","/ˈsændwɪtʃ/"],"5_100":["/zɛlpst/","/wɒnˈself/"],"5_101":["/ˈzɛlpstbəˌdiːnʊŋ/","≈ /selfˈsɜːvɪs/"],"5_102":["/ˈzɔnə/","/sʌn/"],"5_103":["/ˈʃpiːlˌplat͡s/ · Pl. /ˈʃpiːlˌplɛt͡sə/","/ˈpleɪɡraʊnd/"],"5_104":["≈ /ˈʃtʁantbaːɐ̯/ · Pl. /ˈʃtʁantbaːɐ̯s/","/biːtʃ bɑː/"],"5_105":["/ˈtyːpɪʃ/","/ˈtɪpɪkəl/"],"5_106":["/yːbɐˈʔal/","/ˈevrɪweə/"],"5_107":["/fɔl/","/fʊl/"],"5_108":["/ˈvɛtɐ/","/ˈweðə/"],"5_109":["/ˈanˌmɛldʊŋ/ · Pl. /ˈanmɛldʊŋən/","/ˌæplɪˈkeɪʃən/"],"5_110":["/ˈanˌt͡saɪ̯ɡə/ · Pl. /ˈanˌt͡saɪ̯ɡn̩/","/ədˈvɜːtɪsmənt/"],"5_111":["/atmoˈsfɛːʁə/","/ˈætməsfiə/"],"5_112":["/ˈaʊ̯fˌpasn̩/","/tə peɪ əˈtenʃən/"],"5_113":["/bəˈɡɪn/","/bɪˈɡɪnɪŋ/"],"5_114":["/bəˈɡɪnən/","/tə bɪˈɡɪn/"],"5_115":["/bəˈzɔndəʁɐ bəˈzɔndəʁɐ/","/ˈspeʃəl/"],"5_116":["/ˈduːbl̩ ˈfiːt͡ʃɐ/ · Pl. /ˈduːbl̩ ˈfiːt͡ʃɐs/","/ˈdʌbəl ˈfiːtʃə/"],"5_117":["/ˈaɪ̯nˌtʁɪt/ · Pl. /ˈaɪ̯nˌtʁɪtə/","≈ /ˈentrəns/"],"5_118":["/ˈɛndn̩/","/tə end/"],"5_119":["/ˈfeːlən/","/tə mɪs/"],"5_120":["/ˈfʁaŋkn̩/","≈ /swɪs frɑːnk/"],"5_121":["/fʁyː/","/ˈmɔːnɪŋ/"],"5_122":["/ɡəˈniːsn̩/","≈ /tə ˈseɪvə/"],"5_123":["≈ /ˈhalpˌmaːʁatɔn/ · Pl. /ˈhalpˌmaːʁatɔns/","≈ /hɑːfˈmærəθən/"],"5_124":["/ˈkaʁtə/ · Pl. /ˈkaʁtn̩/","/ˈtɪkɪt/"],"5_125":["≈ /kɔnˈt͡sɛʁtbəˌɡɪn/","≈ /bɪˈɡɪnɪŋ əv ðə ˈkɒnsət/"],"5_126":["≈ /kʊlˈtuːɐ̯naxt/ · Pl. /kʊlˈtuːɐ̯ˈnɛçtə/","/ˈkʌltʃərəl naɪt/"],"5_127":["/ˈlaʊ̯fm̩/","/tə rʌn/"],"5_128":["/loːs zaɪ̯n/","/tə biː ʌp/"],"5_129":["/ˈmaːʁatɔn/ · Pl. /ˈmaːʁatɔns/","/ˈmærəθən/"],"5_130":["≈ /muˈzeːʊmsnaxt/ · Pl. /muˈzeːʊmsˌnɛçtə/","/mjuːˈziəm naɪt/"],"5_131":["/naxt/ · Pl. /ˈnɛçtə/","/naɪt/"],"5_132":["/naˈtuːɐ̯/","/ˈneɪtʃə/"],"5_133":["≈ /ˈoːpəˈnɛːʁˈkiːnoː/ · Pl. /ˈoːpəˈnɛːʁˈkiːnoːs/","≈ /ˈəʊpəneə ˈkɒnsət/"],"5_134":["/pʁoˈɡʁam/ · Pl. /pʁoˈɡʁamə/","/ˈprəʊɡræm/"],"5_135":["/aktiviˈtɛːt/ · Pl. /aktiviˈtɛːtn̩/","/ækˈtɪvɪti/"],"5_136":["/ˈfuːsbalˌʃpiːl/ · Pl. /ˈfuːsbalˌʃpiːlə/","/ˈfʊtbɔːl ɡeɪm/"],"5_137":["/lʊst/","/tə wɒnt, tə fiːl laɪk/"],"5_138":["/vaˈʁʊm/","/waɪ/"],"5_139":["/ɛɐ̯ˈʔaɪ̯ɡnɪs/ · Pl. /ɛɐ̯ˈʔaɪ̯ɡnɪsə/","/rɪˈzʌlt/"],"5_140":["/pʁɛpoziˈt͡si̯oːn/ · Pl. /pʁɛpoziˈt͡si̯oːnən/","≈ /ˌprepəˈzɪʃən/"],"6_0":["/ˈaʁbaɪ̯t͡sˌʔaltaːk/","/ˈwɜːkdeɪ/"],"6_1":["/ˈanˌneːmən/","/tə əkˈsept/"],"6_2":["/ˈmɪtˌneːmən/","/tə teɪk əˈlɒŋ/"],"6_3":["/paˈkeːt/ · Pl. /paˈkeːtə/","/ˈpækɪdʒ/"],"6_4":["≈ /ˈtɪkətkaʊ̯f/ · Pl. /ˈtɪkətˌkɔɪ̯fə/","/ˈtɪkɪt ˈpɜːtʃɪs/"],"6_5":["/bɪs dan/","/ʌnˈtɪl ðen/"],"6_6":["/dɔx/","≈ /ɒn ðə ˈkɒntrəri/"],"6_7":["/klaːɐ̯/","/ɡʊd (hiə)/"],"6_8":["/ˈʁaɪ̯ənˌfɔlɡə/ · Pl. /ˈʁaɪ̯ənˌfɔlɡn̩/","/ˈsiːkwəns/"],"6_9":["/ˈʃpɛːtɐ/","/ˈleɪtə/"],"6_10":["/ˈaɪ̯nˌkaʊ̯fn̩ ˈɡeːən/","/tə ɡəʊ ˈʃɒpɪŋ/"],"6_11":["/ˈnaxˌbaːɐ̯/ · Pl. /ˈnaxbaːɐ̯n/ · /ˈnaxbaːʁɪn/ · Pl. /ˈnaxbaːʁɪnən/","/ˈneɪbə/"],"6_12":["/als/","/ðən/"],"6_13":["/ˈandɐs/","/ˈdɪfrənt/"],"6_14":["/bəˈdɔɪ̯tn̩/","/tə miːn/"],"6_15":["/blɔk/ · Pl. /blɔks/","/blɒɡ/"],"6_16":["≈ /kɔmˈpjuːtɐˌaʁbaɪ̯t/","/kəmˈpjuːtə wɜːk/"],"6_17":["/ˈɛntlɪç/","/ˈfaɪnəli/"],"6_18":["/ɛɐ̯ˈklɛːʁən/","/tə ekˈspleɪn/"],"6_19":["/ˈfeːlɐ/","/mɪˈsteɪk/"],"6_20":["/ˈleːbn̩/","/laɪf/"],"6_21":["/laɪ̯çt/","/ˈiːzi/"],"6_22":["/liːt/ · Pl. /ˈliːdɐ/","/sɒŋ/"],"6_23":["/ˈpaʊ̯zə/ · Pl. /ˈpaʊ̯zn̩/","/breɪk/"],"6_24":["/ˈpʁaktikʊm/ · Pl. /ˈpʁaktika/","/ɪnˈtɜːnʃɪp/"],"6_25":["≈ /ˈzuːpɐnɛt/","≈ /ˈsuːpə naɪs/"],"6_26":["/t͡suː/","/tə (hiə)/"],"6_27":["/ˈap͡fl̩ˌʃɔʁlə/ · Pl. /ˈap͡fl̩ˌʃɔʁlən/","/ˈæpəl dʒuːs ˈsprɪtsə/"],"6_28":["/fɛɐ̯ˈvɛndn̩/","≈ /tə juːs/"],"6_29":["≈ /ˈkʊndn̩bəˌzuːx/ · Pl. /ˈkʊndn̩bəˌzuːxə/","/kɔːl ɒn ˈkʌstəməz/"],"6_30":["/ˈmɪtʔaʁˌbaɪ̯tɐ/ · /ˈmɪtˌʔaʁbaɪ̯təʁɪn/ · Pl. /ˈmɪtˌʔaʁbaɪ̯təʁɪnən/","/ˈkɒliːɡ/"],"6_31":["/ˈzɔmɐˌfɛst/ · Pl. /ˈzɔmɐˌfɛstə/","/ˈsʌmə ˈfestɪvəl/"],"6_32":["/ˈuːɐ̯ˌlaʊ̯p/ · Pl. /ˈuːɐ̯ˌlaʊ̯bə/","/ˈhɒlɪdeɪ/"],"6_33":["/ˈdaːtiːf/ · Pl. /ˈdaːˌtiːvə/","/ˈdætɪv/"],"6_34":["/veːm/","/huːm, huː/"],"6_35":["/ˈaʊ̯sˌʃpʁaːxə/","/prəˌnʌnsɪˈeɪʃən/"],"6_36":["≈ /ˈzɪlbn̩ˌanˌfaŋ/ · Pl. /ˈzɪlbn̩ˌanfɛŋə/","/bɪˈɡɪnɪŋ əv ðə ˈsɪləbəl/"],"6_37":["/ˈvɔʁtˌʔanfaŋ/ · Pl. /ˈvɔʁtˌʔanfɛŋə/","/bɪˈɡɪnɪŋ əv ðə wɜːd/"],"6_38":["/ˈvɔʁtˌʔɪnəʁə/","≈ /ɪnˈsaɪd əv ðə wɜːd/"],"6_39":["/naːx ˈhaʊ̯zə/","/(tʊˈwɔːd)həʊm/"],"6_40":["/voˈhɪn/","/ˈweətəʊ/"],"6_41":["/aʊ̯toˈmaːt/ · Pl. /aʊ̯toˈmaːtn̩/","/ˈvendɪŋ məˈʃiːn/"],"6_42":["/baːɐ̯/","/ɪn kæʃ/"],"6_43":["/ɡəˈnuːk/","/ɪˈnʌf/"],"6_44":["/ˈhoːlən/","/tə ɡet/"],"6_45":["/ˈkɔnto/ · Pl. /ˈkɔntn̩/","/əˈkaʊnt/"],"6_46":["/ˈkɔntoˌnʊmɐ/ · Pl. /ˈkɔntoˌnʊmɐn/","≈ /əˈkaʊnt ˈnʌmbə/"],"6_47":["/kʁeˈdiːtˌkaʁtə/ · Pl. /kʁeˈdiːtˌkaʁtn̩/","/ˈkredɪt kɑːd/"],"6_48":["/ˌyːbɐˈvaɪ̯zn̩/","≈ /tə ˈtrænsfɜː/"],"6_49":["/baŋk/ · Pl. /ˈbaŋkn̩/","/bæŋk/"],"6_50":["/bəˈʁɪçt/ · Pl. /bəˈʁɪçtə/","≈ /rɪˈpɔːt/"],"6_51":["/ˈdaʊ̯ɐn/","/tə lɑːst/"],"6_52":["/kɔʁiˈɡiːʁən/","/tə kəˈrekt/"],"6_53":["/poːst/","/pəʊst ˈɒfɪs/"],"6_54":["/zoː/","/sʌtʃ/"],"6_55":["/ˈt͡suːˌfal/ · Pl. /ˈt͡suːˌfɛlə/","/kəʊˈɪnsɪdəns/"],"6_56":["/ˈkʊʁt͡sˌfɔʁm/ · Pl. /ˈkʊʁt͡sˌfɔʁmən/","/ˈʃɔːtənd fɔːm/"],"6_57":["/ˈɔʁt͡sʔanˌɡaːbə/ · Pl. /ˈɔʁt͡sʔanˌɡaːbn̩/","/ləʊˈkeɪʃən/"],"6_58":["/ˈt͡saːnˌʔaʁt͡st/ · Pl. /ˈt͡saːnˌʔɛʁt͡stə/ · /ˈt͡saːnˌʔɛːɐ̯t͡stɪn/ · Pl. /ˈt͡saːnˌʔɛːɐ̯t͡stɪnən/","/ˈdentɪst/"],"6_59":["/ˈbɛkɐ/","/ˈbeɪkəri/"],"6_60":["/ˈhaʊ̯sˌmaɪ̯stɐ/ · /ˈhaʊ̯sˌmaɪ̯stəʁɪn/ · Pl. /ˈhaʊ̯sˌmaɪ̯stəʁɪnən/","/ˈkeəteɪkə/"],"6_61":["/ˈaku/ · Pl. /ˈakus/","/ˈbætəri/"],"6_62":["/ˈanˌmaxn̩/","/tə tɜːn ɒn/"],"6_63":["/ˈaʊ̯sˌmaxn̩/","/tə tɜːn ɒf/"],"6_64":["/daˈtaɪ̯/ · Pl. /daˈtaɪ̯ən/","≈ /faɪl/"],"6_65":["/ˈdʁʊkn̩/","/tə prɪnt/"],"6_66":["/ˈdʁʊkɐ/","/ˈprɪntə/"],"6_67":["/ˈaɪ̯nˌɡeːbm̩/","/tə ˈentə/"],"6_68":["/ˈhoːxˌfaːʁən/","/tə stɑːt ʌp/"],"6_69":["/leːɐ̯/","/ˈempti/"],"6_70":["/ˈmeːdi̯ən/","/ˈmiːdiːə/"],"6_71":["/mɪst/","/ˈbɒðə/"],"6_72":["/nɛt͡s/","/rɪˈsepʃən/"],"6_73":["/ˈɔflaɪ̯n/","/ˈɒflaɪn/"],"6_74":["/ˈœfnən/","/tə ˈəʊpən/"],"6_75":["/ˈpasˌvɔʁt/ · Pl. /ˈpasˌvœʁtɐ/","/ˈpɑːswɜːd/"],"6_76":["/ˈʃpaɪ̯çɐn/","/tə seɪv/"],"6_77":["/ˈveːlaːn/","≈ /ˈwaɪfaɪ/"],"6_78":["/aktuˈɛl/","/ˈkʌrənt/"],"6_79":["/aʁɡɛnˈtiːnɪʃ/","≈ /ˌɑːdʒənˈtɪniən/"],"6_80":["/bʁiːf/ · Pl. /ˈbʁiːfə/","/ˈletə/"],"6_81":["/dɪskuˈtiːʁən/","/tə dɪˈskʌs/"],"6_82":["/ɛɐ̯ˈvaksənə/ · Pl. /ɛɐ̯ˈvaksənən/","/ˈædʌlt/"],"6_83":["/ɡant͡s/","/həʊl/"],"6_84":["≈ /ˈjaːʁəsˌtʁɛfn̩/","/ˈjiəli ˈmiːtɪŋ/"],"6_85":["/ˈkɛnənˌlɛʁnən/","/tə ɡet tə nəʊ/"],"6_86":["/ˈmɪtˌɡliːt/ · Pl. /ˈmɪtˌɡliːdɐ/","/ˈmembə/"],"6_87":["/muˈziːkˌɡʁʊpə/ · Pl. /muˈziːkˌɡʁʊpn̩/","/ˈmjuːzɪk ɡruːp/"],"6_88":["/pʁɛzɛntaˈt͡si̯oːn/ · Pl. /pʁɛzɛntaˈt͡si̯oːnən/","/ˌprezənˈteɪʃən/"],"6_89":["/ˈzamstaːks/","≈ /ɒn ˈsætədeɪ/"],"6_90":["/ʃpet͡si̯aliˈtɛːt/ · Pl. /ʃpet͡si̯aliˈtɛːtn̩/","≈ /ˈspeʃəlti/"],"6_91":["/ˈʃtatˌpaʁk/ · Pl. /ˈʃtatˌpaʁks/","/ˈsɪti pɑːk/"],"6_92":["/zyːtʔaˈmeːʁika/","≈ /saʊθ əˈmerɪkə/"],"6_93":["/ˈt͡saɪ̯ɡn̩/","/tə ʃəʊ/"],"6_94":["/kɔnˈtakt/ · Pl. /kɔnˈtaktə/","≈ /ˈkɒntækt/"],"6_95":["≈ /ˈʃpʁaːxɪnstiˌtuːt/ · Pl. /ˈʃpʁaːxɪnstiˌtuːtə/","/ˈlæŋɡwɪdʒ dɪˈpɑːtmənt/"],"6_96":["/ˈapˌzɛndɐ/","/ˈsendə/"],"6_97":["≈ /ˈbʁiːfˌstandaʁt/ · Pl. /ˈbʁiːfˌstandaʁts/","/ˈletə ˈstændəd/"],"6_98":["/ɛmˈp͡fɛŋɐ/ · /ɛmˈp͡fɛŋəʁɪn/ · Pl. /ɛmˈp͡fɛŋəʁɪnən/","/rɪˈsɪpiənt/"],"6_99":["/ˈʊntɐˌʃʁɪft/ · Pl. /ˈʊntɐʃʁɪftn̩/","/ˈsɪɡnɪtʃə/"],"6_100":["≈ /ˈanˌʁeːdəˌfɔʁml̩/ · Pl. /ˈanˌʁeːdəˌfɔʁml̩n/","/ˌsæluːˈteɪʃən/"],"6_101":["/ˈaʊ̯sˌvɛndɪk/","/tə ˈmemɔːraɪz/"],"6_102":["/ˈdaːmə/ · Pl. /ˈdaːmən/","/ˈmædəm/"],"6_103":["/ˈfʁɔɪ̯ntlɪç/","/sɪnˈsiəli/"],"6_104":["/ɡəˈʔeːɐ̯t/","/ˈɒnəd/"],"6_105":["/ˈɡʁuːsˌfɔʁməl/ · Pl. /ˈɡʁuːsfɔʁməln/","/ˌsæluːˈteɪʃən/"],"6_106":["/an/","/tə/"],"6_107":["/ˈdɛŋkn̩/","/tə θɪŋk/"],"6_108":["/ˈkʁaŋkhaɪ̯t/ · Pl. /ˈkʁaŋkˌhaɪ̯tn̩/","/ˈɪlnəs/"],"6_109":["/ˈmɪtaːksˌpaʊ̯zə/ · Pl. /ˈmɪtaːksˌpaʊ̯zn̩/","/lʌntʃ breɪk/"],"6_110":["/poliˈtiːk/","/ˈpɒlətɪks/"],"6_111":["/ʁeliˈɡi̯oːn/ · Pl. /ʁeliˈɡi̯oːnən/","/rɪˈlɪdʒən/"],"6_112":["/ˈzeːʁiə/ · Pl. /ˈzeːʁiən/","/ˈsiəriz/"],"6_113":["/ˈaʊ̯fˌt͡suːk/ · Pl. /ˈaʊ̯ft͡syːɡə/","/ˈelɪveɪtə/"],"6_114":["/bəˈliːpt/","/ˈpɒpjʊlə/"],"6_115":["/daˈt͡suː/","/tə ðæt/"],"6_116":["/ˈmaɪ̯stn̩/","/məʊst/"],"6_117":["/ˈfɛʁnˌzeːən/","/ˈtelɪvɪʒən/"],"6_118":["/fɔʁmuˈliːʁən/","/tə freɪz/"],"6_119":["/ɡaːɐ̯/","/ˈriəli/"],"6_120":["/ɡəˈʃpʁɛːçsˌteːma/ · Pl. /ɡəˈʃpʁɛːçsˌteːmən/","/kɒnvəˈseɪʃənəl ˈtɒpɪk/"],"6_121":["/ˈɡɛstɐn/","/ˈjestədeɪ/"],"6_122":["/ɪntəʁɛˈsiːʁən/","/tə ˈɪntrəst/"],"6_123":["/ˈlaŋvaɪ̯lɪk/","/ˈbɔːrɪŋ/"],"6_124":["/nɔɪ̯ˈtʁaːl/","/ˈnjuːtrəl/"],"6_125":["/ˈʁeːdn̩/","/tə tɔːk/"],"6_126":["/ʃveːɐ̯/","/ˈdɪfɪkəlt/"],"6_127":["/smɔːl talk/ · Pl. /smɔːl talks/","/smɔːl tɔːk/"],"6_128":["/ˈaɪ̯ɡn̩tlɪç/","/ˈæktʃuːəli/"],"6_129":["/haɪ̯s/","/hɒt/"],"6_130":["/ˈoːdɐ/","/raɪt (hiə)/"],"6_131":["/ˈʁeːɡnən/","/tə reɪn/"],"6_132":["/ʃoːn ˈviːdɐ/","/əˈɡen/"],"6_133":["/ˈʃʁɛklɪç/","/ˈterəbəl/"],"7_0":["/ˈleːbm̩/","≈ /tə laɪv/"],"7_1":["/t͡ʃɪps/","/krɪsps/"],"7_2":["/ɛkspeʁiˈmɛnt/ · Pl. /ɛkspeʁiˈmɛntə/","/ekˈsperɪmənt/"],"7_3":["/ˈvɛkˌʁɔɪ̯mən/","≈ /tə pʊt əˈweɪ/"],"7_4":["/bɛt/ · Pl. /ˈbɛtn̩/","/bed/"],"7_5":["/eˈɡaːl/","/wɒˈtevə/"],"7_6":["/ˈeːɐ̯stə/ · Pl. /ˈeːɐ̯stn̩/","/fɜːst/"],"7_7":["/faʊ̯l/","/ˈleɪzi/"],"7_8":["/fɪt/","/fɪt/"],"7_9":["/ˈfʁaɪ̯ˌt͡saɪ̯t/","/friː taɪm/"],"7_10":["/ˈhʊŋʁɪç/","/ˈhʌŋɡri/"],"7_11":["/hʊˈʁaː/","/ˈhɔːreɪ/"],"7_12":["/ˈloːsˌɡeːən/","/tə stɑːt/"],"7_13":["/ˈmyːdə/","/taɪəd/"],"7_14":["/ˈʁeːɡl̩ˌmɛːsɪk/","/ˈreɡjuːləli/"],"7_15":["/ˈʁɪçtɪk/","/ˈriəli/"],"7_16":["/ˈʃafn̩/","/tə ˈmænɪdʒ/"],"7_17":["/ˈzɪçɐ/","/ʃɔː/"],"7_18":["/ˈzyːsɪçˌkaɪ̯t/ · Pl. /ˈzyːsɪçˌkaɪ̯tn̩/","/swiːt/"],"7_19":["/ˈtɛːklɪç/","/ˈdeɪli/"],"7_20":["/ɡəˈfɛːɐ̯lɪç/","/ˈdeɪndʒərəs/"],"7_21":["/ɡəˈʁaːdə/","/ət ðə ˈməʊmənt/"],"7_22":["/ˈʃpʁaːxnaːxˌʁɪçt/ · Pl. /ˈʃpʁaːxnaːxˌʁɪçtn̩/","/vɔɪs ˈmesɪdʒ/"],"7_23":["/fɛɐ̯ˈɡɛsn̩/","/tə fəˈɡet/"],"7_24":["/fɛɐ̯ˈmɪsn̩/","/tə mɪs/"],"7_25":["/akˈtiːf/","/ˈæktɪv/"],"7_26":["/ˈanˌt͡siːən/","/tə ɡet drest/"],"7_27":["/ˈkɔmɪk/ · Pl. /ˈkɔmɪks/","/ˈkɒmɪk bʊk/"],"7_28":["≈ /ˈfɪtnɛsɛp/ · Pl. /ˈfɪtnɛsɛps/","≈ /ˈfɪtnəs æp/"],"7_29":["/ˈɡeːbm̩/","/tə ɡɪv/"],"7_30":["/ˈhoːlən/","/tə ɡet/"],"7_31":["/ˈmɪndəstn̩s/","/ət liːst/"],"7_32":["≈ /ˈʁaʊ̯sˌɡeːən/","≈ /tə ɡəʊ aʊˈtsaɪd/"],"7_33":["/ˈʃpɔʁtlɪç/","/æθˈletɪk/"],"7_34":["/ˈʃpɔʁtˌʃuː/ · Pl. /ˈʃpɔʁtˌʃuːə/","/ˈtreɪnə/"],"7_35":["/ˈvaɪ̯tɐˌmaxn̩/","/tə kənˈtɪnjuː/"],"7_36":["/ˈaʊ̯fˌfɔʁdəʁʊŋ/ · Pl. /ˈaʊ̯fˌfɔʁdəʁʊŋən/","/rɪˈkwest/"],"7_37":["/ɛp/ · Pl. /ɛps/","/ˌæplɪˈkeɪʃən/"],"7_38":["/ˈʁuːɪk/","/kwaɪət/"],"7_39":["/ˈaʊ̯fˌmaxn̩/","/tə ˈəʊpən/"],"7_40":["/ˈaʊ̯fˌʃʁaɪ̯bm̩/","/tə raɪt daʊn/"],"7_41":["/ˈfɛnstɐ/","/ˈwɪndəʊ/"],"7_42":["/ˈlaɪ̯zə/","/kwaɪət/"],"7_43":["/ˈtaːfl̩/ · Pl. /ˈtaːfl̩n/","/ˈblækbɔːd/"],"7_44":["/ˈfoːɐ̯ˌleːzn̩/","≈ /tə riːd əˈlaʊd/"],"7_45":["/ˈviːdɐˌhoːlən/","/tə rɪˈpiːt/"],"7_46":["/ˈviːɡn̩/","/tə weɪ/"],"7_47":["/ˈaltɐ/","/eɪdʒ/"],"7_48":["/ɡəˈvɪçt/","/weɪt/"],"7_49":["/ˈɡʁøːsə/ · Pl. /ˈɡʁøːsn̩/","/saɪz/"],"7_50":["/ʃveːɐ̯/","/ˈhevi/"],"7_51":["/baʊ̯x/ · Pl. /ˈbɔɪ̯çə/","/ˈstʌmək/"],"7_52":["/baɪ̯n/ · Pl. /ˈbaɪ̯nə/","/leɡ/"],"7_53":["/ˈfɪŋɐ/","/ˈfɪŋɡə/"],"7_54":["/fuːs/ · Pl. /ˈfyːsə/","/fʊt/"],"7_55":["/hals/ · Pl. /ˈhɛlzə/","/nek/"],"7_56":["/hant/ · Pl. /ˈhɛndə/","/hænd/"],"7_57":["/kniː/","/niː/"],"7_58":["/kɔp͡f/ · Pl. /ˈkœp͡fə/","/hed/"],"7_59":["/ˈkœʁpɐ/","/ˈbɒdi/"],"7_60":["/ˈʁʏkn̩/","/bæk/"],"7_61":["/ˈkœʁpɐˌtaɪ̯l/ · Pl. /ˈkœʁpɐˌtaɪ̯lə/","/ˈbɒdi pɑːt/"],"7_62":["/ˈapˌvɛksl̩n/","/tə teɪk tɜːnz/"],"7_63":["/ˈaʊ̯ɡə/ · Pl. /ˈaʊ̯ɡn̩/","/aɪ/"],"7_64":["/ɡəˈzɪçt/ · Pl. /ɡəˈzɪçtɐ/","/feɪs/"],"7_65":["/haːɐ̯/ · Pl. /ˈhaːʁə/","/heə/"],"7_66":["/mʊnt/ · Pl. /ˈmʏndɐ/","≈ /maʊθ/"],"7_67":["/ˈnaːzə/ · Pl. /ˈnaːzn̩/","/nəʊz/"],"7_68":["/oːɐ̯/ · Pl. /ˈoːʁən/","/iə/"],"7_69":["/t͡saːn/ · Pl. /ˈt͡sɛːnə/","/tuːθ/"],"7_70":["/ˈʁiːçn̩/","/tə smel/"],"7_71":["/bəˈkɔmən/","/tə ɡet/"],"7_72":["/ˈdɔktoːɐ̯/ · Pl. /dɔkˈtoːʁən/ · /dɔkˈtoːʁɪn/ · Pl. /dɔkˈtoːʁɪnən/","/ˈdɒktə/"],"7_73":["/ʁeˈt͡sɛpt/ · Pl. /ʁeˈt͡sɛptə/","/prɪˈskrɪpʃən/"],"7_74":["/ˈzalbə/ · Pl. /ˈzalbn̩/","≈ /sælv/"],"7_75":["/ˈʊnfal/ · Pl. /ˈʊnˌfɛlə/","/ˈæksɪdənt/"],"7_76":["/fɛɐ̯ˈbant/ · Pl. /fɛɐ̯ˈbɛndə/","/ˈbændɪdʒ/"],"7_77":["/fɛɐ̯ˈlɛt͡st/","/ˈɪndʒəd/"],"7_78":["/apoˈteːkə/ · Pl. /apoˈteːkn̩/","/ˈfɑːməsi/"],"7_79":["/bəˈveːɡn̩/","/tə muːv/"],"7_80":["/ˈɡuːtə ˈbɛsəʁʊŋ/","/ɡet wel suːn/"],"7_81":["/ˈhɪnˌleːɡn̩/","/tə laɪ daʊn/"],"7_82":["/kɔnˈtʁɔlə/ · Pl. /kɔnˈtʁɔlən/","/tʃek/"],"7_83":["/kɔntʁɔˈliːʁən/","/tə tʃek/"],"7_84":["/ˈzaʊ̯bɐ ˈmaxn̩/","/tə kliːn/"],"7_85":["/zɪç/","/wɒnˈself/"],"7_86":["/ˈveːˌtuːn/","/tə hɜːt/"],"7_87":["/ˈvʊndə/ · Pl. /ˈvʊndn̩/","≈ /wuːnd/"],"7_88":["/ˈaʁt͡stbəˌzuːx/ · Pl. /ˈaʁt͡stbəˌzuːxə/","/ˈvɪzɪt tə ðə ˈdɒktə/"],"7_89":["/zoˈfɔʁt/","/ɪˈmiːdɪətli/"],"7_90":["/ˈzɔlən/","≈ /biː səˈpəʊzd tə/"],"7_91":["/ˈbaʊ̯xˌʃmɛʁt͡sn̩/","/ˈstʌmək peɪn/"],"7_92":["/ɛɐ̯ˈkɛltət/","≈ /tə hæv ə kəʊld/"],"7_93":["/ˈfiːbɐ/","/ˈfiːvə/"],"7_94":["/ˈhuːstn̩/","/kɒf/"],"7_95":["/ʃlɛçt/","/sɪk (hiə)/"],"7_96":["/toˈtaːl/","/ˈtəʊtəli/"],"7_97":["/ˈbaːdn̩/","/tə bɑːθ/"],"7_98":["/ˈdʏʁfn̩/","/tə biː əˈlaʊd tə/"],"7_99":["/ɛɐ̯ˈlaʊ̯pt zaɪ̯n/","/tə biː əˈlaʊd/"],"7_100":["/ˈɡeːɡn̩/","/fə (hiə)/"],"7_101":["/ˈhuːstn̩ˌzaft/ · Pl. /ˈhuːstn̩ˌzɛftə/","/kɒf ˈsɪrʌp/"],"7_102":["/ˈneːmən/","/tə teɪk (ˈmedsən)/"],"7_103":["/ˈʁaʊ̯xn̩/","/tə sməʊk/"],"7_104":["/ʃmɛʁt͡s/ · Pl. /ˈʃmɛʁt͡sn̩/","/peɪn/"],"7_105":["/ˈt͡svaɪ̯maːl/","/twaɪs/"],"7_106":["/ˈanˌvaɪ̯zʊŋ/ · Pl. /ˈanˌvaɪ̯zʊŋən/","/ɪnˈstrʌkʃən/"],"7_107":["/ˈhalsˌʃmɛʁt͡sn̩/","/sɔː θrəʊt/"],"7_108":["/ˈkɔp͡fˌʃmɛʁt͡sn̩/","/ˈhedeɪk/"],"7_109":["/ˈʁʏkn̩ˌʃmɛʁt͡sn̩/","/bæk peɪn/"],"7_110":["/ˈʁɔlə/ · Pl. /ˈʁɔlən/","/rəʊl/"],"7_111":["/ˈp͡flastɐ/","≈ /bændeɪd/"],"7_112":["/zaft/ · Pl. /ˈzɛftə/","/ˈsɪrʌp (hiə)/"],"7_113":["/ˈtʁɔp͡fn̩/","/drɒp/"],"7_114":["/ˈhoːnɪk/","/ˈhʌni/"],"7_115":["/ˈhyːnɐˌzʊpə/ · Pl. /ˈhyːnɐˌzʊpn̩/","/ˈtʃɪkɪn suːp/"],"7_116":["/ˈnɛlkə/ · Pl. /ˈnɛlkən/","/kləʊv/"],"7_117":["/ˈʃnʊp͡fn̩/","/ˈkɒmən kəʊld/"],"7_118":["/fɛɐ̯ˈmuːtn̩/","≈ /tə ˈsʌspekt/"],"7_119":["/ˈt͡saːnˌʃmɛʁt͡sn̩/","/ˈtuːθeɪk/"],"7_120":["/ˈbɪtə/ · Pl. /ˈbɪtən/","/rɪˈkwest/"],"7_121":["/ˈaɪ̯nˌʃlaːfn̩/","/tə fɔːl əˈsliːp/"],"7_122":["≈ /ˈfoːʁʊmsˌbaɪ̯ˌtʁaːk/ · Pl. /ˈfoːʁʊmsˌbaɪ̯ˌtʁɛːɡə/","/ˈfɔːrəm pəʊst/"],"7_123":["/ˈhaʊ̯sˌmɪtl̩/","/həʊm ˈremədi/"],"7_124":["/ɪnhaˈliːʁən/","/tə ɪnˈheɪl/"],"7_125":["/ˈjeːmant/","/ˈsʌmwɒn/"],"7_126":["/pɛʁˈfɛkt/","≈ /ˈpɜːfekt/"],"7_127":["/ˈʃlaːftaˌblɛtə/ · Pl. /ˈʃlaːftaˌblɛtn̩/","/ˈsliːpɪŋ pɪl/"],"7_128":["/ˈzʊpn̩ˌhuːn/ · Pl. /ˈzʊpn̩ˌhyːnɐ/","/ˈtʃɪkɪn fə suːp/"],"7_129":["/tɪp/ · Pl. /tɪps/","/tɪp/"],"7_130":["/fɛɐ̯ˈzuːxn̩/","/tə əˈtempt/"],"7_131":["/ˈaʊ̯fˌhɛŋən/","/tə hæŋ ʌp/"],"7_132":["/ˈt͡sɛtl̩/","/nəʊt/"],"7_133":["/ˈanˌʃtʁɛŋənt/","/eɡˈzɔːstɪŋ/"],"7_134":["/bluːt/","/blʌd/"],"7_135":["/ɛɐ̯ˈɡeːpnɪs/ · Pl. /ɛɐ̯ˈɡeːpnɪsə/","/rɪˈzʌlt/"],"7_136":["/ˈɡlʏklɪç/","/ˈhæpi/"],"7_137":["/laˈboːɐ̯/ · Pl. /laˈboːʁə/","/læb (ˈɒrətəri)/"],"7_138":["/laboˈʁant/ · Pl. /laboˈʁantn̩/ · /laboˈʁantɪn/ · Pl. /laboˈʁantɪnən/","/læb əˈsɪstənt/"],"7_139":["/ˈnoːtˌʔaʁt͡st/ · Pl. /ˈnoːtˌʔɛʁt͡stə/ · /ˈnoːtʔɛːɐ̯t͡stɪn/ · Pl. /ˈnoːtʔɛːɐ̯t͡stɪnən/","/ɪˈmɜːdʒənsi ˈdɒktə/"],"7_140":["/fyzi̯oteʁaˈpɔɪ̯t/ · Pl. /fyzi̯oteʁaˈpɔɪ̯tn̩/ · /fyzi̯oteʁaˈpɔɪ̯tɪn/ · Pl. /fyzi̯oteʁaˈpɔɪ̯tɪnən/","/ˈfɪzɪkəl ˈθerəpɪst/"],"7_141":["/fyzi̯oteʁaˈpiː/ · Pl. /fyzi̯oteʁaˈpiːən/","/ˈfɪzɪkəl ˈθerəpi/"],"7_142":["/ˈʃpɔʁtlɐ/ · /ˈʃpɔʁtləʁɪn/ · Pl. /ˈʃpɔʁtləʁɪnən/","/ˈæθliːt/"],"7_143":["/stʁateˈɡiː/ · Pl. /stʁateˈɡiːən/","/ˈstrætədʒi/"],"7_144":["/ˈyːbʊŋ/ · Pl. /ˈyːbʊŋən/","/ˈeksəsaɪz/"],"7_145":["/ˌʊntɐˈzuːxn̩/","/tə eɡˈzæmɪn/"],"7_146":["/daˈt͡suːɡəˌhøːʁən/","/tə ɪnˈkluːd/"],"7_147":["/ˈdɔɪ̯t͡ʃə/","/ˈdʒɜːmən (ˈlæŋɡwɪdʒ)/"],"7_148":["/ɛɐ̯ˈʃliːsn̩/","/tə ɪnˈfɜː/"],"7_149":["/ˈhɪlfə/ · Pl. /ˈhɪlfn̩/","/help/"],"7_150":["/kɔmˈpoːzitʊm/ · Pl. /kɔmˈpoːzita/","≈ /ˈkɒmpaʊnd/"],"7_151":["/ˈkɔnˌtɛkst/ · Pl. /ˈkɔnˌtɛkstə/","/ˈkɒntekst/"],"7_152":["/teʁaˈpɔɪ̯t/ · Pl. /teʁaˈpɔɪ̯tn̩/ · /teʁaˈpɔɪ̯tɪn/ · Pl. /teʁaˈpɔɪ̯tɪnən/","/ˈθerəpɪst/"],"7_153":["/fɛɐ̯ˈlɛt͡stə/ · Pl. /fɛɐ̯ˈlɛt͡stn̩/","/ˈkæʒuːəlti/"],"7_154":["/ˌt͡sɛɐ̯ˈleːɡn̩/","/tə ˌdɪsəˈsembəl/"],"7_155":["/ˈaʊ̯sˌdʁʊk/ · Pl. /ˈaʊ̯sˌdʁʏkə/","/ekˈspreʃən/"],"7_156":["/ˈaʊ̯sˌdʁʏkn̩/","/tə ekˈspres/"],"7_157":["/ɛɐ̯ˈlaʊ̯pnɪs/ · Pl. /ɛɐ̯ˈlaʊ̯pnɪsə/","/pəˈmɪʃən/"],"7_158":["/ɡəˈboːt/ · Pl. /ɡəˈboːtə/","/kəˈmɑːndmənt/"],"7_159":["/fɛɐ̯ˈboːt/ · Pl. /fɛɐ̯ˈboːtə/","/prəhɪˈbɪʃən/"],"7_160":["/ˈviːdɐˌɡeːbm̩/","/tə rɪˈsaɪt/"],"8_0":["/ˈaʁbaɪ̯t͡sˌt͡sɪmɐ/","/ˈɒfɪs/"],"8_1":["/baːt/ · Pl. /ˈbɛːdɐ/","/bɑːθ/"],"8_2":["/balˈkoːn/ · Pl. /balˈkoːnə/","/ˈbælkəni/"],"8_3":["/ˈfɛʁnˌzeːɐ/","/ˈtelɪvɪʒən/"],"8_4":["/fluːɐ̯/ · Pl. /ˈfluːʁə/","/ˈhɔːlweɪ/"],"8_5":["/ɡəˈʁɛːt/ · Pl. /ɡəˈʁɛːtə/","/dɪˈvaɪs, əˈplaɪəns/"],"8_6":["/heːɐ̯t/ · Pl. /ˈheːɐ̯də/","/stəʊv/"],"8_7":["/ˈkafemaˌʃiːnə/ · Pl. /ˈkafemaˌʃiːnən/","/ˈkɒfi məˈʃiːn/"],"8_8":["/ˈkɪndɐˌt͡sɪmɐ/","/ˈnɜːsəri/"],"8_9":["/ˈkʏçə/ · Pl. /ˈkʏçn̩/","/ˈkɪtʃən/"],"8_10":["/ˈkyːlˌʃʁaŋk/ · Pl. /ˈkyːlˌʃʁɛŋkə/","/rɪˈfrɪdʒəreɪtə/"],"8_11":["/ˈlampə/ · Pl. /ˈlampn̩/","/læmp/"],"8_12":["/ˈmøːbl̩/","/ˈfɜːnɪtʃə/"],"8_13":["/ʁeˈɡaːl/ · Pl. /ʁeˈɡaːlə/","/ʃelf/"],"8_14":["/ˈʃlaːfˌt͡sɪmɐ/","/ˈbedruːm/"],"8_15":["/ʃʁaŋk/ · Pl. /ˈʃʁɛŋkə/","/ˈwɔːdrəʊb, ˈkʌbəd/"],"8_16":["/ˈʃʁaɪ̯pˌtɪʃ/ · Pl. /ˈʃʁaɪ̯pˌtɪʃə/","/desk/"],"8_17":["/ˈzɛsl̩/","/ˈɑːmtʃeə/"],"8_18":["/ˈzoːfa/ · Pl. /ˈzoːfas/","/ˈsəʊfə, kaʊtʃ/"],"8_19":["/ˈʃpyːlmaˌʃiːnə/ · Pl. /ˈʃpyːlmaˌʃiːnən/","/ˈdɪʃwɒʃə/"],"8_20":["/ʃtuːl/ · Pl. /ˈʃtyːlə/","/tʃeə/"],"8_21":["/ˈtɛpɪç/ · Pl. /ˈtɛpɪçə/","≈ /ˈkɑːpɪt/"],"8_22":["≈ /ˈtoːiːˌlɛtə/ · Pl. /toˈlɛtn̩/","/ˈtɔɪlət/"],"8_23":["/ˈvaʃmaˌʃiːnə/ · Pl. /ˈvaʃmaˌʃiːnən/","/ˈwɒʃɪŋ məˈʃiːn/"],"8_24":["/ˈvoːnʊŋ/ · Pl. /ˈvoːnʊŋən/","/flæt/"],"8_25":["/ˈvoːnˌt͡sɪmɐ/","/ˈlɪvɪŋ ruːm/"],"8_26":["/ˈoːbm̩/","/əˈbʌv/"],"8_27":["/ˈp͡flant͡sə/ · Pl. /ˈp͡flant͡sn̩/","/plænt/"],"8_28":["/ˈt͡siːən/","/tə muːv/"],"8_29":["/bəˈzɔndɐs/","/ɪˈspeʃəli/"],"8_30":["/ˈliːplɪŋsˌʔɔʁt/ · Pl. /ˈliːplɪŋsˌʔɔʁtə/","/ˈfeɪvrɪt pleɪs/"],"8_31":["/ˈliːplɪŋsˌt͡sɪmɐ/","/ˈfeɪvrɪt ruːm/"],"8_32":["/hɛl/","/laɪt/"],"8_33":["/maksiˈmaːl/","/ˈmæksɪməli/"],"8_34":["≈ /ˌkuːˈɛm/","≈ /ˌesˈkjuː em/"],"8_35":["/tɛˈʁasə/ · Pl. /tɛˈʁasn̩/","/ˈpætɪəʊ/"],"8_36":["/ˈʊnɡəfɛːɐ̯/","/əˈprɒksɪmətli/"],"8_37":["/ˈvoːnʊŋsˌzuːxə/","/flæt sɜːtʃ/"],"8_38":["/ˈt͡sɛntʁʊm/ · Pl. /ˈt͡sɛntʁən/","/ˈsentə/"],"8_39":["/ˈmiːtə/ · Pl. /ˈmiːtən/","/rent/"],"8_40":["/vʊnʃ/ · Pl. /ˈvʏnʃə/","/wɪʃ/"],"8_41":["/aˈpaʁtmənt/ · Pl. /aˈpaʁtmənt͡s/","/əˈpɑːtmənt/"],"8_42":["/ˈbɪlɪk/","/tʃiːp/"],"8_43":["/diˈʁɛkt/","/raɪt (hiə ləʊˈkeɪʃən)/"],"8_44":["/ˈduːʃə/ · Pl. /ˈduːʃn̩/","≈ /ʃaʊə/"],"8_45":["/eleˈɡant/","/ˈelɪɡənt/"],"8_46":["/ideˈaːl/","/aɪˈdiəl/"],"8_47":["/jʊŋ/","/jʌŋ/"],"8_48":["/ˈnɛːə/","/prɒkˈsɪmɪti/"],"8_49":["/ʁenoˈviːɐ̯t/","/rɪˈfɜːbɪʃt/"],"8_50":["/ʃtɔk/ · Pl. /ˈʃtœkə/","/flɔː/"],"8_51":["/ˈtɔp/","/wel/"],"8_52":["/fɛɐ̯ˈmiːtn̩/","/tə let/"],"8_53":["/ˈvoːnˌflɛçə/ · Pl. /ˈvoːnˌflɛçn̩/","/ˈlɪvɪŋ speɪs/"],"8_54":["≈ /ˈvoːnʊŋsˌanˌt͡saɪ̯ɡə/ · Pl. /ˈvoːnʊŋsˌanˌt͡saɪ̯ɡən/","/ədˈvɜːtɪsmənt fə flæt/"],"8_55":["/t͡sɛnˈtʁaːl/","/ˈsentrəl/"],"8_56":["/ˈdʊŋkl̩/","/dɑːk/"],"8_57":["/ˈɡʏnstɪk/","≈ /ləʊpraɪst/"],"8_58":["/ˈʃtɛlən/","≈ /tə pʊt/"],"8_59":["/ˈaʊ̯sˌfʏlən/","/tə fɪl ɪn/"],"8_60":["/bəˈzɪçtɪɡn̩/","/tə vjuː/"],"8_61":["/ˈkɪstə/ · Pl. /ˈkɪstn̩/","/bɒks/"],"8_62":["/lɪçt/ · Pl. /ˈlɪçtɐ/","/laɪt/"],"8_63":["/ˈpakn̩/","/tə pæk/"],"8_64":["/ˈʃliːsn̩/","≈ /tə kləʊs/"],"8_65":["/tyːɐ̯/ · Pl. /ˈtyːʁən/","/dɔː/"],"8_66":["/ˈʊmˌt͡siːən/","/tə muːv/"],"8_67":["/ˈʊmˌt͡suːk/ · Pl. /ˈʊmˌt͡syːɡə/","/muːv/"],"8_68":["/ˌʊntɐˈʃʁaɪ̯bm̩/","/tə saɪn/"],"8_69":["/fɛɐ̯ˈmiːtɐ/ · /fɛɐ̯ˈmiːtəʁɪn/ · Pl. /fɛɐ̯ˈmiːtəʁɪnən/","/ˈlændlɔːd / ˈlændleɪdi/"],"8_70":["/fɛɐ̯ˈtʁaːk/ · Pl. /fɛɐ̯ˈtʁɛːɡə/","≈ /ˈkɒntrækt/"],"8_71":["/ˈt͡suːˌmaxn̩/","≈ /tə kləʊs/"],"8_72":["/ˈfʁɔɪ̯ən/","/tə lʊk ˈfɔːwəd tə/"],"8_73":["/ˈʃaɪ̯nən/","/tə ʃaɪn/"],"8_74":["/ˈfeːlənt/","/ˈmɪsɪŋ/"],"8_75":["/balt/","/suːn/"],"8_76":["/ˈfaɪ̯ɐ/ · Pl. /ˈfaɪ̯ɐn/","/ˌseləˈbreɪʃən/"],"8_77":["/ˈɡlʏkˌvʊnʃ/ · Pl. /ˈɡlʏkˌvʏnʃə/","/kənˈɡrætʃʊˈleɪʃənz/"],"8_78":["/zamstaːkˈʔaːbn̩t/ · Pl. /zamstaːkˈʔaːbn̩də/","≈ /ˈsætədeɪ naɪt/"],"8_79":["≈ /ˈaɪ̯nˌvaɪ̯ʊŋsˌfaɪ̯ɐ/ · Pl. /ˈaɪ̯nˌvaɪ̯ʊŋsˌfaɪ̯ɐn/","≈ /haʊs ˈwɔːmɪŋ/"],"8_80":["/ɡəˈnaʊ̯/","/eɡˈzæktli/"],"8_81":["/ˈhɪntɐ/","/bɪˈhaɪnd/"],"8_82":["/ˈneːbm̩/","/nekst tə/"],"8_83":["/ˈyːbɐ/","/ˈəʊvə/"],"8_84":["/ˈʊntɐ/","/ˈʌndə/"],"8_85":["/ˈt͡svɪʃn̩/","/bɪˈtwiːn/"],"8_86":["/ˈaʊ̯sˌz̥eːən/","/tə lʊk/"],"8_87":["/bəˈɡaɪ̯stəʁʊŋ/","/enθˈjuːzɪæzəm/"],"8_88":["/dɔx/","/ˌɪnˈdiːd/"],"8_89":["/ɡəˈmyːtlɪç/","/ˈkʌmftəbəl/"],"8_90":["/ˈhɛslɪç/","/ˈʌɡli/"],"8_91":["/nɪçt meːɐ̯/","/nɒt ˌenɪˈmɔː/"],"8_92":["/ˈɔɪ̯səʁʊŋ/ · Pl. /ˈɔɪ̯səʁʊŋən/","≈ /rɪˈmɑːk/"],"8_93":["/neɡaˈtiːf/","/ˈneɡətɪv/"],"8_94":["/poziˈtiːf/","/ˈpɒzɪtɪv/"],"8_95":["/bʁaʊ̯n/","/braʊn/"],"8_96":["/ɡɛlp/","/ˈjeləʊ/"],"8_97":["/ɡʁaʊ̯/","/ɡreɪ/"],"8_98":["/ˈliːla/","/ˈpɜːpəl/"],"8_99":["/oˈʁanʃ/","/ˈɒrɪndʒ/"],"8_100":["/ʃvaʁt͡s/","/blæk/"],"8_101":["/vaɪ̯s/","/waɪt/"],"8_102":["/ˈaltˌbaʊ̯ˌvoːnʊŋ/ · Pl. /ˈaltˌbaʊ̯voːnʊŋən/","/flæt ɪn əʊld ˈbɪldɪŋ/"],"8_103":["/aʊ̯s/","/aʊt əv/"],"8_104":["/ˈdɛkə/ · Pl. /ˈdɛkn̩/","/ˈsiːlɪŋ/"],"8_105":["/ˈfaxvɛʁkˌhaʊ̯s/ · Pl. /ˈfaxvɛʁkˌhɔɪ̯zɐ/","≈ /hɑːfˈtɪmbə haʊs/"],"8_106":["/ˈɡaʁtn̩/ · Pl. /ˈɡɛʁtn̩/","/ˈɡɑːdən/"],"8_107":["/ˈhoːxˌhaʊ̯s/ · Pl. /ˈhoːxˌhɔɪ̯zɐ/","/ˈskaɪskreɪpə/"],"8_108":["/hɔlt͡s/ · Pl. /ˈhœlt͡sɐ/","/wʊd/"],"8_109":["/lɔft/ · Pl. /lɔft͡s/","/lɒft/"],"8_110":["/ʁaʊ̯m/ · Pl. /ˈʁɔɪ̯mə/","/ruːm/"],"8_111":["/ˈʁaɪ̯ənˌhaʊ̯s/ · Pl. /ˈʁaɪ̯ənˌhɔɪ̯zɐ/","/ˈtaʊnhaʊs/"],"8_112":["/ˈtʁɛpə/ · Pl. /ˈtʁɛpm̩/","/steəz/"],"8_113":["/ˈyːbɐˌʃʁɪft/ · Pl. /ˈyːbɐˌʃʁɪftn̩/","/ˈhedɪŋ/"],"8_114":["/bəˈvoːnɐ/ · /bəˈvoːnəʁɪn/ · Pl. /bəˈvoːnəˌʁɪnən/","/ˈrezɪdənt/"],"8_115":["/ˈnaːxˌtaɪ̯l/ · Pl. /ˈnaːxtaɪ̯lə/","/ˌdɪsədˈvɑːntɪdʒ/"],"8_116":["/ˈfɔʁˌtaɪ̯l/ · Pl. /ˈfɔʁˌtaɪ̯lə/","/ədˈvɑːntɪdʒ/"],"8_117":["/ˈvoːnˌfɔʁm/ · Pl. /ˈvoːnˌfɔʁmən/","/fɔːm əv ˈhaʊzɪŋ/"],"8_118":["/baʊ̯m/ · Pl. /ˈbɔɪ̯mə/","/triː/"],"8_119":["/blɪk/ · Pl. /ˈblɪkə/","/vjuː/"],"8_120":["/ˈbluːmə/ · Pl. /ˈbluːmən/","≈ /flaʊə/"],"8_121":["/aɪ̯n paːɐ̯/","/ə ˈkʌpəl/"],"8_122":["/ˈeːɐ̯tɡəˌʃɔs/ · Pl. /ˈeːɐ̯tɡəˌʃɔsə/","/ɡraʊnd ˈlevəl/"],"8_123":["/ˈlaːɡə/ · Pl. /ˈlaːɡn̩/","/ləʊˈkeɪʃən/"],"8_124":["/niː/","/ˈnevə/"],"8_125":["/vaɪ̯t/","/fɑː/"],"8_126":["/veːˈɡeː/ · Pl. /veːˈɡeːs/","/flæt ʃeə/"],"8_127":["≈ /voːnzituaˈt͡si̯oːn/ · Pl. /voːnzituaˈt͡si̯oːnən/","/ˈlɪvɪŋ ˌsɪtʃuːˈeɪʃən/"],"8_128":["/t͡suˈfʁiːdn̩/","/ˈsætɪsfaɪd/"],"8_129":["/t͡sʊʁˈt͡saɪ̯t/","/ˈkʌrəntli/"],"8_130":["/hɛft/ · Pl. /ˈhɛftə/","/ˈeksəsaɪz bʊk/"],"8_131":["/ˈtɛkstˌbaʊ̯ʃtaɪ̯n/ · Pl. /ˈtɛkstˌbaʊ̯ʃtaɪ̯nə/","/tekst blɒk/"],"8_132":["/ɡəˈfalən/","/əˈpruːvəl/"],"8_133":["/ˈmɪsˌfalən/","/ˌdɪsəˈpruːvəl/"],"8_134":["≈ /ˈvɛksl̩pʁɛpoziˌt͡si̯oːn/ · Pl. /ˈvɛksl̩pʁɛpoziˌt͡si̯oːnən/","≈ /tuːkeɪs ˌprepəˈzɪʃən/"],"9_0":["/ˈʃtuːdi̯ʊm/ · Pl. /ˈʃtuːdi̯ən/","/ˈstʌdɪz/"],"9_1":["/bəˈtʁɔɪ̯ən/","/tə ˈsuːpəvaɪz/"],"9_2":["/ˈɡeːbm̩/","/tə ɡɪv (ˈlesənz)/"],"9_3":["/ˈmaːlən/","/tə peɪnt/"],"9_4":["/ˈzeːɡl̩n/","/tə seɪl/"],"9_5":["/ˈʊntɐˌʁɪçt/","/ˈlesənz/"],"9_6":["/ˈkʏnstlɐ/ · /ˈkʏnstləʁɪn/ · Pl. /ˈkʏnstləʁɪnən/","/ˈɑːtɪst/"],"9_7":["/ˈʁaːdi̯oˌzɛndʊŋ/ · Pl. /ˈʁaːdi̯oˌzɛndʊŋən/","/ˈreɪdɪəʊ ˈprəʊɡræm/"],"9_8":["≈ /ˈzeːɡl̩ˌleːʁɐ/ · /ˈzeːɡl̩ˌleːʁəʁɪn/ · Pl. /ˈzeːɡl̩ˌleːʁəʁɪnnən/","/ˈseɪlɪŋ ɪnˈstrʌktə/"],"9_9":["/ˈaʁbaɪ̯t͡sˌplat͡s/ · Pl. /ˈaʁbaɪ̯t͡sˌplɛt͡sə/","/ˈwɜːkpleɪs/"],"9_10":["/ˈbaʊ̯ˌʃtɛlə/ · Pl. /ˈbaʊ̯ˌʃtɛlən/","/kənˈstrʌkʃən saɪt/"],"9_11":["/ˈkaʊ̯fˌhaʊ̯s/ · Pl. /ˈkaʊ̯fˌhɔɪ̯zɐ/","/dɪˈpɑːtmənt stɔː/"],"9_12":["/ˈvɛʁkˌʃtat/ · Pl. /ˈvɛʁkˌʃtɛtn̩/","/ˈwɜːkʃɒp/"],"9_13":["/kaˈʁi̯eːʁə/ · Pl. /kaˈʁi̯eːʁən/","/kəˈriə/"],"9_14":["/pʊŋkt/ · Pl. /ˈpʊŋktə/","/pɔɪnt/"],"9_15":["/fɛɐ̯ˈdiːnən/","/tə ɜːn/"],"9_16":["≈ /ˈkʊʁsʃtaˌtɪstɪk/ · Pl. /ˈkʊʁsʃtaˌtɪstɪkən/","/kɔːs stəˈtɪstɪk/"],"9_17":["/ˈfaɪ̯ɐˌʔaːbn̩t/ · Pl. /ˈfaɪ̯ɐˌʔaːbm̩də/","/ˈkləʊzɪŋ taɪm, həʊm taɪm/"],"9_18":["/ˈflaɪ̯sɪk/","/ˈhɑːdwɜːkɪŋ/"],"9_19":["/ˈhaːbm̩/","≈ /tə hæv/"],"9_20":["/ˈlaʊ̯fm̩/","≈ /tə ɡəʊ (iːz leʌft ɡʌt)/"],"9_21":["/leːɐ̯/","/ˈempti/"],"9_22":["/ˈlɛt͡stə ˈlɛt͡stɐ/","/lɑːst/"],"9_23":["/maːl/","/ˈsʌmtaɪm/"],"9_24":["/pʁoˈfɛsoːɐ̯/ · Pl. /pʁofɛˈsoːʁən/ · /pʁofɛˈsoːʁɪn/ · Pl. /pʁofɛˈsoːʁɪnən/","/prəˈfesə/"],"9_25":["/pʁoˈjɛkt/ · Pl. /pʁoˈjɛktə/","≈ /ˈprɒdʒekt/"],"9_26":["/zeˈmɛstɐ/","/səˈmestə/"],"9_27":["/foːɐ̯ˈbaɪ̯ zaɪ̯n/","/tə biː ˈəʊvə/"],"9_28":["/ˈeːbənzoː/","/ˈɒlsəʊ/"],"9_29":["/paʁtiˈt͡siːp/ · Pl. /paʁtiˈt͡siːpi̯ən/","/pɑːˈtɪsɪpəl/"],"9_30":["/ˈpɛʁfɛkt/","≈ /ˈpɜːfekt (tens)/"],"9_31":["/zaɪ̯n/","/tə ˈhæpən (hiə)/"],"9_32":["/ˈpʁyːfʊŋ/ · Pl. /ˈpʁyːfʊŋŋ̍/","/test, eɡˈzæm/"],"9_33":["/ʃtaˈtɪstɪk/ · Pl. /ʃtaˈtɪstɪkən/","/stəˈtɪstɪks/"],"9_34":["/ˈʃtuːdi̯o/ · Pl. /ˈʃtuːdi̯os/","/sˈtjuːdɪəʊ/"],"9_35":["/tʁeˈniːʁən/","/tə treɪn/"],"9_36":["≈ /yˈniːkaˌfeː/ · Pl. /yˈniːkaˌfeːs/","≈ /ˈjuːni kæˈfeɪ/"],"9_37":["/ˈbaɪ̯də/","/bəʊθ/"],"9_38":["/kaʊ̯m/","/ˈbeəli/"],"9_39":["/ˈneːmən/","/tə teɪk/"],"9_40":["/ˈanhaŋ/ · Pl. /ˈanhɛŋə/","/əˈpendɪks/"],"9_41":["/ˈlɪstə/ · Pl. /ˈlɪstn̩/","/lɪst/"],"9_42":["/ˈaʊ̯fˌɡaːbə/ · Pl. /ˈaʊ̯fˌɡaːbm̩/","/əˈsaɪnmənt/"],"9_43":["/ˈmɪʃn̩/","/tə mɪks/"],"9_44":["/aɡɛnˈtuːɐ̯ fyːɐ̯ ˈaʁbaɪ̯t/","/emˈplɔɪmənt ˈɒfɪs/"],"9_45":["/ˈaʁbaɪ̯t͡sloːs/","/ʌnemˈplɔɪd/"],"9_46":["/bəˈvɛʁbʊŋ/ · Pl. /bəˈvɛʁbʊŋən/","/ˌæplɪˈkeɪʃən/"],"9_47":["/dʊʁç/","/θruː/"],"9_48":["/ˈeːəˌfʁaʊ̯/ · Pl. /ˈeːəˌfʁaʊ̯ən/","/waɪf/"],"9_49":["/ˈeːəˌman/ · Pl. /ˈeːəˌmɛnɐ/","/ˈhʌsbənd/"],"9_50":["/ˈaɪ̯lɪk/","/ˈhʌrɪd/"],"9_51":["/ˈfliːɡn̩/","/tə flaɪ/"],"9_52":["/ˈfʁɔɪ̯ntlɪç/","/ˈfrendli/"],"9_53":["/ˈfʁyːɐ/","/ˈfɔːməli/"],"9_54":["/ˈhaɪ̯maːt/","/həʊm/"],"9_55":["≈ /hoˈtɛlʃɛf/ · Pl. /hoˈtɛlʃɛfs/ · /hoˈtɛlˌʃɛfɪn/ · Pl. /hoˈtɛlˌʃɛfɪnən/","/həʊˈtel bɒs/"],"9_56":["/ˈɪntɐnɛt/","/ˈɪntənet/"],"9_57":["/d͡ʒɔp/ · Pl. /d͡ʒɔps/","≈ /dʒɒb/"],"9_58":["≈ /d͡ʒɔppɔʁˈtaːl/ · Pl. /d͡ʒɔppɔʁˈtaːlə/","≈ /dʒɒb ˈpɔːtəl/"],"9_59":["/nuːɐ̯ nɔx/","/ˈəʊnli/"],"9_60":["/pʁoˈfiːl/ · Pl. /pʁoˈfiːlə/","/ˈprəʊfaɪl/"],"9_61":["/zekʁeˈtɛːɐ̯/ · Pl. /zekʁeˈtɛːʁə/ · /zekʁeˈtɛːʁɪn/ · Pl. /zekʁeˈtɛːʁɪnən/","/ˈsekrətri/"],"9_62":["/ˈʃtɛlə/ · Pl. /ˈʃtɛlən/","/pəˈzɪʃən/"],"9_63":["≈ /ˈɔʁt͡sfɛɐ̯ˌʔɛndəʁʊŋ/ · Pl. /ˈɔʁt͡sfɛɐ̯ˌʔɛndəʁʊŋən/","/tʃeɪndʒ əv ləʊˈkeɪʃən/"],"9_64":["/ˈanɡəˌboːt/ · Pl. /ˈanɡəˌboːtə/","/ˈɒfə/"],"9_65":["/ˈnaːxˌʁɪçtn̩/","/njuːz/"],"9_66":["/nɔʁˈmaːl/","/ˈnɔːməl/"],"9_67":["/ʃpaˈt͡siːɐ̯ˌɡaŋ/ · Pl. /ʃpaˈt͡siːɐ̯ˌɡɛŋə/","/wɔːk/"],"9_68":["/ˈtɛnɪsˌplat͡s/ · Pl. /ˈtɛnɪsˌplɛt͡sə/","/ˈtenɪs kɔːt/"],"9_69":["/ˈvɪʁklɪç/","/ˈriəli/"],"9_70":["/heːɐ̯/","/əˈɡəʊ/"],"9_71":["/ˈanˌʁuːf/ · Pl. /ˈanˌʁuːfə/","/kɔːl/"],"9_72":["≈ /ˈdʊʁçvaːl/ · Pl. /ˈdʊʁçvaːlən/","/daɪˈrekt ˈdaɪəlɪŋ/"],"9_73":["/fɛɐ̯ˈbɪndn̩/","/tə kəˈnekt/"],"9_74":["/bəˈʃtɪmt/","/ˈsɜːtən/"],"9_75":["/ˈmɛldn̩/","/tə ˈɑːnsə/"],"9_76":["/viː ˈbɪtə/","≈ /eksˈkjuːs miː/"],"9_77":["/ˈanʃlʊs/ · Pl. /ˈanʃlʏsə/","/kəˈnekʃən/"],"9_78":["/bəˈzɛt͡st/","/ˈbɪzi/"],"9_79":["/kɔmˈpjuːtɐˌfɪʁma/ · Pl. /kɔmˈpjuːtɐˌfɪʁmən/","/kəmˈpjuːtə ˈkʌmpəni/"],"9_80":["≈ /kɔmˈpjuːtɐpʁoˌbleːm/ · Pl. /kɔmˈpjuːtɐpʁoˌbleːmə/","/kəmˈpjuːtə ˈprɒbləm/"],"9_81":["/ˈfoːɐ̯ˌʃpiːlən/","/tə ækt aʊt/"],"9_82":["/ˈanˌfaŋ/ · Pl. /ˈanfɛŋə/","/bɪˈɡɪnɪŋ/"],"9_83":["/atʁakˈt͡si̯oːn/ · Pl. /atʁakˈt͡si̯oːnən/","/əˈtrækʃən/"],"9_84":["/ˈaʊ̯slant/","/əˈbrɔːd/"],"9_85":["/bəˈʁyːmt/","/ˈfeɪməs/"],"9_86":["/ˈbyːnə/ · Pl. /ˈbyːnən/","/steɪdʒ/"],"9_87":["/ˈɛndə/ · Pl. /ˈɛndn̩/","/end/"],"9_88":["/ˈfɛstˌʃpiːl/ · Pl. /ˈfɛstˌʃpiːlə/","/ˈfestɪvəl prəˈdʌkʃən/"],"9_89":["/ˈhɛndlɐ/ · /ˈhɛndləʁɪn/ · Pl. /ˈhɛndləʁɪnən/","/ˈmɜːtʃənt/"],"9_90":["/ɪnsɡəˈzamt/","/ɔːl təˈɡeðə/"],"9_91":["/ˌkaʁʊˈsɛl/ · Pl. /ˌkaʁʊˈsɛlə/","≈ /ˈmeriɡəʊraʊnd/"],"9_92":["≈ /kʊlˈtuːɐ̯ˌfɛstival/ · Pl. /kʊlˈtuːɐ̯ˌfɛstivals/","/ˈkʌltʃə ˈfestɪvəl/"],"9_93":["/ˈoːpɐ/ · Pl. /ˈoːpɐn/","/ˈɒpərə/"],"9_94":["/ˈʃtatˌfɪndn̩/","/tə teɪk pleɪs/"],"9_95":["/ˈʃtɔlən/","/ˈdʒɜːmən fruːt keɪk/"],"9_96":["/fɛɐ̯ˈkaʊ̯fn̩/","/tə sel/"],"9_97":["/ˈvaːʁə/ · Pl. /ˈvaːʁən/","/ɡʊdz/"],"9_98":["/ˈvaɪ̯naxt͡sˌmaʁkt/ · Pl. /ˈvaɪ̯naxt͡sˌmɛʁktə/","≈ /ˈkrɪsməs ˈmɑːkɪt/"],"9_99":["/ˈt͡suːˌʃaʊ̯ɐ/ · /ˈt͡suːˌʃaʊ̯əʁɪn/ · Pl. /ˈt͡suːˌʃaʊ̯əʁɪnən/","/spekˈteɪtə/"],"9_100":["/fɛɐ̯ˈʔanʃtaltʊŋ/ · Pl. /fɛɐ̯ˈʔanʃtaltʊŋən/","/ɪˈvent/"],"9_101":["/ʃtaˈtɪst/ · Pl. /ʃtaˈtɪstn̩/ · /ʃtaˈtɪstɪn/ · Pl. /ʃtaˈtɪstɪnən/","/ˈekstrə/"],"9_102":["≈ /zeˈzɔ̃ːd͡ʒɔp/ · Pl. /zeˈzɔ̃ːd͡ʒɔps/","≈ /ˈsiːzənəl dʒɒb/"],"9_103":["/ˈnaːxˌfʁaːɡn̩/","/tə ɑːsk əˈɡen/"],"10_0":["/ɡəˈfalən/","/tə pliːz, əˈpiːl tə/"],"10_1":["/ˈjakə/ · Pl. /ˈjakn̩/","/ˈdʒækɪt/"],"10_2":["/doːf/","/sˈtjuːpɪd/"],"10_3":["/ɛŋ/","/taɪt/"],"10_4":["/hɛmt/ · Pl. /ˈhɛmdn̩/","/ʃɜːt/"],"10_5":["/ˈhoːzə/ · Pl. /ˈhoːzn̩/","/ˈtraʊsəz/"],"10_6":["/ʁɔk/ · Pl. /ˈʁœkə/","/skɜːt/"],"10_7":["/ˈʃteːən/","/tə suːt/"],"10_8":["/ˈtiːˌʃœːɐ̯t/ · Pl. /tiːˌʃœːɐ̯t͡s/","≈ /tiːʃɜːt/"],"10_9":["/fiːl t͡suː/","/mʌtʃ tuː/"],"10_10":["/vaɪ̯t/","/luːs/"],"10_11":["/ɡəˈʃɪçtə/ · Pl. /ɡəˈʃɪçtn̩/","/ˈstɔːri/"],"10_12":["/ˈanˌt͡suːk/ · Pl. /ˈant͡syːɡə/","/suːt/"],"10_13":["/ˈaʊ̯sˌɡeːən/","/tə ɡəʊ aʊt/"],"10_14":["/klaɪ̯t/ · Pl. /ˈklaɪ̯dɐ/","/dres/"],"10_15":["/ˈklaɪ̯dʊŋ/","/kləʊðz/"],"10_16":["/kʁaˈvatə/ · Pl. /kʁaˈvatn̩/","/taɪ/"],"10_17":["/pʊˈloːvɐ/","/ˈdʒʌmpə/"],"10_18":["/ˈtʁaːɡn̩/","≈ /tə weə/"],"10_19":["/ˈbluːzə/ · Pl. /ˈbluːzn̩/","/blaʊz/"],"10_20":["/d͡ʒiːns/","/dʒiːnz/"],"10_21":["/ˈmantl̩/ · Pl. /ˈmɛntəl/","/kəʊt/"],"10_22":["/ˈmʏt͡sə/ · Pl. /ˈmʏt͡sn̩/","/hæt/"],"10_23":["/ʃuː/ · Pl. /ˈʃuːə/","/ʃuː/"],"10_24":["/ˈʃtiːfl̩/","/buːt/"],"10_25":["/ˈtaʃə/ · Pl. /ˈtaʃn̩/","/bæɡ/"],"10_26":["/ɡlaɪ̯ç/","/ðə seɪm/"],"10_27":["/ˈklaɪ̯dɐɡəˌʃɛft/ · Pl. /ˈklaɪ̯dɐɡəˌʃɛftə/","/kləʊðz ʃɒp/"],"10_28":["/ˈlaːdn̩/ · Pl. /ˈlɛːdn̩/","/ʃɒp/"],"10_29":["≈ /ˈsɛkn̩tˌhɛntˈlaːdn̩/ · Pl. /ˈsɛkn̩tˌhɛntˈlɛːdn̩/","/ˈsekəndhænd ʃɒp/"],"10_30":["≈ /ˈvaɪ̯tɛɐ̯ˌhøːʁən/","/tə kənˈtɪnjuː tə ˈlɪsən/"],"10_31":["/ˈalzo/","/wel/"],"10_32":["/ˈbɛsɐ/","/ˈbetə/"],"10_33":["/daˈneːbm̩/","/bɪˈsaɪd/"],"10_34":["/ɛntˈʃaɪ̯dʊŋ/ · Pl. /ɛntˈʃaɪ̯dʊŋən/","/dɪˈsɪʒən/"],"10_35":["/huːt/ · Pl. /ˈhyːtə/","/hæt/"],"10_36":["/ˈmaɪ̯nn̩/","/tə miːn/"],"10_37":["/kvat͡ʃ/","/ˈnɒnsəns/"],"10_38":["/ˈʃaʊ̯ən/","/tə lʊk/"],"10_39":["/ʃaːl/ · Pl. /ʃaːls/","/skɑːf/"],"10_40":["/ˈsvɛtˌʃœːɐ̯t/ · Pl. /ˈsvɛtˌʃœːɐ̯t͡s/","/ˈswetʃɜːt/"],"10_41":["/tuːx/ · Pl. /ˈtyːçɐ/","/ʃɔːl/"],"10_42":["/ˈanˌkɔmən/","/tə əˈraɪv/"],"10_43":["/ˈbøːzə/","/ˈæŋɡri/"],"10_44":["/ɛmˈp͡feːlən/","/tə ˌrekəˈmend/"],"10_45":["/ɛntˈdɛkn̩/","/tə faɪnd/"],"10_46":["/klaˈmɔtn̩/","/kləʊðz/"],"10_47":["/ˈnɛʁfn̩/","/tə əˈnɔɪ/"],"10_48":["/ˈoːnə/","/wɪˈðaʊt/"],"10_49":["/ˈɔnlaɪ̯n/","/ˈɒnlaɪn/"],"10_50":["/ˈpasn̩/","/tə fɪt/"],"10_51":["/ˌʁeakˈt͡si̯oːn/ · Pl. /ˌʁeakˈt͡si̯oːnən/","/rɪˈækʃən/"],"10_52":["/ˈzaxə/ · Pl. /ˈzaxn̩/","/θɪŋ/"],"10_53":["/ˈʊmˌtaʊ̯ʃn̩/","/tə tʃeɪndʒ/"],"10_54":["/ˈfoːɐ̯ɡɛstɐn/","/deɪ bɪˈfɔː ˈjestədeɪ/"],"10_55":["/t͡suˈʁʏkˌʃɪkn̩/","/tə send bæk/"],"10_56":["/pʁɛˈfɪks/ · Pl. /pʁɛˈfɪksə/","≈ /ˈpriːfɪks/"],"10_57":["/bəˈtoːnt/","/strest/"],"10_58":["/bəˈtoːnʊŋ/ · Pl. /bəˈtoːnʊŋən/","/stres/"],"10_59":["/ˈfɛʁnˌzeːən/","/tə wɒtʃ ˈtelɪvɪʒən/"],"10_60":["/ˈanpʁoˌbiːʁən/","/tə traɪ ɒn/"],"10_61":["/ˈaʊ̯sˌt͡siːən/","/tə teɪk ɒf/"],"10_62":["/ˈʃɔpn̩/","/tə ʃɒp/"],"10_63":["/ˈpʊliː/ · Pl. /ˈpʊliːs/","/ˈpʊləʊvə/"],"10_64":["≈ /ˈaːbm̩tˌklaɪ̯dʊŋ/","≈ /ˈiːvnɪŋ weə/"],"10_65":["≈ /ˈbaːdəmoːdə/ · Pl. /ˈbaːdəmoːdən/","/ˈswɪmweə/"],"10_66":["/t͡seːˈdeː/ · Pl. /t͡seːˈdeːs/","≈ /ˌsiːˈdiː/"],"10_67":["/ˈdaːmənˌmoːdə/ · Pl. /ˈdaːmənˌmoːdn̩/","/ˈwɪmɪn es ˈfæʃən/"],"10_68":["/ˈduːʃˌɡeːl/ · Pl. /ˈduːʃˌɡeːls/","≈ /ʃaʊə dʒel/"],"10_69":["/eˈlɛktʁoɡəˌʁɛːt/ · Pl. /eˈlɛktʁoɡəˌʁɛːtə/","/ˌelɪkˈtrɒnɪk dɪˈvaɪs/"],"10_70":["/ˈfɪtnɛsɡəˌʁɛːt/ · Pl. /ˈfɪtnɛsɡəˌʁɛːtə/","/ˈfɪtnəs ɪˈkwɪpmənt/"],"10_71":["≈ /ˈfoːtoˌt͡suːbəˌhøːɐ̯/","/ˌfəʊtəˈɡræfɪk əkˈsesəriz/"],"10_72":["≈ /ˈfʁaɪ̯ˌt͡saɪ̯tˌklaɪ̯dʊŋ/","/ˈleʒə kləʊðz/"],"10_73":["≈ /ˈhaʊ̯shalt͡sˌvaːʁən/","≈ /ˈhəʊmweəz/"],"10_74":["/ˈhɛʁənˌmoːdə/ · Pl. /ˈhɛʁənˌmoːdn̩/","/men es ˈfæʃən/"],"10_75":["/ˈjuːɡn̩tlɪçə/ · Pl. /ˈjuːɡəntlɪçn̩/","/ˈtiːneɪdʒə/"],"10_76":["/ˈkaməʁa/ · Pl. /ˈkaməʁas/","/ˈkæmrə/"],"10_77":["/ˈkasə/ · Pl. /ˈkasn̩/","/kæˈʃiə/"],"10_78":["/kɔsˈmeːtɪk/","/kɒzˈmetɪks/"],"10_79":["/ˈkuːɡl̩ˌʃʁaɪ̯bɐ/","/ˈbɔːlpɔɪnt pen/"],"10_80":["/moːdə/ · Pl. /ˈmoːdn̩/","/ˈfæʃən/"],"10_81":["≈ /paʁˈfyːm/ · Pl. /paʁˈfyːmə/","≈ /ˈpɜːfjuːm/"],"10_82":["/paʁfyməˈʁiː/ · Pl. /paʁfyməˈʁiːən/","/ˈpɜːfjuːməri/"],"10_83":["/ʃmʊk/","/ˈdʒuːəlri/"],"10_84":["≈ /ˈʃʁaɪ̯pˌvaːʁən/","/ˈsteɪʃənəri/"],"10_85":["/ˈʃpiːlˌvaːʁən/","/tɔɪz/"],"10_86":["≈ /ˈʃpɔʁtˌklaɪ̯dʊŋ/","/ˈspɔːtsweə/"],"10_87":["/ˈtɛçnɪk/ · Pl. /ˈtɛçnɪkŋ̩/","/tekˈnɒlədʒi/"],"10_88":["/uːɐ̯/ · Pl. /ˈuːʁən/","/klɒk/"],"10_89":["/ˈʊntɐɡəˌʃɔs/ · Pl. /ˈʊntɐɡəˌʃɔsə/","/ˈbeɪsmənt/"],"10_90":["/uːʔɛsˈbeːˌstɪk/ · Pl. /uːʔɛsˈbeːˌstɪks/","≈ /ˌjuːˌesˈbiː stɪk/"],"10_91":["/ˈt͡saɪ̯tˌʃʁɪft/ · Pl. /ˈt͡saɪ̯tˌʃʁɪftn̩/","/ˌmæɡəˈziːn/"],"10_92":["/pʁoˈdʊkt/ · Pl. /pʁoˈdʊktə/","/ˈprɒdʌkt/"],"10_93":["/ˈblaɪ̯ˌʃtɪft/ · Pl. /ˈblaɪ̯ˌʃtɪftə/","/ˈpensəl/"],"10_94":["/kaˈpʊt/","/ˈbrəʊkən/"],"10_95":["/paˈpiːɐ̯/ · Pl. /paˈpiːʁə/","/ˈpeɪpə/"],"10_96":["/ˈtaːfl̩/ · Pl. /ˈtaːfl̩n/","/bɔːd/"],"10_97":["/ˈvɔʁtˌtaɪ̯l/ · Pl. /ˈvɔʁtˌtaɪ̯lə/","/pɑːt əv ðə wɜːd/"],"10_98":["/ˈdaŋkn̩/","/tə θæŋk/"],"10_99":["/ˈkʁiːɡn̩/","/tə ɡet/"],"10_100":["/ˈbuːxˌlaːdn̩/ · Pl. /ˈbuːxˌlɛːdn̩/","/ˈbʊkstɔː/"],"10_101":["/aʊ̯f zaɪ̯n/","/tə biː ˈəʊpən/"],"10_102":["/ɡəˈʃlɔsn̩/","/kləʊzd/"],"10_103":["/ˈœfnən/","/tə ˈəʊpən/"],"10_104":["/ʃɪlt/ · Pl. /ˈʃɪldɐ/","/saɪn/"],"10_105":["/ˈʃliːsn̩/","≈ /tə kləʊs/"],"10_106":["/t͡suː zaɪ̯n/","/tə biː kləʊzd/"],"10_107":["/ˈt͡suːˌhaːbn̩/","/tə biː kləʊzd/"],"10_108":["/ateˈli̯eː/ · Pl. /ateˈli̯eːs/","/sˈtjuːdɪəʊ/"],"10_109":["/atʁakˈtiːf/","/əˈtræktɪv/"],"10_110":["/aʊ̯f ˈjeːdn̩ fal/","/ɪn ˈeni keɪs/"],"10_111":["/diˈzaɪ̯n/ · Pl. /diˈzaɪ̯ns/","/dɪˈzaɪn/"],"10_112":["≈ /diˈzaɪ̯nfæn/ · Pl. /diˈzaɪ̯nfæns/","/dɪˈzaɪn fæn/"],"10_113":["≈ /ˈfɛʁnˌzeːpʁodʊkˌt͡si̯oːn/ · Pl. /ˈfɛʁnˌzeːpʁodʊkˌt͡si̯oːnən/","≈ /ˌtiːˈviː prəˈdʌkʃən/"],"10_114":["/ˈfɪlmpʁodʊkˌt͡si̯oːn/ · Pl. /ˈfɪlmpʁodʊkˌt͡si̯oːnən/","/fɪlm prəˈdʌkʃən/"],"10_115":["/fotoˈɡʁaːf/ · Pl. /fotoˈɡʁaːfn̩/ · /fotoˈɡʁaːfɪn/ · Pl. /fotoˈɡʁaːfɪnən/","/fəˈtɒɡrəfə/"],"10_116":["/ˈhaʊ̯ptˌʃtat/ · Pl. /ˈhaʊ̯ptˌʃtɛtə/","/ˈkæpɪtəl ˈsɪti/"],"10_117":["/ˌɪndividuˈɛl/","/ˌɪndɪˈvɪdʒuːəl/"],"10_118":["≈ /ˈɪnfotɛkst/ · Pl. /ˈɪnfotɛkstə/","/ˌɪnfəˈmeɪʃənəl tekst/"],"10_119":["/ˈleːbl̩/ · Pl. /ˈleːbl̩s/","/brænd/"],"10_120":["/leˈbɛndɪk/","/ˈlɪvɪŋ/"],"10_121":["≈ /ˈmoːdədiˌzaɪ̯nɐ/ · /ˈmoːdədiˌzaɪ̯nəʁɪn/ · Pl. /ˈmoːdədiˌzaɪ̯nəʁɪnnən/","/ˈfæʃən dɪˈzaɪnə/"],"10_122":["≈ /ˈmoːdəfæn/ · Pl. /ˈmoːdəfæns/","≈ /ˈfæʃənɪstə/"],"10_123":["≈ /ˈmoːdəˌʃuːlə/ · Pl. /ˈmoːdəˌʃuːlən/","/ˈfæʃən skuːl/"],"10_124":["≈ /muˈziːkpʁodʊkˌt͡si̯oːn/ · Pl. /muˈziːkpʁodʊkˌt͡si̯oːnən/","/ˈmjuːzɪk prəˈdʌkʃən/"],"10_125":["/ʁʊnt/","/əˈraʊnd/"],"10_126":["/ˈst͡seːnə/ · Pl. /ˈst͡seːnən/","/siːn/"],"10_127":["≈ /ˈtʁɛntʃtat/ · Pl. /ˈtʁɛntˌʃtɛːtə/","/ˈtrendi ˈsɪti/"],"10_128":["/bəˈkveːm/","/ˈkʌmftəbəl/"],"10_129":["/ˈdɛkl̩/","/lɪd/"],"10_130":["≈ /ˈflakshiːpˈʃtoːrə/ · Pl. /ˈflakshiːpˈʃtoːrəs/","/ˈflæɡʃɪp stɔː/"],"10_131":["/ˈhaʊ̯shalt/ · Pl. /ˈhaʊ̯shaltə/","/ˈhaʊshəʊld/"],"10_132":["/ˌɪndividuaˈlɪst/ · Pl. /ˌɪndividuaˈlɪstn̩/ · /ˌɪndividuaˈlɪstɪn/ · Pl. /ˌɪndividuaˈlɪstɪnən/","/ˌɪndɪˈvɪdʒuːəlɪst/"],"10_133":["/moˈdɛl/ · Pl. /moˈdɛlə/","/ˈmɒdəl/"],"10_134":["/nɪçt nuːɐ̯/","/nɒt ˈəʊnli/"],"10_135":["/zeˈzɔ̃ː/ · Pl. /zɛˈzoːnən/","/ˈsiːzən/"],"10_136":["≈ /ˈʃuːfæn/ · Pl. /ˈʃuːfæns/","/ʃuː fæn/"],"10_137":["/ˈʃuːˌlaːdn̩/ · Pl. /ˈʃuːˌlɛːdn̩/","≈ /ˈʃuːʃɒp/"],"10_138":["/ʃɔp/ · Pl. /ʃɔps/","/ʃɒp/"],"10_139":["/zuvəˈniːɐ̯/ · Pl. /zuvəˈniːɐ̯s/","/ˌsuːvəˈniə/"],"10_140":["/ʊntɐˈveːks/","/ɒn ðə weɪ/"],"10_141":["/vaʁiaˈt͡si̯oːn/ · Pl. /vaʁiaˈt͡si̯oːnən/","/ˌveərɪˈeɪʃən/"],"10_142":["/aʁçitɛkˈtuːɐ̯/","/ˈɑːkɪtektʃə/"],"10_143":["/diˈzaɪ̯nɐ/ · /diˈzaɪ̯nəʁɪn/ · Pl. /diˈzaɪ̯nəʁɪnən/","/dɪˈzaɪnə/"],"10_144":["/ˈaɪ̯nfax/","/ˈsɪmpəl/"],"10_145":["/ɛɐ̯ˈfɪndʊŋ/ · Pl. /ɛɐ̯ˈfɪndʊŋən/","/ɪnˈvenʃən/"],"10_146":["/ˈɡæd͡ʒɪt/ · Pl. /ˈɡæd͡ʒɪt͡s/","/ˈɡædʒɪt/"],"10_147":["/hoːf/ · Pl. /ˈhøːfə/","/ˈkɔːtjɑːd/"],"10_148":["/oʁiɡiˈnɛl/","/əˈrɪdʒɪnəl/"],"10_149":["/ˈpʁaktɪʃ/","/ˈpræktɪkəl/"],"10_150":["/ˈʃtɪçˌpʊŋkt/ · Pl. /ˈʃtɪçˌpʊŋktə/","/ˈbʊlɪt pɔɪnt/"],"10_151":["≈ /ˈtɔpaktuˌɛl/","≈ /ˈkʌtɪŋedʒ/"],"10_152":["/ˈœfnʊŋsˌt͡saɪ̯tn̩/","/ˈəʊpənɪŋ aʊəz/"],"10_153":["≈ /demɔnstʁaˈtiːfˌaʁˌtiːkl̩/","/dəˈmɒnstrətɪv ˈɑːtɪkəl/"],"10_154":["≈ /ˌɪntɐʁoɡaˈtiːfˌaʁˌtiːkl̩/","/ɪnˈterəɡətɪv ˈɑːtɪkəl/"],"10_155":["≈ /ˈklaɪ̯tɛɐ̯ˌkaʊ̯f/ · Pl. /ˈklaɪ̯dɐˌkɔɪ̯fə/","/kləʊðz ˈʃɒpɪŋ/"],"10_156":["/oʁiɛnˈtiːʁən/","/tə ˈɔːriənt/"],"11_0":["/ap/","/ɒf/"],"11_1":["/ˈbaːdəˌʔuːɐ̯laʊ̯p/ · Pl. /ˈbaːdəˌʔuːɐ̯laʊ̯bə/","/biːtʃ ˈhɒlɪdeɪ/"],"11_2":["/ˈkɛmpɪŋˌʔuːɐ̯laʊ̯p/ · Pl. /ˈkɛmpɪŋˌʔuːɐ̯laʊ̯bə/","/ˈkæmpɪŋ ˈhɒlɪdeɪ/"],"11_3":["≈ /ʃiːˈuːɐ̯ˌlaʊ̯p/ · Pl. /ʃiːˈuːɐ̯ˌlaʊ̯pə/","/ˈskiːɪŋ ˈhɒlɪdeɪ/"],"11_4":["≈ /ˈsnoʊˌbɔːdˈuːɐ̯ˌlaʊ̯p/ · Pl. /ˈsnoʊˌbɔːdˈuːɐ̯ˌlaʊ̯pə/","/ˈsnəʊbɔːdɪŋ ˈhɒlɪdeɪ/"],"11_5":["≈ /ˈʃtatˌuːɐ̯ˌlaʊ̯p/ · Pl. /ˈʃtatˌuːɐ̯ˌlaʊ̯pə/","/ˈsɪti trɪp/"],"11_6":["/ˈbaːdəˌʔant͡suːk/ · Pl. /ˈbaːdəˌʔant͡syːɡə/","/ˈswɪmsuːt/"],"11_7":["/ˈbaːdəˌhoːzə/ · Pl. /ˈbaːdəˌhoːzn̩/","/ˈswɪmɪŋ trʌŋks/"],"11_8":["/biˈkiːni/ · Pl. /biˈkiːnis/","/bɪˈkiːni/"],"11_9":["/ɡəˈpɛk/","/ˈlʌɡɪdʒ/"],"11_10":["/ɡəˈʃɪʁ/","/ˈdɪʃɪz/"],"11_11":["/ˈhantˌʃuː/ · Pl. /ˈhantˌʃuːə/","/ɡlʌv/"],"11_12":["/ˈhantˌtaʃə/ · Pl. /ˈhantˌtaʃn̩/","/ˈhændbæɡ/"],"11_13":["/hɛlm/ · Pl. /ˈhɛlmə/","/ˈhelmɪt/"],"11_14":["/ˈʁeːɡn̩ˌjakə/ · Pl. /ˈʁeːɡn̩ˌjakn̩/","/reɪn kəʊt/"],"11_15":["/ˈʁeːɡn̩ˌʃɪʁm/ · Pl. /ˈʁeːɡn̩ˌʃɪʁmə/","/ʌmˈbrelə/"],"11_16":["/ˈʁaɪ̯zəˌfyːʁɐ/","/ˈtrævəl ɡaɪd/"],"11_17":["/ˈʁaɪ̯zəˌtaʃə/ · Pl. /ˈʁaɪ̯zəˌtaʃn̩/","/ˈhəʊldɔːl/"],"11_18":["/ˈʃlaːfˌzak/ · Pl. /ˈʃlaːfˌzɛkə/","/ˈsliːpɪŋ bæɡ/"],"11_19":["/ˈzaɪ̯fə/ · Pl. /ˈzaɪ̯fn̩/","/səʊp/"],"11_20":["/ˈzɔnənˌbʁɪlə/ · Pl. /ˈzɔnənˌbʁɪlən/","/ˈsʌŋɡlɑːsɪz/"],"11_21":["/ˈzɔnənˌkʁɛːm/ · Pl. /ˈzɔnənˌkʁɛːms/","/ˈsʌnskriːn/"],"11_22":["/ˈvɪntɐˌjakə/ · Pl. /ˈvɪntɐˌjakn̩/","/ˈwɪntə kəʊt/"],"11_23":["/t͡sɛlt/ · Pl. /ˈt͡sɛltə/","/tent/"],"11_24":["/ˈaɪ̯nˌpakn̩/","/tə pæk/"],"11_25":["≈ /ˈkɔfɐˌpakn̩/","/tə pæk wɒn es ˈsuːtkeɪs/"],"11_26":["≈ /ˈʃtɛːtəˌʁaɪ̯zə/ · Pl. /ˈʃtɛːtəˌʁaɪ̯zən/","/ˈsɪti trɪp/"],"11_27":["/ˈʃtatˌfyːʁʊŋ/ · Pl. /ˈʃtatˌfyːʁʊŋən/","/tɔː əv ðə ˈsɪti/"],"11_28":["/ˈanˌmɛldʊŋ/ · Pl. /ˈanmɛldʊŋən/","/ˌredʒɪˈstreɪʃən/"],"11_29":["/ˈaʊ̯sˌvaɪ̯s/ · Pl. /ˈaʊ̯svaɪ̯zə/","/ˌaɪˈdiː kɑːd/"],"11_30":["/daː ˈfɔʁnə/","/ˈəʊvə ðeə/"],"11_31":["/ˈdaːtn̩/","/faɪlz/"],"11_32":["/ˈdɔpl̩ˌt͡sɪmɐ/","/twɪn ruːm/"],"11_33":["/ˈaɪ̯nt͡sl̩ˌt͡sɪmɐ/","/ˈsɪŋɡəl ruːm/"],"11_34":["/ˈkaʁtə/ · Pl. /ˈkaʁtn̩/","/kɑːd/"],"11_35":["/paˈpiːʁə/","≈ /ˈdɒkjuːmənts/"],"11_36":["/pas/ · Pl. /ˈpɛsə/","/ˈpɑːspɔːt/"],"11_37":["/ʁezɛʁˈviːʁən/","/tə bʊk/"],"11_38":["/ˌʁet͡sɛpˈt͡si̯oːn/ · Pl. /ˌʁet͡sɛpˈt͡si̯oːnən/","/rɪˈsepʃən/"],"11_39":["/zoː/","/səʊ (hiə)/"],"11_40":["/ˈʊntn̩/","/bɪˈləʊ/"],"11_41":["/ˈvʏnʃn̩/","/tə wɪʃ/"],"11_42":["/ˈbɛʁkˌtuːɐ̯/ · Pl. /ˈbɛʁkˌtuːʁən/","/ˈmaʊntɪn tɔː/"],"11_43":["/ʃpaˈt͡siːʁən ˈɡeːən/","/tə ɡəʊ fə ə wɔːk/"],"11_44":["/tʁam/ · Pl. /tʁams/","/træm/"],"11_45":["/ˈfoːɐ̯ˌʃlaːk/ · Pl. /ˈfoːɐ̯ʃlɛːɡə/","/səˈdʒestʃən/"],"11_46":["/daˈnaːx/","/ˈɑːftə/"],"11_47":["/ʃlʊs/ · Pl. /ˈʃlʏsə/","/end/"],"11_48":["/t͡sʊm ʃlʊs/","/ət ðə end/"],"11_49":["/ˈaɪ̯nˌʃtaɪ̯ɡn̩/","/tə bɔːd/"],"11_50":["/ˈhaltəˌʃtɛlə/ · Pl. /ˈhaltəʃtɛlən/","/ˈsteɪʃən/"],"11_51":["/ˈʁuːtə/ · Pl. /ˈʁuːtn̩/","/ruːt/"],"11_52":["/ˈʊmˌʃtaɪ̯ɡn̩/","≈ /tə ˈtrænsfɜː/"],"11_53":["/bəˈnʊt͡sn̩/","≈ /tə juːs/"],"11_54":["/ˈnʊmɐ/ · Pl. /ˈnʊmɐn/","≈ /ˈnʌmbə/"],"11_55":["/plat͡s/ · Pl. /ˈplɛt͡sə/","/skweə/"],"11_56":["/ˈapˌfaːʁən/","/tə dɪˈpɑːt/"],"11_57":["/ˈapˌfaːɐ̯t/ · Pl. /ˈapˌfaːɐ̯tn̩/","/dɪˈpɑːtʃə/"],"11_58":["/ˈalə/","/ˈevri/"],"11_59":["/ˈankʊnft/ · Pl. /ˈankʏnftə/","/əˈraɪvəl/"],"11_60":["/ˈaʊ̯sˌɡaŋ/ · Pl. /ˈaʊ̯sɡɛŋə/","/ˈeɡzɪt/"],"11_61":["/ˈaʊ̯sˌʃtaɪ̯ɡn̩/","/tə ɡet ɒf/"],"11_62":["/ˈbaːnˌʃtaɪ̯k/ · Pl. /ˈbaːnˌʃtaɪ̯ɡə/","/treɪn ˈplætfɔːm/"],"11_63":["/ˈɛkə/ · Pl. /ˈɛkn̩/","/ˈkɔːnə/"],"11_64":["/ˈfluːkˌhaːfn̩/ · Pl. /ˈfluːkˌhɛːfn̩/","/ˈeəpɔːt/"],"11_65":["/ɡeːɡn̩ˈʔyːbɐ/","/əˈkrɒs frəm/"],"11_66":["/ɡlaɪ̯s/ · Pl. /ˈɡlaɪ̯zə/","/træk/"],"11_67":["/ˈneːmən/","/tə teɪk/"],"11_68":["/dɛn/","/bɪˈkʌz/"],"11_69":["/ˈpɔstˌkaʁtə/ · Pl. /ˈpɔstˌkaʁtn̩/","/ˈpəʊstkɑːd/"],"11_70":["/ˈʃɔpn̩ ˈɡeːən/","/tə ɡəʊ ˈʃɒpɪŋ/"],"11_71":["/ˈtantə/ · Pl. /ˈtantn̩/","/ɑːnt/"],"11_72":["/t͡soː/ · Pl. /t͡soːs/","/zuː/"],"11_73":["/kʊnst/ · Pl. /ˈkʏnstə/","/ɑːt/"],"11_74":["/ˈzeːənsˌvʏʁdɪkkaɪ̯t/ · Pl. /ˈzeːənsvʏʁdɪçˌkaɪ̯tn̩/","/ˈtɔːrɪst əˈtrækʃən/"],"11_75":["/ˈaʊ̯sˌkʊnft/ · Pl. /ˈaʊ̯sˌkʏnftə/","/ˌɪnfəˈmeɪʃən/"],"11_76":["/ˈaʊ̯sɐhalp/","≈ /aʊˈtsaɪd əv/"],"11_77":["/bəˈkantə/ · Pl. /bəˈkantn̩/","/əˈkweɪntəns/"],"11_78":["/eːɐ̯st/","/ˈəʊnli (hiə)/"],"11_79":["/ˈɛtvas/","/ə bɪt/"],"11_80":["/fʁoː/","/ɡlæd/"],"11_81":["/ˈhɛndiˌʔaku/ · Pl. /ˈhɛndiˌʔakus/","/fəʊn ˈbætəri/"],"11_82":["/ˈjuːɡn̩tˌhɛʁbɛʁɡə/ · Pl. /ˈjuːɡn̩tˌhɛʁbɛʁɡn̩/","/juːθ ˈhɒstəl/"],"11_83":["/kaːˈʔoː/","/taɪəd/"],"11_84":["/ˈloːsˌfaːʁən/","/tə liːv/"],"11_85":["/man/ · Pl. /ˈmɛnɐ/","/bɔɪ (hiə ekskləˈmeɪʃən)/"],"11_86":["/paŋˈzi̯oːn/ · Pl. /paŋˈzi̯oːnən/","/ˈɡesthaʊs/"],"11_87":["/ˈʁaɪ̯zəbəˌʁɪçt/ · Pl. /ˈʁaɪ̯zəbəˌʁɪçtə/","/ˈtrævɪlɒɡ/"],"11_88":["/ˈzaʊ̯bɐ/","/kliːn/"],"11_89":["/ˈʃafnɐ/ · /ˈʃafnəʁɪn/ · Pl. /ˈʃafnəʁɪnən/","/kənˈdʌktə/"],"11_90":["/ˈtaːtˌzɛçlɪç/","/ˈæktʃuːəli/"],"11_91":["/yːbɐˈnaxtn̩/","/tə sliːp ˈəʊvə, tə steɪ ət/"],"11_92":["/fɛɐ̯ˈpasn̩/","/tə mɪs/"],"11_93":["/ˈvɛkn̩/","/tə weɪk ʌp/"],"11_94":["/t͡suˈʁʏkˌfaːʁən/","/tə draɪv bæk/"],"11_95":["/t͡suˈʁʏkˌfɪndn̩/","/tə faɪnd bæk/"],"11_96":["/aʁt/","/taɪp/"],"11_97":["/ˈfʁaːɡəˌvɔʁt/ · Pl. /ˈfʁaːɡəˌvœʁtɐ/","/ɪnˈterəɡətɪv/"],"11_98":["/ɡʁʊnt/ · Pl. /ˈɡʁʏndə/","/ˈriːzən/"],"11_99":["/ˈvaɪ̯zə/","/ˈmænə/"],"11_100":["/ˈt͡ʃɪlən/","/tə tʃɪl/"],"11_101":["/ɡəˈhøːʁən/","/tə bɪˈlɒŋ/"],"11_102":["/ˈliːplɪŋsˌfaʁbə/ · Pl. /ˈliːplɪŋsˌfaʁbn̩/","/ˈfeɪvrɪt ˈkʌlə/"],"11_103":["/ˈʁaɪ̯zə/ · Pl. /ˈʁaɪ̯zn̩/","/trɪp/"],"11_104":["/ˈʃiːˌfaːʁən/","/tə skiː/"],"11_105":["/ˈviːdeo/ · Pl. /ˈviːdeoːs/","/ˈvɪdɪəʊ/"],"11_106":["/ˈvʊndɐbaːɐ̯/","/ˈwʌndəfəl/"],"11_107":["/ˈdɔɪ̯t͡ʃˌbuːx/ · Pl. /ˈdɔɪ̯t͡ʃˌbyːçɐ/","/ˈdʒɜːmən bʊk/"],"11_108":["/fluːk/ · Pl. /ˈflyːɡə/","/flaɪt/"],"11_109":["/ˈvɔʁtˌlɪstə/ · Pl. /ˈvɔʁtˌlɪstn̩/","/wɜːd lɪst/"],"11_110":["/ˈhɪml̩sˌʁɪçtʊŋ/ · Pl. /ˈhɪml̩sˌʁɪçtʊŋən/","/ˈkɑːdɪnəl daɪˈrekʃən/"],"11_111":["/ˈkaʁtə/ · Pl. /ˈkaʁtn̩/","/mæp/"],"11_112":["/ˈliːɡn̩/","/tə biː (ləʊˈkeɪtɪd)/"],"11_113":["/ˈnɔʁdn̩/","/nɔːθ/"],"11_114":["/ˈɔstn̩/","/iːst/"],"11_115":["/ˈzyːdn̩/","/saʊθ/"],"11_116":["/ˈfɔʁnə/","/ɪn frʌnt/"],"11_117":["/ˈvɛstn̩/","/west/"],"11_118":["/bɛʁk/ · Pl. /ˈbɛʁɡə/","/ˈmaʊntɪn/"],"11_119":["/bəˈvœlkt/","/ˈklaʊdi/"],"11_120":["/bʊʁk/ · Pl. /ˈbʊʁɡn̩/","/ˈkɑːsəl/"],"11_121":["/ɡʁaːt/ · Pl. /ˈɡʁaːdə/","/dɪˈɡriː/"],"11_122":["/pɛç/","/bæd lʌk/"],"11_123":["/ˈʃnaɪ̯ən/","/tə snəʊ/"],"11_124":["/ˈzɔnɪk/","/ˈsʌni/"],"11_125":["/tʁaʊ̯m/ · Pl. /ˈtʁɔɪ̯mə/","/driːm/"],"11_126":["≈ /ˈuːɐ̯ˌlaʊ̯psˌnaːxˌʁɪçt/ · Pl. /ˈuːɐ̯ˌlaʊ̯psˌnaːxˌʁɪçtən/","/ˈhɒlɪdeɪ ˈmesɪdʒ/"],"11_127":["/ˈvɛtɐbəˌʁɪçt/ · Pl. /ˈvɛtɐbəˌʁɪçtə/","≈ /ˈweðə rɪˈpɔːt/"],"11_128":["/vɪnt/ · Pl. /ˈvɪndə/","≈ /wɪnd/"],"11_129":["/ˈvɔlkə/ · Pl. /ˈvɔlkn̩/","/klaʊd/"],"11_130":["/t͡sʊm ɡlʏk/","/ˈlʌkili/"],"11_131":["/ʃneː/","/snəʊ/"],"11_132":["/ˈvɪndɪk/","≈ /ˈwɪndi/"],"11_133":["/ˈhɪt͡sə/","/hiːt/"],"11_134":["/ˈmɪstˌvɛtɐ/","/bæd ˈweðə/"],"11_135":["/ˈʃʏtn̩/","/tə pɔː/"],"11_136":["/ˈzɛltn̩/","/ˈreəli/"],"11_137":["/ˈaɪ̯nmaːl/","/wɒns/"],"11_138":["/ˈʁaɪ̯zəˌt͡siːl/ · Pl. /ˈʁaɪ̯zəˌt͡siːlə/","/(ˈtrævəl)ˌdestɪˈneɪʃən/"],"11_139":["/ˈapˌʃnɪt/ · Pl. /ˈapˌʃnɪtə/","/ˈsekʃən, ˈpærəɡræf/"],"11_140":["/ˈanɡəˌboːt/ · Pl. /ˈanɡəˌboːtə/","/ˈɒfə/"],"11_141":["/bəˈveːɡʊŋ/ · Pl. /bəˈveːɡʊŋən/","/ˈeksəsaɪz, ˈmuːvmənt/"],"11_142":["/ˈdɔɪ̯t͡ʃə/ · Pl. /ˈdɔɪ̯t͡ʃn̩/","/ˈdʒɜːmən (ˈpɜːsən)/"],"11_143":["/dɔʁf/ · Pl. /ˈdœʁfɐ/","/ˈvɪlɪdʒ/"],"11_144":["/ˈɪnzl̩/ · Pl. /ˈɪnzl̩n/","/ˈaɪlənd/"],"11_145":["/kʊlˈtuːɐ̯/","/ˈkʌltʃə/"],"11_146":["/ˈlantʃaft/ · Pl. /ˈlantʃaftn̩/","/ˈlændskeɪp/"],"11_147":["/popuˈlɛːɐ̯/","/ˈpɒpjʊlə/"],"11_148":["/ʃtʁant/ · Pl. /ˈʃtʁɛndə/","/biːtʃ/"],"11_149":["≈ /ˈtʁaʊ̯mˌuːɐ̯ˌlaʊ̯p/ · Pl. /ˈtʁaʊ̯mˌuːɐ̯ˌlaʊ̯pə/","/driːm ˈhɒlɪdeɪ/"],"11_150":["/ˌvʊndɐˈʃøːn/","/ˈbjuːtɪfəl/"],"11_151":["/ˈuːɐ̯laʊ̯psˌʔɔʁt/ · Pl. /ˈuːɐ̯laʊ̯psˌʔɔʁtə/","≈ /ˈhɒlɪdeɪ rɪˈzɔːt/"]};
+// ============================================================
+// Build card objects
+// ============================================================
+let cards = [];
+CHAPTERS.forEach((ch, ci) => {
+  ch.words.forEach((w, wi) => {
+    cards.push({ id: ci+"_"+wi, chapter: ci, de: w[0], en: w[1] });
+  });
+});
+
+// ============================================================
+// SRS state + storage (with graceful fallback)
+// ============================================================
+const BOX_INTERVALS_DAYS = [0, 1, 3, 7, 16, 35]; // 6 boxes
+const STORE_KEY = "netzwerk_a1_srs_state_v1";
+let srsState = {};       // { cardId: { box, due } }
+let storageMode = "none"; // "cloud" | "memory" | "none"
+
+function nowMs(){ return Date.now(); }
+function dayMs(n){ return n * 24 * 60 * 60 * 1000; }
+
+async function loadState(){
+  try{
+    if (window.storage && typeof window.storage.get === "function"){
+      const res = await window.storage.get(STORE_KEY, false);
+      if (res && res.value){ srsState = JSON.parse(res.value); }
+      storageMode = "cloud";
+      return;
+    }
+  }catch(e){ /* fall through */ }
+  try{
+    const raw = window.localStorage.getItem(STORE_KEY);
+    if (raw){ srsState = JSON.parse(raw); }
+    window.localStorage.setItem(STORE_KEY + "_probe", "1");
+    window.localStorage.removeItem(STORE_KEY + "_probe");
+    storageMode = "local";
+    return;
+  }catch(e){ /* fall through */ }
+  storageMode = "memory";
+}
+
+async function saveState(){
+  try{
+    if (storageMode === "cloud" && window.storage && typeof window.storage.set === "function"){
+      await window.storage.set(STORE_KEY, JSON.stringify(srsState), false);
+    } else if (storageMode === "local"){
+      window.localStorage.setItem(STORE_KEY, JSON.stringify(srsState));
+    }
+  }catch(e){ /* keep going with in-memory state */ }
+}
+
+function getCardState(id){
+  return srsState[id] || { box: 0, due: 0 };
+}
+
+function isDue(card){
+  const s = getCardState(card.id);
+  return s.due <= nowMs();
+}
+
+function rate(card, grade){
+  // grade: "again" | "good" | "easy"
+  let s = getCardState(card.id);
+  if (grade === "again"){
+    s.box = 0;
+    s.due = nowMs(); // stays due, will resurface later this session
+  } else if (grade === "good"){
+    s.box = Math.min(s.box + 1, BOX_INTERVALS_DAYS.length - 1);
+    s.due = nowMs() + dayMs(BOX_INTERVALS_DAYS[s.box]);
+  } else if (grade === "easy"){
+    s.box = Math.min(s.box + 2, BOX_INTERVALS_DAYS.length - 1);
+    s.due = nowMs() + dayMs(BOX_INTERVALS_DAYS[s.box]);
+  }
+  srsState[card.id] = s;
+  saveState();
+}
+
+// ============================================================
+// UI state
+// ============================================================
+let selectedChapter = "ALL";
+let direction = "DE_EN";
+let sessionQueue = [];
+let currentCard = null;
+let flipped = false;
+let browsing = false;
+
+const $ = sel => document.querySelector(sel);
+
+function scopeCards(){
+  if (selectedChapter === "ALL") return cards;
+  return cards.filter(c => c.chapter === selectedChapter);
+}
+
+function dueCount(scope){
+  return scope.filter(isDue).length;
+}
+
+function renderSidebar(){
+  const list = $("#tabList");
+  list.innerHTML = "";
+  CHAPTERS.forEach((ch, ci) => {
+    const chCards = cards.filter(c => c.chapter === ci);
+    const due = dueCount(chCards);
+    const btn = document.createElement("button");
+    btn.className = "tab" + (selectedChapter === ci ? " active" : "");
+    btn.dataset.chapter = ci;
+    btn.innerHTML = '<span class="n">' + ch.title + '</span>' +
+      '<span class="meta">' + chCards.length + ' Karten</span>' +
+      (due > 0 ? '<span class="due-badge">' + due + '</span>' : '');
+    btn.addEventListener("click", () => selectChapter(ci));
+    list.appendChild(btn);
+  });
+  const allBtn = $(".all-tab");
+  allBtn.classList.toggle("active", selectedChapter === "ALL");
+  $("#allMeta").textContent = cards.length + " Karten · " + dueCount(cards) + " fällig";
+}
+
+function selectChapter(ci){
+  selectedChapter = ci;
+  browsing = false;
+  buildSession();
+  render();
+}
+
+function buildSession(){
+  const scope = scopeCards();
+  sessionQueue = scope.filter(isDue);
+  // shuffle
+  for (let i = sessionQueue.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [sessionQueue[i], sessionQueue[j]] = [sessionQueue[j], sessionQueue[i]];
+  }
+  nextCard();
+}
+
+function nextCard(){
+  flipped = false;
+  currentCard = sessionQueue.length ? sessionQueue[0] : null;
+}
+
+function renderStats(){
+  const scope = scopeCards();
+  const due = dueCount(scope);
+  const learned = scope.filter(c => getCardState(c.id).box >= 3).length;
+  $("#statsRow").innerHTML =
+    '<span><b>' + scope.length + '</b> Karten</span>' +
+    '<span><b>' + due + '</b> fällig</span>' +
+    '<span><b>' + sessionQueue.length + '</b> in dieser Runde</span>' +
+    '<span><b>' + learned + '</b> gefestigt</span>';
+}
+
+function renderLeitner(card){
+  const track = $("#leitnerTrack");
+  track.innerHTML = "";
+  const box = card ? getCardState(card.id).box : 0;
+  for (let i = 0; i < BOX_INTERVALS_DAYS.length; i++){
+    const d = document.createElement("div");
+    d.className = "box-icon" + (i <= box ? " filled" : "");
+    d.textContent = i + 1;
+    track.appendChild(d);
+  }
+}
+
+function renderCard(){
+  const stage = $("#stage");
+  stage.classList.toggle("browsing", browsing);
+  $("#browseList").classList.toggle("show", browsing);
+
+  if (browsing){
+    const scope = scopeCards();
+    const list = $("#browseList");
+    list.innerHTML = "";
+    scope.forEach(c => {
+      const row = document.createElement("div");
+      row.className = "browse-row";
+      row.innerHTML = '<span class="de">' + c.de + '</span><span class="en">' + c.en + '</span>';
+      list.appendChild(row);
+    });
+    renderLeitner(null);
+    return;
+  }
+
+  if (!currentCard){
+    $("#indexCard").style.display = "none";
+    $("#flipBtn").style.display = "none";
+    $("#rateRow").style.display = "none";
+    let existing = $("#emptyState");
+    if (!existing){
+      existing = document.createElement("div");
+      existing.id = "emptyState";
+      existing.className = "empty-state";
+      $(".card-wrap").appendChild(existing);
+    }
+    existing.innerHTML = '<div class="big">Alles erledigt!</div>' +
+      'Keine fälligen Karten in dieser Auswahl gerade.<br>Wähle ein anderes Kapitel oder komm später wieder.';
+    renderLeitner(null);
+    return;
+  }
+  const es = $("#emptyState");
+  if (es) es.remove();
+  $("#indexCard").style.display = "flex";
+
+  const ch = CHAPTERS[currentCard.chapter];
+  $("#cardTag").textContent = ch.title.split(" · ")[0];
+
+  const front = direction === "DE_EN" ? currentCard.de : currentCard.en;
+  const back  = direction === "DE_EN" ? currentCard.en : currentCard.de;
+
+  $("#frontText").textContent = front;
+  $("#backText").textContent = back;
+  $("#backText").style.display = flipped ? "block" : "none";
+  $("#cardHint").style.display = flipped ? "none" : "block";
+  $("#flipBtn").style.display = flipped ? "none" : "inline-block";
+  $("#rateRow").style.display = flipped ? "flex" : "none";
+
+  renderLeitner(currentCard);
+}
+
+function render(){
+  renderSidebar();
+  renderStats();
+  renderCard();
+}
+
+function flip(){
+  if (!currentCard || browsing) return;
+  flipped = true;
+  render();
+}
+
+function gradeCurrent(grade){
+  if (!currentCard) return;
+  rate(currentCard, grade);
+  if (grade === "again"){
+    // move to back of queue so it resurfaces this session
+    sessionQueue.push(sessionQueue.shift());
+  } else {
+    sessionQueue.shift();
+  }
+  nextCard();
+  render();
+}
+
+// ============================================================
+// Events
+// ============================================================
+$("#flipBtn").addEventListener("click", flip);
+$("#indexCard").addEventListener("click", () => { if (!flipped) flip(); });
+$("#btnAgain").addEventListener("click", () => gradeCurrent("again"));
+$("#btnGood").addEventListener("click", () => gradeCurrent("good"));
+$("#btnEasy").addEventListener("click", () => gradeCurrent("easy"));
+$(".all-tab").addEventListener("click", () => selectChapter("ALL"));
+
+$("#dirDE").addEventListener("click", () => {
+  direction = "DE_EN";
+  $("#dirDE").classList.add("active");
+  $("#dirEN").classList.remove("active");
+  render();
+});
+$("#dirEN").addEventListener("click", () => {
+  direction = "EN_DE";
+  $("#dirEN").classList.add("active");
+  $("#dirDE").classList.remove("active");
+  render();
+});
+
+$("#toggleBrowse").addEventListener("click", () => {
+  browsing = !browsing;
+  $("#toggleBrowse").textContent = browsing ? "Karteikarten üben" : "Liste ansehen";
+  render();
+});
+
+$("#resetProgress").addEventListener("click", async () => {
+  if (!confirm("Den gesamten Lernfortschritt zurücksetzen?")) return;
+  srsState = {};
+  await saveState();
+  buildSession();
+  render();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (browsing) return;
+  if (e.code === "Space"){ e.preventDefault(); if (!flipped) flip(); }
+  if (flipped){
+    if (e.key === "1") gradeCurrent("again");
+    if (e.key === "2") gradeCurrent("good");
+    if (e.key === "3") gradeCurrent("easy");
+  }
+});
+
+
+// ============================================================
+// Aussprache: Sprachausgabe des Browsers + Links zu Wörterbüchern
+// ============================================================
+const AUDIO_KEY = "karteikasten_audio_v1";
+let audioCfg = { auto:true, voice:"", rate:0.85, autoEn:true, enVoice:"", ipa:true };
+try{ Object.assign(audioCfg, JSON.parse(localStorage.getItem(AUDIO_KEY) || "{}")); }catch(e){}
+function saveAudio(){ try{ localStorage.setItem(AUDIO_KEY, JSON.stringify(audioCfg)); }catch(e){} }
+const HAS_TTS = typeof window.speechSynthesis !== "undefined" && typeof window.SpeechSynthesisUtterance !== "undefined";
+let deVoices = [], enVoices = [];
+function englishSay(en){
+  return en.replace(/\bsth\.?/g, "something").replace(/\bsb\.?/g, "somebody").replace(/\be\.g\./g, "for example")
+    .replace(/\s*\/\s*/g, " or ").replace(/\(([^)]*)\)/g, ", $1,").replace(/…|\.\.\./g, " ").replace(/\s+,/g, ",").replace(/,\s*$/, "").replace(/^\s*,\s*/, "").trim();
+}
+function pickEnVoice(){
+  if (!enVoices.length) return null;
+  if (audioCfg.enVoice){ const v = enVoices.find(v => v.name === audioCfg.enVoice); if (v) return v; }
+  return enVoices.find(v => /^en-GB/i.test(v.lang) && /google|natural|online|premium|enhanced/i.test(v.name))
+      || enVoices.find(v => /^en-US/i.test(v.lang) && /google|natural|online|premium|enhanced/i.test(v.name))
+      || enVoices.find(v => /^en-GB/i.test(v.lang)) || enVoices.find(v => /^en-US/i.test(v.lang)) || enVoices[0];
+}
+
+function umlaut(w){
+  for (let i = w.length - 1; i >= 0; i--){
+    const c = w[i];
+    if ("aouAOU".includes(c)){
+      if ((c === "u") && i > 0 && (w[i-1] === "a" || w[i-1] === "A")){
+        return w.slice(0, i-1) + (w[i-1] === "a" ? "ä" : "Ä") + "u" + w.slice(i+1);
+      }
+      if (c === "u" && i > 0 && (w[i-1] === "e" || w[i-1] === "ä")) continue;
+      const map = {a:"ä",o:"ö",u:"ü",A:"Ä",O:"Ö",U:"Ü"};
+      return w.slice(0, i) + map[c] + w.slice(i+1);
+    }
+  }
+  return w;
+}
+function pluralOf(noun, spec){
+  spec = spec.split("/")[0].trim();
+  if (!spec) return null;
+  const parts = noun.split(" "), last = parts.pop();
+  let pl;
+  if (spec[0] === '"'){ const suf = spec.slice(1).replace(/^-/, ""); pl = umlaut(last) + suf; }
+  else if (spec === "-") pl = last;
+  else if (spec[0] === "-" && spec.length >= 5){
+    const norm = x => x.toLowerCase().replace(/ä/g,"a").replace(/ö/g,"o").replace(/ü/g,"u");
+    const idx = norm(last).lastIndexOf(norm(spec.slice(1, 3)));
+    pl = idx > 0 ? last.slice(0, idx) + spec.slice(1) : last + spec.slice(1);
+  }
+  else if (spec[0] === "-") pl = last + spec.slice(1);
+  else if (/^[A-ZÄÖÜ]/.test(spec)) pl = spec;            // Museen, Direktoren …
+  else return null;
+  return parts.concat(pl).join(" ");
+}
+function expandAbbr(t){
+  return t.replace(/\busw\./g, "und so weiter").replace(/\bd\.\s?h\./g, "das heißt").replace(/\bk\.\s?o\./g, "k.o.").replace(/\betw\./g, "etwas").replace(/\bjdn\./g, "jemanden").replace(/\bjdm\./g, "jemandem")
+          .replace(/\bjd\./g, "jemand").replace(/\bz\.\s?B\./g, "zum Beispiel").replace(/-\//g, "- oder ")
+          .replace(/…|\.\.\./g, " ");
+}
+// returns { say: text for speech, lemma: word for dictionaries }
+function speechOf(de){
+  let reflexive = false, extra = [];
+  let t = de.replace(/\(([^)]*)\)/g, (m, inner) => {
+    inner = inner.trim();
+    if (inner === "sich"){ reflexive = true; return ""; }
+    if (/\+|^Pl\.?$|^Sg\.?$/.test(inner)) return "";
+    extra.push(inner); return "";
+  }).replace(/\s+/g, " ").trim();
+  const alts = t.split(" / ");
+  const said = [];
+  let lemma = "";
+  alts.forEach((alt, ai) => {
+    alt = alt.trim();
+    const m = alt.match(/^((?:der|die|das)(?:\/(?:der|die|das))*)\s+([^,]+?)(?:,\s*(.+))?$/);
+    if (m){
+      const arts = m[1].split("/"), noun = m[2].trim(), spec = (m[3] || "").trim();
+      if (ai === 0) lemma = noun;
+      const sing = arts.map(a => a + " " + noun).join(", ");
+      const pl = spec ? pluralOf(noun, spec) : null;
+      said.push(pl ? sing + ", die " + pl : sing);
+    } else {
+      if (ai === 0) lemma = alt.split(",")[0].trim();
+      said.push(alt);
+    }
+  });
+  let say = said.join(". ");
+  if (reflexive){ say = "sich " + say; }
+  if (extra.length) say += ", " + extra.join(", ");
+  return { say: expandAbbr(say), lemma: lemma.replace(/\s+/g, " ").trim() };
+}
+
+function pickVoice(){
+  if (!deVoices.length) return null;
+  if (audioCfg.voice){ const v = deVoices.find(v => v.name === audioCfg.voice); if (v) return v; }
+  return deVoices.find(v => v.lang === "de-DE" && /google|natural|online|premium|enhanced/i.test(v.name))
+      || deVoices.find(v => v.lang === "de-DE") || deVoices[0];
+}
+function loadVoices(){
+  if (!HAS_TTS) return;
+  const all = speechSynthesis.getVoices();
+  deVoices = all.filter(v => /^de(-|_|$)/i.test(v.lang));
+  enVoices = all.filter(v => /^en(-|_|$)/i.test(v.lang));
+  $("#enVoiceSel").innerHTML = '<option value="">Standard (English)</option>' +
+    enVoices.map(v => '<option value="' + v.name.replace(/"/g, "&quot;") + '"' + (v.name === audioCfg.enVoice ? " selected" : "") + ">" +
+      v.name + " · " + v.lang + "</option>").join("");
+  const sel = $("#voiceSel");
+  sel.innerHTML = '<option value="">Standard (Deutsch)</option>' +
+    deVoices.map(v => '<option value="' + v.name.replace(/"/g, "&quot;") + '"' + (v.name === audioCfg.voice ? " selected" : "") + ">" +
+      v.name + " · " + v.lang + "</option>").join("");
+  updateWarn();
+}
+function updateWarn(){
+  const w = $("#audioWarn");
+  if (!HAS_TTS){
+    w.style.display = "block";
+    w.textContent = "Trình duyệt này không hỗ trợ đọc to. Dùng nút DWDS / Forvo bên dưới thẻ để nghe người bản xứ đọc.";
+  } else if (!deVoices.length){
+    w.style.display = "block";
+    w.innerHTML = "Chưa thấy giọng tiếng Đức trên máy. Nút 🔊 vẫn thử đọc nhưng có thể sai giọng.<br>" +
+      "Cài giọng Đức: Windows → Cài đặt › Thời gian & ngôn ngữ › Giọng nói · iPhone → Cài đặt › Trợ năng › Nội dung được đọc › Giọng nói · Android → Cài đặt Text-to-speech › Google › tiếng Đức. Chrome thường có sẵn giọng „Google Deutsch“.";
+  } else w.style.display = "none";
+}
+
+let speakingBtn = null;
+function speakText(text, rate, btn, lang){
+  if (!HAS_TTS || !text) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const isEn = lang === "en";
+  const v = isEn ? pickEnVoice() : pickVoice();
+  if (v) u.voice = v;
+  u.lang = v ? v.lang : (isEn ? "en-GB" : "de-DE");
+  u.rate = rate || audioCfg.rate;
+  if (speakingBtn) speakingBtn.classList.remove("speaking");
+  speakingBtn = btn || null;
+  if (btn) btn.classList.add("speaking");
+  u.onend = u.onerror = () => { if (btn) btn.classList.remove("speaking"); };
+  speechSynthesis.speak(u);
+}
+function speakCard(slow, btn){
+  if (!currentCard) return;
+  speakText(speechOf(currentCard.de).say, slow ? 0.65 : audioCfg.rate, btn);
+}
+function speakEnglish(btn){
+  if (!currentCard) return;
+  speakText(englishSay(currentCard.en), Math.max(audioCfg.rate, 0.9), btn, "en");
+}
+function dictLinks(de){
+  const q = encodeURIComponent(speechOf(de).lemma);
+  return '<span>Nghe người bản xứ ›</span>' +
+    '<a href="https://www.dwds.de/wb/' + q + '" target="_blank" rel="noopener">DWDS</a>' +
+    '<a href="https://forvo.com/word/' + q + '/#de" target="_blank" rel="noopener">Forvo</a>' +
+    '<a href="https://www.duden.de/suchen/dudenonline/' + q + '" target="_blank" rel="noopener">Duden</a>' +
+    '<a href="https://de.wiktionary.org/wiki/' + q + '" target="_blank" rel="noopener">Wiktionary</a>';
+}
+
+let lastAutoKey = "";
+const _origRender = render;
+render = function(){
+  _origRender();
+  const germanVisible = currentCard && !browsing && (direction === "DE_EN" || flipped);
+  const englishVisible = currentCard && !browsing && (direction === "EN_DE" || flipped);
+  $("#sayRow").style.display = (germanVisible || englishVisible) ? "flex" : "none";
+  $("#sayBtn").style.display = germanVisible ? "flex" : "none";
+  $("#slowBtn").style.display = germanVisible ? "flex" : "none";
+  $("#enBtn").style.display = englishVisible ? "flex" : "none";
+  const ipaHtml = (t) => t ? (t.startsWith("≈") ? '<span class="approx" title="Phiên âm ghép tự động — nên đối chiếu DWDS/Wiktionary">' + t + '</span>' : t) : "";
+  if (currentCard && !browsing && audioCfg.ipa){
+    const ip = IPA[currentCard.id] || ["", ""];
+    const fr = direction === "DE_EN" ? ip[0] : ip[1], bk = direction === "DE_EN" ? ip[1] : ip[0];
+    $("#ipaFront").innerHTML = ipaHtml(fr); $("#ipaFront").style.display = fr ? "block" : "none";
+    $("#ipaBack").innerHTML = ipaHtml(bk); $("#ipaBack").style.display = (flipped && bk) ? "block" : "none";
+  } else { $("#ipaFront").style.display = "none"; $("#ipaBack").style.display = "none"; }
+  const dr = $("#dictRow");
+  if (currentCard && flipped && !browsing){ dr.innerHTML = dictLinks(currentCard.de); dr.classList.add("show"); }
+  else { dr.classList.remove("show"); dr.innerHTML = ""; }
+  if (browsing){
+    const scope = scopeCards();
+    document.querySelectorAll("#browseList .browse-row").forEach((row, i) => {
+      if (!scope[i] || row.querySelector(".say-mini")) return;
+      if (audioCfg.ipa && IPA[scope[i].id]){
+        const ip = IPA[scope[i].id];
+        const a = document.createElement("small"); a.className = "ipa"; a.innerHTML = ipaHtml(ip[0]); row.querySelector(".de").appendChild(a);
+        const b2 = document.createElement("small"); b2.className = "ipa"; b2.innerHTML = ipaHtml(ip[1]); row.querySelector(".en").appendChild(b2);
+      }
+      const b = document.createElement("button");
+      b.className = "say-mini"; b.textContent = "🔊"; b.title = "Anhören";
+      b.addEventListener("click", (e) => { e.stopPropagation(); speakText(speechOf(scope[i].de).say, audioCfg.rate, b); });
+      row.insertBefore(b, row.firstChild);
+      const e2 = document.createElement("button");
+      e2.className = "say-mini en"; e2.textContent = "🔊 EN"; e2.title = "Englisch anhören";
+      e2.addEventListener("click", (e) => { e.stopPropagation(); speakText(englishSay(scope[i].en), Math.max(audioCfg.rate, 0.9), e2, "en"); });
+      row.appendChild(e2);
+    });
+  }
+  // automatisch vorlesen, sobald die deutsche Seite sichtbar wird
+  // Vorderseite und Rückseite: jeweils die gerade aufgedeckte Sprache vorlesen
+  if (audioCfg.auto && currentCard && !browsing){
+    const side = (direction === "DE_EN") === !flipped ? "de" : "en";
+    const key = currentCard.id + "|" + direction + "|" + (flipped ? "back" : "front");
+    if (key !== lastAutoKey){
+      lastAutoKey = key;
+      if (side === "de") setTimeout(() => speakCard(false, $("#sayBtn")), 150);
+      else if (audioCfg.autoEn) setTimeout(() => speakEnglish($("#enBtn")), 150);
+    }
+  }
+  if (!currentCard || browsing) lastAutoKey = "";
+};
+
+$("#sayBtn").addEventListener("click", (e) => { e.stopPropagation(); speakCard(false, e.currentTarget); });
+$("#slowBtn").addEventListener("click", (e) => { e.stopPropagation(); speakCard(true, e.currentTarget); });
+$("#enBtn").addEventListener("click", (e) => { e.stopPropagation(); speakEnglish(e.currentTarget); });
+$("#autoEn").checked = !!audioCfg.autoEn;
+$("#showIpa").checked = audioCfg.ipa !== false;
+$("#showIpa").addEventListener("change", (e) => { audioCfg.ipa = e.target.checked; saveAudio(); if (browsing) $("#browseList").innerHTML = ""; render(); });
+$("#autoEn").addEventListener("change", (e) => { audioCfg.autoEn = e.target.checked; saveAudio(); });
+$("#enVoiceSel").addEventListener("change", (e) => { audioCfg.enVoice = e.target.value; saveAudio(); speakText("Hello! How are you?", 0.9, null, "en"); });
+$("#autoSay").checked = !!audioCfg.auto;
+$("#autoSay").addEventListener("change", (e) => { audioCfg.auto = e.target.checked; saveAudio(); });
+$("#voiceSel").addEventListener("change", (e) => { audioCfg.voice = e.target.value; saveAudio(); speakText("Hallo! Wie geht es dir?", audioCfg.rate); });
+$("#rateSel").value = String(audioCfg.rate);
+$("#rateSel").addEventListener("change", (e) => { audioCfg.rate = Number(e.target.value); saveAudio(); speakCard(false, $("#sayBtn")); });
+document.addEventListener("keydown", (e) => {
+  if (browsing || e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
+  if (!currentCard) return;
+  const germanVisible = direction === "DE_EN" || flipped, englishVisible = direction === "EN_DE" || flipped;
+  if (germanVisible && (e.key === "s" || e.key === "S")) speakCard(false, $("#sayBtn"));
+  if (germanVisible && (e.key === "l" || e.key === "L")) speakCard(true, $("#slowBtn"));
+  if (englishVisible && (e.key === "e" || e.key === "E")) speakEnglish($("#enBtn"));
+});
+if (HAS_TTS){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; } else updateWarn();
+
+// ============================================================
+// Init
+// ============================================================
+(async function init(){
+  await loadState();
+  if (storageMode === "memory"){
+    $("#storageNote").textContent =
+      "Hinweis: Der Fortschritt wird nur für diese Sitzung gespeichert (kein dauerhafter Speicher gefunden).";
+  } else {
+    $("#storageNote").textContent = "Dein Fortschritt wird automatisch gespeichert.";
+  }
+  buildSession();
+  render();
+})();
+</script>
+</body>
+</html>
